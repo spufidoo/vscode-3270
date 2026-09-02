@@ -160,7 +160,7 @@ function waitForReady(sidecar: Sidecar, timeoutMs: number): Promise<void> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error("3270 sidecar did not start (is tnz installed?)"));
+      reject(new Error("3270 sidecar did not start. Check the 3270 log."));
     }, timeoutMs);
 
     const onEvent = (ev: SidecarEvent) => {
@@ -173,7 +173,7 @@ function waitForReady(sidecar: Sidecar, timeoutMs: number): Promise<void> {
       cleanup();
       reject(
         new Error(
-          `3270 sidecar exited before ready (code ${code}). pip install tnz ebcdic`
+          `3270 sidecar exited before ready (code ${code}). Needs Python 3.10 or later; see the 3270 log.`
         )
       );
     };

@@ -3,13 +3,26 @@ Copyright (c) 2026 Marcus Davage
 License: Apache License 2.0
 
 This project is a VS Code / Cursor extension that uses IBM's tnz library
-as a runtime dependency for TN3270 protocol handling.
+for TN3270 protocol handling, and the ebcdic library for the EBCDIC code
+pages that are not in the Python standard library.
+
+Both are redistributed inside the packaged extension, under
+extension/sidecar/vendor/. Each keeps its own dist-info directory there,
+including its license file. Neither is modified.
 
 tnz
 Copyright IBM Inc.
+Author: Neil Johnson
 License: Apache License 2.0
 Source: https://github.com/IBM/tnz
 
-tnz is not bundled in this repository. Install it separately:
+ebcdic
+Copyright (c) Thomas Aglassinger
+License: BSD 2-Clause "Simplified" License
+Source: https://github.com/roskakori/CodecMapper
 
-    pip install tnz ebcdic
+Neither library is committed to this repository. Both are fetched from PyPI
+at package time by scripts/package.js, from sidecar/requirements.txt. To work
+against them without packaging:
+
+    pip install -r sidecar/requirements.txt

@@ -2,7 +2,7 @@
   "name": "vscode-3270",
   "displayName": "3270 Terminal",
   "description": "Native 3270 terminal view for VS Code and Cursor, powered by IBM tnz.",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "publisher": "mdavage",
   "license": "Apache-2.0",
   "icon": "media/icon.png",
@@ -161,7 +161,7 @@
     "viewsWelcome": [
       {
         "view": "tn3270.hosts",
-        "contents": "No 3270 hosts yet.\n[Add Host](command:tn3270.hosts.add)\nRequires Python 3.10+ and `pip install tnz ebcdic`."
+        "contents": "No 3270 hosts yet.\n[Add Host](command:tn3270.hosts.add)\nRequires Python 3.10 or later. Nothing else to install."
       }
     ],
     "commands": [

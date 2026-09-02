@@ -29,7 +29,14 @@ for _stream in (sys.stdin, sys.stdout, sys.stderr):
     except (AttributeError, ValueError):
         pass
 
-# Optional local IBM/tnz checkout (set by the extension).
+# tnz and ebcdic ship inside the extension, so there is nothing for a user to
+# install. Ahead of site-packages, so the version tested against is the one
+# that runs whatever else happens to be on the machine.
+_vendor = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vendor")
+if os.path.isdir(_vendor):
+    sys.path.insert(0, _vendor)
+
+# A local IBM/tnz checkout still wins, for developing against an unreleased tnz.
 _tnz_path = os.environ.get("VSCODE_3270_TNZ_PATH", "").strip()
 if _tnz_path:
     sys.path.insert(0, _tnz_path)
@@ -85,9 +92,12 @@ _configure_tnz_logging()
 
 try:
     from tnz.tnz import Tnz, TnzError, TnzTransferError
-except ImportError:
+except ImportError as _exc:
+    # The copy inside the extension should always satisfy this. Reaching here
+    # means the packaged tree is missing or a broken tnz shadows it.
     sys.stderr.write(
-        "tnz is not installed. Run: pip install tnz ebcdic\n"
+        f"cannot import tnz ({_exc}). Looked in: {_vendor if os.path.isdir(_vendor) else 'no bundled copy'}. "
+        "Reinstall the extension, or run: pip install tnz ebcdic\n"
     )
     raise SystemExit(2)
 

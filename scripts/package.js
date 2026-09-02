@@ -17,6 +17,67 @@ const path = require("path");
 const { spawnSync } = require("child_process");
 
 const root = path.join(__dirname, "..");
+
+/**
+ * Put tnz and ebcdic inside the extension.
+ *
+ * Both are pure Python, so one artifact serves every platform and a user
+ * needs nothing but an interpreter. Rebuilt from requirements.txt on every
+ * package, so the shipped copy can never drift from what is declared.
+ */
+function vendorPython() {
+  const dir = path.join(root, "sidecar", "vendor");
+  const requirements = path.join(root, "sidecar", "requirements.txt");
+  const python = findPython();
+
+  fs.rmSync(dir, { recursive: true, force: true });
+  console.log(`Vendoring ${path.basename(requirements)} with ${python.join(" ")}`);
+  const run = spawnSync(
+    python[0],
+    [
+      ...python.slice(1),
+      "-m",
+      "pip",
+      "install",
+      "--quiet",
+      "--no-compile",
+      "--target",
+      dir,
+      "-r",
+      requirements,
+    ],
+    { cwd: root, stdio: "inherit" }
+  );
+  if (run.status !== 0) {
+    throw new Error(`pip install --target failed (exit ${run.status})`);
+  }
+
+  const versions = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".dist-info"))
+    .map((f) => path.basename(f, ".dist-info"))
+    .sort();
+  if (versions.length === 0) {
+    throw new Error(`nothing vendored into ${dir}`);
+  }
+  console.log(`Vendored ${versions.join(", ")}`);
+}
+
+/** Any interpreter will do here: the output is platform independent. */
+function findPython() {
+  const candidates =
+    process.platform === "win32"
+      ? [["py", "-3"], ["python"], ["python3"]]
+      : [["python3"], ["python"]];
+  for (const cmd of candidates) {
+    // No shell: it would split the -c argument on the space.
+    const probe = spawnSync(cmd[0], [...cmd.slice(1), "-c", "import sys"]);
+    if (probe.status === 0) {
+      return cmd;
+    }
+  }
+  throw new Error("no Python interpreter found to vendor with");
+}
 const manifest = path.join(root, "package.json");
 const flavour = process.argv[2] || "default";
 const overlay = path.join(root, "branding", `${flavour}.json`);
@@ -47,6 +108,8 @@ const links = repo
       `${repo}/raw/main`,
     ]
   : [];
+
+vendorPython();
 
 fs.writeFileSync(manifest, `${JSON.stringify(pkg, null, 2)}\n`);
 try {
