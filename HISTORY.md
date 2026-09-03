@@ -74,8 +74,8 @@ Tags: `v0.1.0` `v0.1.1` `v0.1.2` `v0.1.4` `v0.1.5`
 
 ### Sidecar would not start
 
-tnz tried to write `tnz.log` into the editor install directory (`C:\Program
-Files\cursor`), which is not writable. The sidecar now logs under
+tnz tried to write `tnz.log` into the editor install directory
+(`C:\Program Files\cursor`), which is not writable. The sidecar now logs under
 `TNZ_VIEW_LOG_DIR` (the extension's global storage) or disables tnz file
 logging. The process is spawned with a writable cwd. A log channel was added
 so errors are copyable.
@@ -121,11 +121,11 @@ Tags: `v0.1.6` `v0.1.8` `v0.1.9` `v0.2.0` `v0.3.0` `v0.3.1` `v0.3.2`
 
 ### Session lost on TSO reconnect
 
-Reconnecting to an existing TSO session failed with `TnzTerminalError: Invalid
-address`. The host was writing past the end of the client buffer because the
-session geometry had been set by another emulator (PCOMM at `30x133`) and
-TN3270E does not renegotiate it. Columns must match exactly; rows may be
-higher.
+Reconnecting to an existing TSO session failed with
+`TnzTerminalError: Invalid address`. The host was writing past the end of the
+client buffer because the session geometry had been set by another emulator
+(PCOMM at `30x133`) and TN3270E does not renegotiate it. Columns must match
+exactly; rows may be higher.
 
 The host editor's screen size became free text with a datalist of standard
 models. A Unicode multiplication sign (`30×133`) failed
@@ -156,9 +156,10 @@ disabled.
 
 Text mode needs `ASCII` and `CRLF` as whole words so tnz does the translation
 itself (the host's tables mangle `|`). The first parameter builder wrapped
-options in `(`, which is CMS convention. TSO answered `IKJ56712I INVALID
-KEYWORD, (`. TSO now gets bare keywords; `tnzView.transfer.syntax` selects
-`tso` (default) or `cms`. Walkthrough: [docs/TRANSFER.md](docs/TRANSFER.md).
+options in `(`, which is CMS convention. TSO answered
+`IKJ56712I INVALID KEYWORD, (`. TSO now gets bare keywords;
+`tnzView.transfer.syntax` selects `tso` (default) or `cms`. Walkthrough:
+[docs/TRANSFER.md](docs/TRANSFER.md).
 
 Title-bar transfer buttons were declared but easy to miss; the commands stay
 in the palette even with no session focused, and they say so rather than
@@ -195,8 +196,8 @@ planes while still setting what following positions inherit.
 
 Connecting to `www.moshix.tech:2023` dropped immediately with SESSION LOST.
 The port speaks TLS (`DO TERMINAL-TYPE` after a TLS handshake; the
-certificate validates). Connect had been reporting `connection lost during
-connect` and dropping the exception.
+certificate validates). Connect had been reporting
+`connection lost during connect` and dropping the exception.
 
 Failures now keep the original exception (and wrapped SSL causes) and add a
 sentence for TLS vs plain, certificate verification, refused, reset, timeout,
