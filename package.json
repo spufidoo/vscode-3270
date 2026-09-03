@@ -214,6 +214,16 @@
         "category": "3270 Terminal"
       },
       {
+        "command": "tn3270.openSettings",
+        "title": "Open Settings",
+        "category": "3270 Terminal"
+      },
+      {
+        "command": "tn3270.session.toggleInsert",
+        "title": "Toggle Insert Mode",
+        "category": "3270 Terminal"
+      },
+      {
         "command": "tn3270.openMacrosFolder",
         "title": "Open Macros Folder",
         "category": "3270 Terminal"

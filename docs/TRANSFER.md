@@ -129,6 +129,12 @@ selects between them. It defaults to `tso`.
 | `tso` | `IND$FILE GET 'MY.DATA' ASCII CRLF` |
 | `cms` | `IND$FILE GET FN FT FM ( ASCII CRLF` |
 
+Which one a host wants is a fact about that host, so the **File transfer**
+section of the host settings tab overrides the setting per profile. Set it there
+if you reach both TSO and VM systems; the setting then only covers profiles that
+leave the field on Default. The same goes for the default options offered at the
+prompt and the idle timeout below.
+
 The parenthesis is CMS convention. TSO takes options as bare keywords and
 rejects one with `IKJ56712I INVALID KEYWORD, (`.
 
@@ -172,7 +178,7 @@ success; anything else is an error and the message says what went wrong.
 | "the keyboard is locked" | Not at a ready prompt, or the host still owes a reply |
 | "no response from IND$FILE" | The command went into a field instead of running. You were not at a command prompt |
 | `COMMAND IND$FILE NOT FOUND` on screen | Not installed, or renamed at your site |
-| `IKJ56712I INVALID KEYWORD, (` | `tn3270.transfer.syntax` is `cms` against a TSO host |
+| `IKJ56712I INVALID KEYWORD, (` | The syntax in force is `cms` against a TSO host. Check the profile's IND$FILE syntax first, then `tn3270.transfer.syntax` |
 | `IKJ56712I INVALID KEYWORD` naming an option | The host does not accept that option; check it against the ones above |
 | `TRANS13` and similar | The host rejected the request; the number and text say why |
 | Upload to a member fails | The PDS does not exist. IND$FILE cannot create one |

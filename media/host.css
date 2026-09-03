@@ -1,3 +1,19 @@
+/* A dropdown's popup list is drawn by the browser, not by this stylesheet, and
+   it follows color-scheme rather than our colours. Without this it comes up
+   light in a dark theme, with our pale text on it. VS Code puts the theme kind
+   on the body, so hand that straight to the browser. */
+body.vscode-dark,
+body.vscode-high-contrast {
+  color-scheme: dark;
+}
+
+/* Second on purpose: high contrast light carries both HC classes, so this has
+   to be the one that wins. */
+body.vscode-light,
+body.vscode-high-contrast-light {
+  color-scheme: light;
+}
+
 body {
   padding: 16px 24px 32px;
   font-family: var(--vscode-font-family);
@@ -47,6 +63,60 @@ select {
   border-radius: 3px;
   font-family: inherit;
   font-size: inherit;
+}
+
+/* The Font box and its suggestion list. Drawn here rather than left to a
+   datalist, whose popup cannot scroll inside a webview and so is useless with
+   a few hundred families. */
+.combo {
+  position: relative;
+}
+
+#font-list {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 2px 0;
+  border: 1px solid var(--vscode-dropdown-border, rgba(128, 128, 128, 0.35));
+  border-radius: 3px;
+  background: var(--vscode-dropdown-background, var(--vscode-input-background));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+}
+
+#font-list[hidden] {
+  display: none;
+}
+
+.font-option {
+  display: block;
+  width: 100%;
+  padding: 4px 10px;
+  border: 0;
+  background: none;
+  color: var(--vscode-dropdown-foreground, var(--vscode-input-foreground));
+  font-size: inherit;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.font-option:hover,
+.font-option.active {
+  background: var(--vscode-list-activeSelectionBackground, #04395e);
+  color: var(--vscode-list-activeSelectionForeground, #ffffff);
+}
+
+/* Belt and braces for the popup, which some platforms draw from these rather
+   than from the select itself. */
+select option {
+  color: var(--vscode-dropdown-foreground, var(--vscode-input-foreground));
+  background-color: var(--vscode-dropdown-background, var(--vscode-input-background));
 }
 
 input[type="text"]:focus,

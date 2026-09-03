@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import * as vscode from "vscode";
+import { listFontFamilies } from "./fonts";
 import { normalizeColors } from "./hosts";
+import { log } from "./log";
 import { getDefaultFontFamily } from "./session";
+import { getIdleTimeout, getSyntax } from "./transfer";
 import { HostProfile } from "./types";
 import { getNonce } from "./webview";
 
@@ -58,6 +61,8 @@ export class HostEditorPanel {
       async (msg: { op: string; [k: string]: unknown }) => {
         if (msg.op === "ready") {
           this.load(this.host);
+        } else if (msg.op === "fontReport") {
+          this.logFontReport(msg);
         } else if (msg.op === "close") {
           this.panel.dispose();
         } else if (msg.op === "save") {
@@ -93,6 +98,12 @@ export class HostEditorPanel {
       blink: raw.blink === true,
       colors: normalizeColors(raw.colors),
       fontFamily: String(raw.fontFamily || "").trim(),
+      transferSyntax:
+        raw.transferSyntax === "tso" || raw.transferSyntax === "cms"
+          ? raw.transferSyntax
+          : "",
+      transferOptions: String(raw.transferOptions || "").trim(),
+      transferIdleTimeout: Math.max(0, Number(raw.transferIdleTimeout) || 0),
     };
     await this.onSave(host);
     this.host = host;
@@ -108,7 +119,38 @@ export class HostEditorPanel {
       host,
       isNew: this.isNew,
       defaultFontFamily: getDefaultFontFamily(),
+      // Shown as placeholders, so an empty box says what it will fall back to.
+      defaultTransfer: {
+        syntax: getSyntax(),
+        options: vscode.workspace
+          .getConfiguration("tn3270")
+          .get<string>("transfer.options", ""),
+        idleTimeout: getIdleTimeout(),
+      },
     });
+    void this.sendFonts();
+  }
+
+  /** What the webview made of the font list, for when a font is missing. */
+  private logFontReport(msg: { [k: string]: unknown }): void {
+    const unknown = (msg.unknown as string[]) ?? [];
+    const proportional = (msg.proportional as string[]) ?? [];
+    log().info(
+      `fonts: ${msg.kept} of ${msg.candidates} usable, ` +
+        `${unknown.length} not resolvable, ${proportional.length} proportional`
+    );
+    log().debug(`fonts not resolvable: ${unknown.join(", ")}`);
+    log().debug(`fonts proportional: ${proportional.join(", ")}`);
+  }
+
+  /** Font suggestions follow separately: enumerating them takes a moment. */
+  private async sendFonts(): Promise<void> {
+    const names = await listFontFamilies();
+    try {
+      await this.panel.webview.postMessage({ op: "fonts", names });
+    } catch {
+      /* the tab was closed while we were looking */
+    }
   }
 
   private title(): string {
@@ -220,23 +262,44 @@ export class HostEditorPanel {
   </section>
 
   <section>
+    <h2>File transfer</h2>
+    <div class="grid">
+      <label for="f-transferSyntax">IND$FILE syntax</label>
+      <select id="f-transferSyntax">
+        <option value="">Default</option>
+        <option value="tso">TSO — bare keywords</option>
+        <option value="cms">CMS — options after (</option>
+      </select>
+
+      <span class="label-spacer"></span>
+      <p class="hint">How this host expects options to be introduced. TSO
+      rejects a parenthesis with <code>IKJ56712I INVALID KEYWORD, (</code>.
+      Default follows <code>tn3270.transfer.syntax</code>.</p>
+
+      <label for="f-transferOptions">Default options</label>
+      <input id="f-transferOptions" type="text" placeholder="RECFM(V) LRECL(255)" />
+
+      <label for="f-transferIdleTimeout">Idle timeout</label>
+      <input id="f-transferIdleTimeout" type="number" min="0" max="3600" placeholder="Seconds" />
+
+      <span class="label-spacer"></span>
+      <p class="hint">Seconds of silence before a transfer is abandoned. Empty
+      or zero follows <code>tn3270.transfer.idleTimeout</code>.</p>
+    </div>
+  </section>
+
+  <section>
     <h2>Appearance</h2>
     <div class="grid">
       <label for="f-fontFamily">Font</label>
-      <input id="f-fontFamily" type="text" list="fonts" placeholder="Default monospace" />
-      <datalist id="fonts">
-        <option value="Lucida Console"></option>
-        <option value="Cascadia Mono"></option>
-        <option value="Consolas"></option>
-        <option value="Courier New"></option>
-        <option value="IBM Plex Mono"></option>
-        <option value="IBM 3270"></option>
-        <option value="3270Medium"></option>
-        <option value="DejaVu Sans Mono"></option>
-        <option value="JetBrains Mono"></option>
-        <option value="Menlo"></option>
-        <option value="Monaco"></option>
-      </datalist>
+      <!-- Our own suggestion list, not a datalist: a native popup with a few
+           hundred families is taller than the screen and will not scroll
+           inside a webview. -->
+      <div class="combo">
+        <input id="f-fontFamily" type="text" autocomplete="off"
+               placeholder="Default monospace" />
+        <div id="font-list" hidden></div>
+      </div>
 
       <span class="label-spacer"></span>
       <p class="hint">Must be monospaced: columns sit on a fixed pitch, so a

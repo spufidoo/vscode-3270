@@ -57,6 +57,11 @@ export function normalizeHost(raw: Partial<HostProfile>): HostProfile {
     blink: raw.blink === true,
     colors: normalizeColors(raw.colors),
     fontFamily: String(raw.fontFamily || "").trim(),
+    transferSyntax: raw.transferSyntax === "cms" || raw.transferSyntax === "tso"
+      ? raw.transferSyntax
+      : "",
+    transferOptions: String(raw.transferOptions || "").trim(),
+    transferIdleTimeout: Math.max(0, Number(raw.transferIdleTimeout) || 0),
   };
 }
 

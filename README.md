@@ -44,6 +44,8 @@ settings), so they can also be edited as JSON.
 | extendedColor | Advertise colour capability to the host |
 | blink | Render the blink highlight instead of ignoring it |
 | colors | Per-host palette |
+| IND$FILE syntax | TSO or CMS. Empty follows `tn3270.transfer.syntax` |
+| Default options / Idle timeout | Per-host transfer defaults; empty follows the `tn3270.transfer.*` settings |
 
 Passwords are not stored. Log on in the 3270 screen.
 
@@ -86,7 +88,7 @@ All sessions share one Python sidecar process. If it stops, the open tabs say
 | Ctrl+Home or Shift+End | Erase to end of field |
 | Alt+Delete | Erase input |
 | Ctrl+Enter | New line |
-| Insert | Toggle insert |
+| Insert (Ctrl+I on macOS) | Toggle insert |
 | Ctrl+R, Right Ctrl | Reset |
 | Click / double-click | Cursor / cursor + ENTER |
 | Right-click | Copy, Paste and Mark all menu |
@@ -99,7 +101,9 @@ All sessions share one Python sidecar process. If it stops, the open tabs say
 
 Every binding can be changed with the `tn3270.keymap` setting, and open sessions
 pick up edits immediately. **3270 Terminal: Show Keyboard Map** lists what is in
-effect.
+effect; **3270 Terminal: Open Settings** opens the settings UI filtered to this
+extension; **3270 Terminal: Toggle Insert Mode** switches insert/replace without
+needing a key binding.
 
 See [docs/KEYMAP.md](docs/KEYMAP.md) for the chord syntax, every action name,
 and the keys that are reserved.
@@ -154,6 +158,12 @@ trusting the host's tables; binary copies bytes unchanged. The screen freezes
 for the duration and shows `FILE TRANSFER IN PROGRESS`, since tnz owns the
 session while a transfer runs.
 
+Whether options need a parenthesis depends on the host, so the **File transfer**
+section of the host settings tab can pin the syntax, the default options and the
+idle timeout per profile. That matters as soon as you reach both TSO and VM
+systems, since one workspace setting cannot be right for both. Leave the fields
+empty to follow the `tn3270.transfer.*` settings.
+
 See [docs/TRANSFER.md](docs/TRANSFER.md) for host file name formats, RECFM and
 LRECL options, timeouts, and what the failure messages mean.
 
@@ -192,6 +202,23 @@ setting repaints every session that has not overridden it.
 
 With neither set you get the built-in stack of Lucida Console, Cascadia Mono,
 Consolas and Courier New.
+
+The Font box suggests the monospaced fonts installed on your machine. The names
+come from the installed font families on Windows, `fc-list` on Linux and the
+font folders on macOS, and each one is then measured in the view itself:
+anything that does not resolve, or that is not fixed pitch, is left out.
+
+Click the box to see the list, or type to filter it; arrow keys and Enter pick a
+row, and each row is drawn in its own font. It is a suggestion list, not a
+restriction, so a name that is not offered can still be typed.
+
+They are family names, not face names, which matters for fonts with many
+weights. Windows lists the Light face of SauceCodePro Nerd Font Mono as
+`Sauce Code Pro Light Nerd Font Complete Mono`, but the family a browser can
+match is `SauceCodePro Nerd Font Mono`, and that is what you will be offered. It is a suggestion list,
+not a restriction — you can still type any name, including a comma-separated
+list. The filter looks at the last name in such a list, so a stack can be built
+up one font at a time.
 
 The built-in stack is always appended to whatever you name, so a font the machine
 does not have falls back to a monospace rather than to something proportional. The

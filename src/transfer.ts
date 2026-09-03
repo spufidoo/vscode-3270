@@ -6,12 +6,32 @@ import * as vscode from "vscode";
 // would close the cycle at runtime.
 import type { SessionPanel } from "./session";
 import { log } from "./log";
-import { TransferRequest, TransferSyntax } from "./types";
+import { HostProfile, TransferRequest, TransferSyntax } from "./types";
 
-export function getSyntax(): TransferSyntax {
+/**
+ * How this host introduces IND$FILE options.
+ *
+ * The profile wins where it is set: TSO or CMS is a fact about the host, not a
+ * preference, so a mixed shop cannot be served by one workspace setting.
+ */
+export function getSyntax(host?: HostProfile): TransferSyntax {
+  if (host?.transferSyntax === "tso" || host?.transferSyntax === "cms") {
+    return host.transferSyntax;
+  }
   return vscode.workspace
     .getConfiguration("tn3270")
     .get<TransferSyntax>("transfer.syntax", "tso");
+}
+
+/** Seconds of silence before a transfer is abandoned. */
+export function getIdleTimeout(host?: HostProfile): number {
+  const profile = Number(host?.transferIdleTimeout) || 0;
+  if (profile > 0) {
+    return profile;
+  }
+  return vscode.workspace
+    .getConfiguration("tn3270")
+    .get<number>("transfer.idleTimeout", 60);
 }
 
 /**
@@ -86,10 +106,10 @@ async function askText(): Promise<boolean | undefined> {
   return pick?.text;
 }
 
-async function askOptions(): Promise<string | undefined> {
-  const extra = vscode.workspace
-    .getConfiguration("tn3270")
-    .get<string>("transfer.options", "");
+async function askOptions(host?: HostProfile): Promise<string | undefined> {
+  const extra =
+    (host?.transferOptions ?? "").trim() ||
+    vscode.workspace.getConfiguration("tn3270").get<string>("transfer.options", "");
   return vscode.window.showInputBox({
     title: "IND$FILE options",
     prompt: "Extra options, or leave empty",
@@ -108,7 +128,7 @@ export async function download(panel: SessionPanel): Promise<void> {
   if (text === undefined) {
     return;
   }
-  const options = await askOptions();
+  const options = await askOptions(panel.host);
   if (options === undefined) {
     return;
   }
@@ -159,7 +179,7 @@ export async function upload(panel: SessionPanel): Promise<void> {
   if (text === undefined) {
     return;
   }
-  const options = await askOptions();
+  const options = await askOptions(panel.host);
   if (options === undefined) {
     return;
   }

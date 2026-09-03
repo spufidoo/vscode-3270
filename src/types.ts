@@ -47,6 +47,12 @@ export interface HostProfile {
   colors?: HostColors;
   /** CSS font list for the screen. Empty means the built-in monospace stack. */
   fontFamily?: string;
+  /** IND$FILE option syntax. Empty follows tn3270.transfer.syntax. */
+  transferSyntax?: TransferSyntax | "";
+  /** Extra IND$FILE options offered by default. Empty follows the setting. */
+  transferOptions?: string;
+  /** Seconds of silence before a transfer is abandoned. 0 follows the setting. */
+  transferIdleTimeout?: number;
 }
 
 export type SessionStatus =

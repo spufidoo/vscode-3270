@@ -6,8 +6,10 @@ overrides.
 
 ## Changing bindings
 
-Add `tn3270.keymap` to your user `settings.json`. Each entry maps a chord to an
-action:
+Run **3270 Terminal: Open Settings** from the command palette and search for
+`keymap`, or add `tn3270.keymap` to your user `settings.json` (see
+[SETTINGS.md](SETTINGS.md) for how to open it on your platform). The keyboard
+map view also has an **edit keymap** link. Each entry maps a chord to an action:
 
 ```json
 "tn3270.keymap": {
@@ -166,6 +168,7 @@ somewhere distant.
 | `alt+delete` | Erase input |
 | `ctrl+enter` | New line |
 | `insert` | Toggle insert mode |
+| `ctrl+i` | Toggle insert mode (macOS default; most Mac keyboards have no Insert key) |
 | `ctrl+r`, `rightctrl` | Reset |
 | `shift+left` `shift+right` `shift+up` `shift+down` | Extend the block selection |
 | `escape` | Drop the block selection |

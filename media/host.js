@@ -72,6 +72,11 @@ let hostId = null;
 let statusTimer = null;
 // tn3270.fontFamily, used by any profile that leaves the Font box empty.
 let defaultFontFamily = "";
+// The tn3270.transfer.* settings, shown as placeholders on the empty boxes.
+let defaultTransfer = { syntax: "tso", options: "", idleTimeout: 60 };
+// Monospaced fonts this machine can actually render, and the highlighted row.
+let fontChoices = [];
+let fontActive = -1;
 
 const el = (id) => document.getElementById(id);
 
@@ -154,6 +159,16 @@ function applyHost(host, isNew) {
   el("f-fontFamily").placeholder = defaultFontFamily
     ? `${defaultFontFamily} (from settings)`
     : "Default monospace";
+  el("f-transferSyntax").value = host.transferSyntax || "";
+  el("f-transferOptions").value = host.transferOptions || "";
+  el("f-transferOptions").placeholder =
+    defaultTransfer.options || "RECFM(V) LRECL(255)";
+  el("f-transferIdleTimeout").value = host.transferIdleTimeout
+    ? String(host.transferIdleTimeout)
+    : "";
+  el("f-transferIdleTimeout").placeholder = `${defaultTransfer.idleTimeout} (from settings)`;
+  el("f-transferSyntax").options[0].textContent =
+    `Default — ${defaultTransfer.syntax.toUpperCase()} from settings`;
   const colors = { ...DEFAULT_COLORS, ...(host.colors || {}) };
   for (const key of COLOR_KEYS) {
     el(`c-${key}`).value = colors[key];
@@ -181,7 +196,127 @@ function collect() {
     blink: el("f-blink").checked,
     colors: currentColors(),
     fontFamily: el("f-fontFamily").value,
+    transferSyntax: el("f-transferSyntax").value,
+    transferOptions: el("f-transferOptions").value,
+    transferIdleTimeout: Number(el("f-transferIdleTimeout").value) || 0,
   };
+}
+
+/**
+ * Narrow the Font suggestions to the ones worth offering.
+ *
+ * The extension host sends every family it can find, including guesses on
+ * macOS where the names come from file names. Here we can actually measure:
+ * anything that does not resolve is dropped, and so is anything proportional,
+ * since 3270 columns sit on a fixed pitch.
+ */
+function isFixedPitch(family) {
+  measure.font = `72px "${family}", monospace`;
+  const narrow = measure.measureText("iiiiiiii").width;
+  const wide = measure.measureText("WWWWWWWW").width;
+  return Math.abs(narrow - wide) < 0.5;
+}
+
+function applyFonts(names) {
+  const seen = new Set();
+  const usable = [];
+  const unknown = [];
+  const proportional = [];
+  for (const name of names || []) {
+    const family = String(name || "").trim();
+    const key = family.toLowerCase();
+    if (!family || seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    if (fontMissing(family)) {
+      unknown.push(family);
+      continue;
+    }
+    if (!isFixedPitch(family)) {
+      proportional.push(family);
+      continue;
+    }
+    usable.push(family);
+  }
+  // Logged, because which fonts a webview can actually see varies by platform
+  // and there is no other way to tell a filtered font from a missing one.
+  vscode.postMessage({
+    op: "fontReport",
+    candidates: seen.size,
+    kept: usable.length,
+    unknown,
+    proportional,
+  });
+  if (!usable.length) {
+    // Nothing measured true, so keep whatever we were offering before.
+    return;
+  }
+  usable.sort((a, b) => a.localeCompare(b));
+  fontChoices = usable;
+}
+
+/**
+ * Suggestion list for the Font box.
+ *
+ * Typing filters it, and the filter looks at the last item of a comma
+ * separated list so a font stack can be built up one name at a time. Each row
+ * is drawn in its own font, which is the only honest way to choose one.
+ */
+function closeFontList() {
+  const list = el("font-list");
+  list.hidden = true;
+  list.textContent = "";
+  fontActive = -1;
+}
+
+function openFontList() {
+  const typed = el("f-fontFamily").value.split(",").pop().trim().toLowerCase();
+  const matches = fontChoices.filter((family) =>
+    family.toLowerCase().includes(typed)
+  );
+  const list = el("font-list");
+  list.textContent = "";
+  fontActive = -1;
+  if (!matches.length) {
+    list.hidden = true;
+    return;
+  }
+  for (const family of matches) {
+    const option = document.createElement("button");
+    option.type = "button";
+    option.className = "font-option";
+    option.textContent = family;
+    option.style.fontFamily = `"${family}", monospace`;
+    // mousedown, because a click would land after the box has lost focus.
+    option.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      pickFont(family);
+    });
+    list.appendChild(option);
+  }
+  list.hidden = false;
+}
+
+function pickFont(family) {
+  el("f-fontFamily").value = family;
+  closeFontList();
+  renderPreview();
+  el("f-fontFamily").focus();
+}
+
+function moveFontActive(delta) {
+  const options = [...el("font-list").children];
+  if (!options.length) {
+    return;
+  }
+  if (fontActive >= 0) {
+    options[fontActive].classList.remove("active");
+  }
+  fontActive = (fontActive + delta + options.length) % options.length;
+  const active = options[fontActive];
+  active.classList.add("active");
+  active.scrollIntoView({ block: "nearest" });
 }
 
 el("f-secure").addEventListener("change", () => {
@@ -198,7 +333,38 @@ for (const key of COLOR_KEYS) {
   el(`c-${key}`).addEventListener("input", renderPreview);
 }
 
-el("f-fontFamily").addEventListener("input", renderPreview);
+el("f-fontFamily").addEventListener("input", () => {
+  renderPreview();
+  openFontList();
+});
+
+el("f-fontFamily").addEventListener("focus", openFontList);
+
+// Delayed, so a click on a row is not cut off by the box losing focus.
+el("f-fontFamily").addEventListener("blur", () => {
+  setTimeout(closeFontList, 120);
+});
+
+el("f-fontFamily").addEventListener("keydown", (e) => {
+  const open = !el("font-list").hidden;
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    if (open) {
+      moveFontActive(1);
+    } else {
+      openFontList();
+    }
+  } else if (e.key === "ArrowUp" && open) {
+    e.preventDefault();
+    moveFontActive(-1);
+  } else if (e.key === "Enter" && open && fontActive >= 0) {
+    e.preventDefault();
+    pickFont(el("font-list").children[fontActive].textContent);
+  } else if (e.key === "Escape" && open) {
+    e.preventDefault();
+    closeFontList();
+  }
+});
 
 el("reset").addEventListener("click", () => {
   for (const key of COLOR_KEYS) {
@@ -227,7 +393,10 @@ window.addEventListener("message", (event) => {
   const msg = event.data;
   if (msg.op === "load") {
     defaultFontFamily = String(msg.defaultFontFamily || "").trim();
+    defaultTransfer = { ...defaultTransfer, ...(msg.defaultTransfer || {}) };
     applyHost(msg.host, msg.isNew);
+  } else if (msg.op === "fonts") {
+    applyFonts(msg.names);
   } else if (msg.op === "saved") {
     el("heading").textContent = msg.host.label || "Host";
     setStatus("Saved.");

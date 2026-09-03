@@ -4,8 +4,14 @@ Every setting the extension contributes, what it does, and its default. All live
 under the `tn3270.` prefix in your user or workspace `settings.json`. Most take
 effect immediately in open sessions; the exceptions are noted.
 
-Open **File → Preferences → Settings** and search for `tn3270`, or edit
-`settings.json` directly.
+Open **3270 Terminal: Open Settings** from the command palette, or open the
+editor settings UI and search for `tn3270`:
+
+- **macOS** — **Cursor → Settings → Settings** (or **Code → Settings → Settings**
+  in VS Code), or **⌘,**. For `settings.json`: **⌘⇧P** → **Preferences: Open User
+  Settings (JSON)**.
+- **Windows / Linux** — **File → Preferences → Settings**, or **Ctrl+,**. For
+  `settings.json`: **Ctrl+Shift+P** → **Preferences: Open User Settings (JSON)**.
 
 ## Moving from `tnzView.*`
 
@@ -153,6 +159,9 @@ How IND$FILE options are introduced.
   a parenthesis with `IKJ56712I INVALID KEYWORD, (`.
 - `cms` — options after a parenthesis: `IND$FILE GET FN FT FM ( ASCII CRLF`.
 
+A host profile's **IND$FILE syntax** overrides this, which is what to use if you
+reach both TSO and VM systems.
+
 - Type: `string` (`tso` | `cms`)
 - Default: `tso`
 
@@ -200,6 +209,14 @@ for you; this is what it writes.
 | `blink` | boolean | Render the blink highlight instead of ignoring it |
 | `colors` | object | Per-host palette (`background`, `black`, `blue`, `red`, `pink`, `green`, `turquoise`, `yellow`, `white`) |
 | `fontFamily` | string | Per-host font; empty follows `tn3270.fontFamily` |
+| `transferSyntax` | string | `tso`, `cms`, or empty to follow `tn3270.transfer.syntax` |
+| `transferOptions` | string | Default IND$FILE options; empty follows `tn3270.transfer.options` |
+| `transferIdleTimeout` | number | Seconds before a transfer is abandoned; `0` follows `tn3270.transfer.idleTimeout` |
+
+The three transfer fields exist because IND$FILE syntax is a property of the host
+rather than a preference: TSO rejects the parenthesis that CMS requires. A shop
+with both kinds of system cannot be served by one workspace setting, so each
+profile can pin its own and the settings act as the fallback.
 
 Passwords are never stored in a profile. Log on in the 3270 screen, or use a script
 macro that prompts with `ask_password`.

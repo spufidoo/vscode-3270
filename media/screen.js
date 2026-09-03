@@ -508,6 +508,8 @@ window.addEventListener("message", (event) => {
     paint();
   } else if (msg.op === "focus") {
     screenEl.focus();
+  } else if (msg.op === "toggleInsert") {
+    setInsert(!insertMode);
   } else if (msg.op === "oia") {
     const text = String(msg.message || "");
     document.getElementById("oia-msg").textContent =

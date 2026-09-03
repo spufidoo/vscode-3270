@@ -7,7 +7,7 @@ import { resolveKeymap } from "./keymap";
 import { log } from "./log";
 import { Sidecar } from "./sidecar";
 import { fillPrompts, hasPrompt, resolveNamedMacro } from "./macros";
-import { buildParms, getSyntax } from "./transfer";
+import { buildParms, getIdleTimeout, getSyntax } from "./transfer";
 import {
   DEFAULT_COLORS,
   HostProfile,
@@ -216,10 +216,8 @@ export class SessionPanel {
         transferId,
         direction: req.direction,
         localPath: req.localPath,
-        parms: buildParms(req, getSyntax()),
-        idleTimeout: vscode.workspace
-          .getConfiguration("tn3270")
-          .get<number>("transfer.idleTimeout", 60),
+        parms: buildParms(req, getSyntax(this.host)),
+        idleTimeout: getIdleTimeout(this.host),
       });
       if (!sent) {
         this.failPending("the 3270 sidecar stopped");
@@ -363,6 +361,11 @@ export class SessionPanel {
       type: "aid",
       value: aid,
     });
+  }
+
+  /** Toggle insert/replace mode in the view (local; nothing sent to the host). */
+  toggleInsert(): void {
+    void this.panel.webview.postMessage({ op: "toggleInsert" });
   }
 
   connect(): void {

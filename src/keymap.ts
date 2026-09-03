@@ -51,10 +51,19 @@ function pfKeys(): Keymap {
   return map;
 }
 
+/** Extra defaults where the usual PC key is missing (no Insert on Mac keyboards). */
+function platformDefaults(): Keymap {
+  if (process.platform === "darwin") {
+    return { "ctrl+i": "local:insert" };
+  }
+  return {};
+}
+
 // Defaults follow zti, the terminal front end shipped with tnz, so the two
 // behave the same way where they overlap.
 export const DEFAULT_KEYMAP: Keymap = {
   ...pfKeys(),
+  ...platformDefaults(),
 
   enter: "aid:enter",
   "alt+a": "aid:attn",

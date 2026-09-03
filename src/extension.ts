@@ -330,6 +330,24 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("tn3270.showKeymap", () => {
       showKeymap(context.extensionUri);
     }),
+    vscode.commands.registerCommand(
+      "tn3270.openSettings",
+      async (query?: string) => {
+        await vscode.commands.executeCommand(
+          "workbench.action.openSettings",
+          query || "tn3270"
+        );
+      }
+    ),
+    vscode.commands.registerCommand("tn3270.session.toggleInsert", () => {
+      const panel = focusedId ? sessions.get(focusedId) : undefined;
+      if (!panel) {
+        void vscode.window.showWarningMessage("3270 Terminal: no active session.");
+        return;
+      }
+      panel.toggleInsert();
+      panel.focus();
+    }),
     vscode.commands.registerCommand("tn3270.openMacrosFolder", async () => {
       fs.mkdirSync(macrosDir, { recursive: true });
       const example = path.join(macrosDir, "startlpar.py");
@@ -360,7 +378,7 @@ export function activate(context: vscode.ExtensionContext): void {
         );
         if (choice === "Edit Settings") {
           await vscode.commands.executeCommand(
-            "workbench.action.openSettings",
+            "tn3270.openSettings",
             "tn3270.macros"
           );
         }
