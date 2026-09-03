@@ -84,6 +84,14 @@ export const DEFAULT_KEYMAP: Keymap = {
   insert: "local:insert",
   "ctrl+r": "local:reset",
   rightctrl: "local:reset",
+
+  // Mark a block without the mouse. The first one anchors at the cursor; the
+  // 3270 cursor itself does not move, so the typing position survives a copy.
+  "shift+left": "local:markleft",
+  "shift+right": "local:markright",
+  "shift+up": "local:markup",
+  "shift+down": "local:markdown",
+  escape: "local:markclear",
 };
 
 export const ACTION_LABELS: Record<string, string> = {
@@ -110,6 +118,11 @@ export const ACTION_LABELS: Record<string, string> = {
   "nav:newline": "New line",
   "local:insert": "Toggle insert mode",
   "local:reset": "Reset (unlock keyboard, leave insert)",
+  "local:markleft": "Extend block selection left",
+  "local:markright": "Extend block selection right",
+  "local:markup": "Extend block selection up",
+  "local:markdown": "Extend block selection down",
+  "local:markclear": "Clear the block selection",
 };
 
 /** Defaults with the user's tn3270.keymap merged over the top. */

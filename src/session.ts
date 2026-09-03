@@ -92,6 +92,13 @@ export class SessionPanel {
         }
       } else if (msg.op === "copy") {
         void vscode.env.clipboard.writeText(String(msg.text ?? ""));
+      } else if (msg.op === "pasteRequest") {
+        // A webview cannot read the clipboard, so the context menu asks us to.
+        void vscode.env.clipboard.readText().then((text) => {
+          if (text) {
+            this.send({ op: "paste", text, sessionId: this.sessionId });
+          }
+        });
       } else if (msg.op === "macro") {
         void this.runMacro(String(msg.name ?? ""));
       }

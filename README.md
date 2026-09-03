@@ -89,7 +89,10 @@ All sessions share one Python sidecar process. If it stops, the open tabs say
 | Insert | Toggle insert |
 | Ctrl+R, Right Ctrl | Reset |
 | Click / double-click | Cursor / cursor + ENTER |
+| Right-click | Copy, Paste and Mark all menu |
 | Drag | Mark a rectangle (block) or a run of text (stream) |
+| Shift+arrows | Mark a rectangle from the keyboard |
+| Escape | Drop the marked block |
 | Ctrl+C | Copy the marked block, else ATTN |
 | Ctrl+A | Mark the whole screen (block mode) |
 | Ctrl+V | Paste into fields |
@@ -116,6 +119,16 @@ The webview scales the font so the whole 3270 screen fits. Resizing the editor d
 Either way Ctrl+C copies and Ctrl+V pastes, and copying clears the mark. Ctrl+C
 with nothing marked is still ATTN. Non-display fields (passwords) read as blanks
 in both modes, so they can never be copied.
+
+Shift+arrows mark a rectangle without touching the mouse, anchored where the 3270
+cursor is, and Escape drops it. The cursor itself stays put and nothing goes to
+the host, so copying never loses your place in a field. This works in both modes:
+`tn3270.selection` governs the mouse, while the keyboard always marks a rectangle.
+
+Right-click offers Copy, Paste and Mark all. This is the view's own menu rather
+than VS Code's, whose Cut/Copy/Paste entries are wired to a text selection and an
+editable target and so do nothing on a 3270 screen. There is no Cut: cutting host
+data is not a thing a terminal can do.
 
 ## Macros
 

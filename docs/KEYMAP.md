@@ -115,10 +115,31 @@ next AID will carry.
 | --- | --- |
 | `local:insert` | Toggle insert mode |
 | `local:reset` | Leave insert mode and clear the status message |
+| `local:markleft` | Extend the block selection left |
+| `local:markright` | Extend the block selection right |
+| `local:markup` | Extend the block selection up |
+| `local:markdown` | Extend the block selection down |
+| `local:markclear` | Drop the block selection |
 
 Reset sends nothing to the host, so it clears the view's own state but not a lock
 the host is holding. If the status line shows `X SYSTEM`, the host has the
 keyboard and only the host can give it back.
+
+#### Marking a block from the keyboard
+
+`shift+left`, `shift+right`, `shift+up` and `shift+down` mark a rectangle without
+the mouse; `ctrl+c` copies it and `escape` drops it.
+
+The first press anchors the block at the 3270 cursor. After that only the far
+corner moves, so the rectangle can be drawn in any direction and pulled back
+through itself. **The 3270 cursor does not move while you mark**, and nothing is
+sent to the host, so copying never costs you your place in a field. Any other
+key drops the mark, which is why you cannot type in the middle of marking.
+
+Unlike the mouse, this works whichever way `tn3270.selection` is set: that
+setting governs the mouse, while the keyboard always marks a rectangle. It also
+composes with the mouse — mark with the arrows, then Shift+click to pull a corner
+somewhere distant.
 
 ### `macro:` — play a named macro
 
@@ -146,6 +167,8 @@ keyboard and only the host can give it back.
 | `ctrl+enter` | New line |
 | `insert` | Toggle insert mode |
 | `ctrl+r`, `rightctrl` | Reset |
+| `shift+left` `shift+right` `shift+up` `shift+down` | Extend the block selection |
+| `escape` | Drop the block selection |
 
 Defaults follow [zti](https://github.com/IBM/tnz), the terminal front end shipped
 with tnz, wherever the two overlap.
@@ -177,6 +200,15 @@ current field.
 | Ctrl+click (Cmd+click on macOS) | Move the cursor and run `tn3270.clickMacro`, if set |
 | Double-click | Move the cursor and send ENTER |
 | Drag | Select text |
+| Shift+click | Pull the near corner of a marked block (block mode) |
+| Right-click | Copy, Paste and Mark all menu |
+
+The right-click menu is the view's own. VS Code's webview menu builds Cut, Copy
+and Paste from Electron editing roles, which act on a text selection and an
+editable target; block mode suppresses the first and a grid of `div`s is never
+the second, so those entries do nothing here. Ours copies the marked block and
+pastes through the extension host, which is the only side able to read the
+clipboard. There is no Cut, as a terminal cannot cut host data.
 
 ## Troubleshooting
 

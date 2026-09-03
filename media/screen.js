@@ -63,9 +63,13 @@ const cursorEl = document.createElement("div");
 cursorEl.id = "cursor";
 const markEl = document.createElement("div");
 markEl.id = "mark";
+const menuEl = document.createElement("div");
+menuEl.id = "menu";
+menuEl.hidden = true;
 gridEl.appendChild(cursorEl);
 gridEl.appendChild(markEl);
 screenEl.appendChild(gridEl);
+document.body.appendChild(menuEl);
 
 // "block" marks a row/column rectangle like Vista; "stream" is the browser's
 // linear text selection. Set from config, updated live on a config message.
@@ -89,8 +93,11 @@ function clearMark() {
 }
 
 function drawMark() {
-  if (!mark || selectionMode !== "block") {
+  // Drawn whenever a mark exists. The selection setting governs the mouse;
+  // Shift+arrow marks a rectangle in either mode.
+  if (!mark) {
     markEl.style.display = "none";
+    positionCursor();
     return;
   }
   const top = Math.min(mark.r1, mark.r2) - 1;
@@ -102,6 +109,7 @@ function drawMark() {
   markEl.style.top = `${top * cellH}px`;
   markEl.style.width = `${cols * cellW}px`;
   markEl.style.height = `${rows * cellH}px`;
+  positionCursor();
 }
 
 // The marked cells as text, one line per row. Non-display fields read as
@@ -127,6 +135,44 @@ function markedText() {
   return lines.join("\n");
 }
 
+const MARK_STEPS = {
+  left: [0, -1],
+  right: [0, 1],
+  up: [-1, 0],
+  down: [1, 0],
+};
+
+/**
+ * Grow or shrink the marked rectangle from the keyboard.
+ *
+ * The first press anchors on the 3270 cursor and only the far corner moves
+ * after that, so the block can be dragged out in any direction and pulled
+ * back through itself. The 3270 cursor stays put: marking is local to the
+ * view and sends nothing to the host, so a copy never costs you your place.
+ */
+function moveMark(direction) {
+  const step = MARK_STEPS[direction];
+  if (!step) {
+    return;
+  }
+  if (!mark) {
+    const { cursorRow: row, cursorCol: col } = state;
+    mark = { r1: row, c1: col, r2: row, c2: col };
+    // So a following Shift+click extends this block rather than an old one.
+    dragAnchor = { row, col };
+    if (selectionMode === "stream") {
+      window.getSelection()?.removeAllRanges();
+    }
+  }
+  mark.r2 = clamp(mark.r2 + step[0], 1, state.rows);
+  mark.c2 = clamp(mark.c2 + step[1], 1, state.cols);
+  drawMark();
+}
+
+function clamp(value, low, high) {
+  return Math.min(Math.max(value, low), high);
+}
+
 function copyMark() {
   const text = markedText();
   if (text) {
@@ -134,6 +180,71 @@ function copyMark() {
   }
   clearMark();
   screenEl.focus();
+}
+
+// Copy whichever kind of selection is in play: a marked rectangle if there is
+// one, otherwise whatever the browser has selected in stream mode.
+function copySelection() {
+  if (mark) {
+    copyMark();
+    return;
+  }
+  const text = window.getSelection()?.toString() ?? "";
+  if (text) {
+    vscode.postMessage({ op: "copy", text });
+  }
+  screenEl.focus();
+}
+
+function markAll() {
+  mark = { r1: 1, c1: 1, r2: state.rows, c2: state.cols };
+  drawMark();
+}
+
+/**
+ * Right-click menu.
+ *
+ * VS Code's own webview menu is built from Electron editing roles, which act on
+ * a DOM selection and an editable target. Block mode has neither — it suppresses
+ * native selection, and the grid is a wall of divs — so Copy, Cut and Paste all
+ * come up dead. This menu works on the mark instead, and gets clipboard text
+ * from the extension host, which is the only side allowed to read it.
+ */
+function hideMenu() {
+  menuEl.hidden = true;
+  menuEl.textContent = "";
+}
+
+function showMenu(x, y) {
+  const items = [
+    { label: "Copy", enabled: Boolean(mark) || hasSelection(), run: copySelection },
+    { label: "Paste", enabled: true, run: () => vscode.postMessage({ op: "pasteRequest" }) },
+    { label: "Mark all", enabled: selectionMode === "block", run: markAll },
+  ];
+
+  menuEl.textContent = "";
+  for (const item of items) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "menu-item";
+    button.textContent = item.label;
+    button.disabled = !item.enabled;
+    button.addEventListener("click", () => {
+      hideMenu();
+      item.run();
+      // The button took focus on the way in; the 3270 needs it back.
+      screenEl.focus();
+    });
+    menuEl.appendChild(button);
+  }
+
+  // Placed, then nudged back inside the panel if it would hang off the edge.
+  menuEl.hidden = false;
+  menuEl.style.left = "0px";
+  menuEl.style.top = "0px";
+  const { width, height } = menuEl.getBoundingClientRect();
+  menuEl.style.left = `${clamp(x, 0, Math.max(0, window.innerWidth - width))}px`;
+  menuEl.style.top = `${clamp(y, 0, Math.max(0, window.innerHeight - height))}px`;
 }
 
 const measure = document.createElement("canvas").getContext("2d");
@@ -279,7 +390,24 @@ function paint() {
   positionCursor();
 }
 
+function cursorInMark() {
+  if (!mark) {
+    return false;
+  }
+  const { cursorRow: row, cursorCol: col } = state;
+  return (
+    row >= Math.min(mark.r1, mark.r2) &&
+    row <= Math.max(mark.r1, mark.r2) &&
+    col >= Math.min(mark.c1, mark.c2) &&
+    col <= Math.max(mark.c1, mark.c2)
+  );
+}
+
 function positionCursor() {
+  // Cursor and mark both paint white through a difference blend, so a cell
+  // carrying both is differenced twice and comes back unmarked. Hide the
+  // cursor there: inside a reverse-video block it would be invisible anyway.
+  cursorEl.style.display = cursorInMark() ? "none" : "block";
   cursorEl.style.width = `${cellW}px`;
   cursorEl.style.height = insertMode ? "2px" : `${cellH}px`;
   cursorEl.style.left = `${(state.cursorCol - 1) * cellW}px`;
@@ -474,6 +602,10 @@ function runAction(action) {
     // insert mode without sending anything to the host.
     setInsert(false);
     document.getElementById("oia-msg").textContent = "";
+  } else if (kind === "local" && value === "markclear") {
+    clearMark();
+  } else if (kind === "local" && value.startsWith("mark")) {
+    moveMark(value.slice("mark".length));
   }
 }
 
@@ -489,35 +621,49 @@ screenEl.addEventListener("keydown", (e) => {
   }
   soloModifier = "";
 
+  // Any key dismisses the menu. Escape does only that, keeping the mark that
+  // was about to be copied; every other key goes on to do its usual job.
+  if (!menuEl.hidden) {
+    hideMenu();
+    if (e.key === "Escape") {
+      e.preventDefault();
+      return;
+    }
+  }
+
   // Clipboard and select-all. Ctrl+C only means ATTN when there is nothing to
   // copy, so a real 3270 attention key is still reachable.
   const clip = e.key.toLowerCase();
   if ((e.ctrlKey || e.metaKey) && ["c", "a", "v", "x"].includes(clip)) {
     if (clip === "c") {
-      if (selectionMode === "block") {
+      // A mark wins in either mode, since Shift+arrow can make one in both.
+      if (mark) {
         e.preventDefault();
-        if (mark) {
-          copyMark();
-        } else {
-          runAction("aid:attn");
-        }
-      } else if (!hasSelection()) {
+        copyMark();
+      } else if (selectionMode === "block" || !hasSelection()) {
         e.preventDefault();
         runAction("aid:attn");
       }
     } else if (clip === "a" && selectionMode === "block") {
       // Mark the whole screen; stream mode keeps the browser's select-all.
       e.preventDefault();
-      mark = { r1: 1, c1: 1, r2: state.rows, c2: state.cols };
-      drawMark();
+      markAll();
     }
+    return;
+  }
+
+  const action = keymap[chordFor(e)];
+
+  // The marking keys are the one thing that must not drop the mark first.
+  if (action && action.startsWith("local:mark")) {
+    e.preventDefault();
+    runAction(action);
     return;
   }
 
   // Any other key is host input, so the mark has served its purpose.
   clearMark();
 
-  const action = keymap[chordFor(e)];
   if (action) {
     e.preventDefault();
     runAction(action);
@@ -647,6 +793,26 @@ window.addEventListener("mouseup", (e) => {
     });
   }
 });
+
+screenEl.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  showMenu(e.clientX, e.clientY);
+});
+
+// Anything that is not a click on the menu itself dismisses it. Capture, so a
+// press on the grid closes the menu before it starts marking a new block.
+window.addEventListener(
+  "mousedown",
+  (e) => {
+    if (!menuEl.hidden && !menuEl.contains(e.target)) {
+      hideMenu();
+    }
+  },
+  true
+);
+
+window.addEventListener("blur", hideMenu);
+window.addEventListener("resize", hideMenu);
 
 // A 3270 drops the marked block once it has been copied. Clearing after the
 // event lets the browser read the selection first, and taking focus back means

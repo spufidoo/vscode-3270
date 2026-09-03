@@ -81,6 +81,49 @@ body {
   display: none;
 }
 
+/* Our own right-click menu. VS Code's is built from Electron editing roles,
+   which need a DOM selection and an editable target; block mode has neither. */
+#menu {
+  position: fixed;
+  z-index: 10;
+  min-width: 140px;
+  padding: 4px 0;
+  border: 1px solid var(--vscode-menu-border, var(--vscode-widget-border, #454545));
+  border-radius: 5px;
+  background: var(--vscode-menu-background, #252526);
+  color: var(--vscode-menu-foreground, #cccccc);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#menu[hidden] {
+  display: none;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 4px 22px 4px 12px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size, 13px);
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-item:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.menu-item:not(:disabled):hover {
+  background: var(--vscode-menu-selectionBackground, #04395e);
+  color: var(--vscode-menu-selectionForeground, #ffffff);
+}
+
 #status {
   flex: 0 0 22px;
   display: flex;

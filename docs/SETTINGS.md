@@ -76,6 +76,10 @@ How selecting and copying works in a session.
 Either way, Ctrl+C copies and Ctrl+V pastes, and non-display (password) fields
 read as blanks so they can never be copied.
 
+This setting governs the **mouse** only. Shift+arrows mark a rectangle from the
+keyboard in either mode, anchored on the 3270 cursor, and Escape drops it. See
+[KEYMAP.md](KEYMAP.md) for the `local:mark*` actions behind those chords.
+
 - Type: `string` (`block` | `stream`)
 - Default: `block`
 - Applies: live
