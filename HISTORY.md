@@ -23,6 +23,7 @@ below are left as they were said at the time rather than rewritten.
 | [1 Sep][d6] | Block selection, resilience, the rename | 0.7.1–0.9.0 |
 | [2 Sep][d7] | tnz and ebcdic bundled | 0.10.0 |
 | [3 Sep][d8] | Keyboard marking, menu, fonts, Mac insert | 0.11.0 |
+| [4 Sep][d9] | A save that reports failure, live palette | 0.11.1 |
 
 [Why this exists](#why-this-exists) ·
 [What was left on purpose](#what-was-left-on-purpose) ·
@@ -36,6 +37,7 @@ below are left as they were said at the time rather than rewritten.
 [d6]: #1-september--selection-resilience-a-name
 [d7]: #2-september--no-prerequisites
 [d8]: #3-september--marking-without-a-mouse-and-a-mac-keyboard
+[d9]: #4-september--a-save-that-said-nothing
 
 ## Why this exists
 
@@ -397,6 +399,24 @@ while nobody is running that way — the workaround is a `tn3270.keymap` entry,
 which is per-user anyway — but it is the first thing to check if a Mac tester
 says insert mode stopped working after moving to a remote workspace.
 
+## 4 September — a save that said nothing
+
+Tags: `v0.11.1`
+
+Resetting a host palette to the defaults changed nothing, and the profile in
+`settings.json` still held the old colours. The form was posting the save and
+the write was being refused: VS Code will not write user settings while
+`settings.json` is open with unsaved changes. The rejection landed in an async
+message handler with no `catch`, so a save that failed looked exactly like a
+save that worked and changed nothing. Failures now go through `reportError`
+and into the form's status line, which named the cause on the first retry.
+
+A profile edited anywhere else — by hand in `settings.json`, or arriving
+through Settings Sync — also left an open session on its old palette. The
+configuration listener refreshed the host tree but only pushed keymap, font
+and selection changes to sessions. Host changes now reach the session as well,
+through the same `applyProfile` the Save button has always used.
+
 ## What was left on purpose
 
 - DUP / Field Mark keys.
@@ -417,7 +437,7 @@ says insert mode stopped working after moving to a remote workspace.
 
 ## Where it stands
 
-Current packaged version at the end of this record: **0.11.0**.
+Current packaged version at the end of this record: **0.11.1**.
 
 `origin` is the BMC GHE repository and the source of truth; the public GitHub
 repository is a mirror. The same source builds both flavours, the display name

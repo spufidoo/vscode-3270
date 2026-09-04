@@ -60,6 +60,16 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration("tn3270.hosts")) {
         tree.refresh();
+        // A profile can also change from settings.json or Settings Sync, not
+        // just the editor tab, and a live session should not have to be
+        // reconnected to pick up a new palette.
+        const hosts = getHosts();
+        for (const [id, panel] of sessions) {
+          const host = hosts.find((h) => h.id === id);
+          if (host) {
+            panel.applyProfile(host);
+          }
+        }
       }
       if (e.affectsConfiguration("tn3270.keymap")) {
         for (const panel of sessions.values()) {

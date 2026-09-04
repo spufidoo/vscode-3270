@@ -4,7 +4,7 @@
 import * as vscode from "vscode";
 import { listFontFamilies } from "./fonts";
 import { normalizeColors } from "./hosts";
-import { log } from "./log";
+import { log, reportError } from "./log";
 import { getDefaultFontFamily } from "./session";
 import { getIdleTimeout, getSyntax } from "./transfer";
 import { HostProfile } from "./types";
@@ -66,7 +66,19 @@ export class HostEditorPanel {
         } else if (msg.op === "close") {
           this.panel.dispose();
         } else if (msg.op === "save") {
-          await this.save(msg.host as Partial<HostProfile>);
+          // A rejected save used to leave the form looking untouched and
+          // saying nothing, which is indistinguishable from a save that
+          // worked but changed nothing.
+          try {
+            await this.save(msg.host as Partial<HostProfile>);
+          } catch (err) {
+            reportError("host editor save", err);
+            const reason = err instanceof Error ? err.message : String(err);
+            void this.panel.webview.postMessage({
+              op: "invalid",
+              message: `Save failed: ${reason}`,
+            });
+          }
         }
       }
     );
