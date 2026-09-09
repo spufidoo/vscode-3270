@@ -565,8 +565,9 @@ function modifierChord(e) {
   return (e.location === 2 ? "right" : "left") + name;
 }
 
-function chordFor(e) {
-  const key = KEY_ALIASES[e.key] || e.key.toLowerCase();
+// Shared with the wheel, so a chord means the same thing whichever device
+// produced it.
+function modifierPrefix(e) {
   let chord = "";
   if (e.ctrlKey) {
     chord += "ctrl+";
@@ -580,7 +581,12 @@ function chordFor(e) {
   if (e.metaKey) {
     chord += "meta+";
   }
-  return chord + key;
+  return chord;
+}
+
+function chordFor(e) {
+  const key = KEY_ALIASES[e.key] || e.key.toLowerCase();
+  return modifierPrefix(e) + key;
 }
 
 function setInsert(on) {
@@ -795,6 +801,85 @@ window.addEventListener("mouseup", (e) => {
     });
   }
 });
+
+// One notch of a conventional wheel. A free-spinning wheel and a trackpad
+// send many smaller deltas instead, so motion is accumulated to this before
+// anything is sent: otherwise one flick would be dozens of AIDs.
+const WHEEL_STEP = 100;
+
+// deltaMode 1 is lines and 2 is pages. Neither is in pixels, so put them on
+// the same scale as deltaMode 0 before adding them up.
+const WHEEL_LINE = 16;
+
+let wheelX = 0;
+let wheelY = 0;
+
+// A reversal starts again, so flicking back does not first have to work off
+// the remainder left by the flick out.
+function accumulate(total, delta) {
+  const reversed = (total > 0 && delta < 0) || (total < 0 && delta > 0);
+  return reversed ? delta : total + delta;
+}
+
+function wheelPixels(delta, mode) {
+  if (mode === 1) {
+    return delta * WHEEL_LINE;
+  }
+  if (mode === 2) {
+    return delta * WHEEL_STEP;
+  }
+  return delta;
+}
+
+// A 3270 screen has no scrollback and fit() always sizes the grid to the
+// panel, so there is nothing to scroll. The wheel sends an AID instead, the
+// way Vista and PCOMM do it, dispatched through the keymap like any chord.
+gridEl.addEventListener(
+  "wheel",
+  (e) => {
+    // Nothing below this scrolls, so never let the gesture bubble away.
+    e.preventDefault();
+
+    // The host has the keyboard. More AIDs would queue up and overshoot by
+    // however far the wheel spun while we waited, so drop the whole gesture.
+    if (state.lock) {
+      wheelX = 0;
+      wheelY = 0;
+      return;
+    }
+
+    wheelY = accumulate(wheelY, wheelPixels(e.deltaY, e.deltaMode));
+    wheelX = accumulate(wheelX, wheelPixels(e.deltaX, e.deltaMode));
+
+    // Vertical wins a diagonal: a tilt wheel is nudged sideways by accident
+    // far more often than the other way about.
+    let name = "";
+    if (Math.abs(wheelY) >= WHEEL_STEP) {
+      name = wheelY > 0 ? "wheeldown" : "wheelup";
+    } else if (Math.abs(wheelX) >= WHEEL_STEP) {
+      name = wheelX > 0 ? "wheelright" : "wheelleft";
+    }
+    if (!name) {
+      return;
+    }
+    wheelX = 0;
+    wheelY = 0;
+
+    const action = keymap[modifierPrefix(e) + name];
+    if (!action) {
+      return;
+    }
+
+    // Act on what the pointer is over, as PCOMM does: putting the cursor
+    // there first means a split ISPF screen scrolls the half being pointed
+    // at, rather than whichever one the cursor was left in.
+    const { row, col } = cellFromEvent(e);
+    screenEl.focus();
+    vscode.postMessage({ op: "click", row, col, double: false, ctrl: false });
+    runAction(action);
+  },
+  { passive: false }
+);
 
 screenEl.addEventListener("contextmenu", (e) => {
   e.preventDefault();

@@ -91,6 +91,7 @@ All sessions share one Python sidecar process. If it stops, the open tabs say
 | Insert (Ctrl+I on macOS) | Toggle insert |
 | Ctrl+R, Right Ctrl | Reset |
 | Click / double-click | Cursor / cursor + ENTER |
+| Wheel up / down | PF7 / PF8 at the pointer |
 | Right-click | Copy, Paste and Mark all menu |
 | Drag | Mark a rectangle (block) or a run of text (stream) |
 | Shift+arrows | Mark a rectangle from the keyboard |
@@ -133,6 +134,19 @@ Right-click offers Copy, Paste and Mark all. This is the view's own menu rather
 than VS Code's, whose Cut/Copy/Paste entries are wired to a text selection and an
 editable target and so do nothing on a 3270 screen. There is no Cut: cutting host
 data is not a thing a terminal can do.
+
+## The wheel
+
+A 3270 has no scrollback and the screen always fits the panel, so the wheel
+sends PF7 and PF8 instead — the keys that page in ISPF — as Vista and PCOMM do.
+The cursor moves to the cell under the pointer first, so a split screen scrolls
+the half you are pointing at, and nothing is sent while the host holds the
+keyboard, so a fast spin cannot overshoot.
+
+A sideways tilt wheel is off until you set `tn3270.wheel.horizontal`, which
+binds PF10 and PF11. All four are ordinary chords — `wheelup`, `wheeldown`,
+`wheelleft`, `wheelright` — so `tn3270.keymap` can change them. See
+[docs/KEYMAP.md](docs/KEYMAP.md#the-wheel).
 
 ## Macros
 

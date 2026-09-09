@@ -47,6 +47,10 @@ the browser's `event.key` lower-cased, with these substitutions:
 Everything else is the obvious lower-case name: `a`, `7`, `f9`, `enter`, `tab`,
 `home`, `end`, `insert`, `delete`, `backspace`, `pause`.
 
+The mouse wheel has four names of its own — `wheelup`, `wheeldown`, `wheelleft`
+and `wheelright` — which take modifiers like any other chord. See
+[The wheel](#the-wheel).
+
 Use `shift+` only for keys where Shift does not already change the character.
 `shift+f3` and `shift+tab` are right; a shifted letter arrives as that letter, so
 bind `a`, not `shift+a`.
@@ -172,6 +176,8 @@ somewhere distant.
 | `ctrl+r`, `rightctrl` | Reset |
 | `shift+left` `shift+right` `shift+up` `shift+down` | Extend the block selection |
 | `escape` | Drop the block selection |
+| `wheelup`, `wheeldown` | PF7, PF8 |
+| `wheelleft`, `wheelright` | PF10, PF11, if `tn3270.wheel.horizontal` is on |
 
 Defaults follow [zti](https://github.com/IBM/tnz), the terminal front end shipped
 with tnz, wherever the two overlap.
@@ -205,6 +211,46 @@ current field.
 | Drag | Select text |
 | Shift+click | Pull the near corner of a marked block (block mode) |
 | Right-click | Copy, Paste and Mark all menu |
+| Wheel up / down | Move the cursor to the pointer and send PF7 / PF8 |
+| Wheel left / right | PF10 / PF11, if `tn3270.wheel.horizontal` is on |
+
+### The wheel
+
+A 3270 screen has no scrollback, and the view always sizes the whole screen to
+fit the panel, so there is nothing for a wheel to scroll. It sends an AID
+instead, as Vista and PCOMM do: PF7 and PF8, the keys that page in ISPF, SDSF
+and File-AID.
+
+The chords are `wheelup`, `wheeldown`, `wheelleft` and `wheelright`, so they can
+be rebound like any other. Modifiers work too, if your mouse sends them:
+
+```json
+"tn3270.keymap": {
+  "wheelup": "aid:pf19",
+  "ctrl+wheelup": "nav:up",
+  "wheeldown": ""
+}
+```
+
+Three things happen before an AID is sent:
+
+- **The cursor moves to the cell under the pointer.** A split ISPF screen
+  therefore scrolls the half you are pointing at, whichever half you were
+  typing in.
+- **Motion is accumulated.** A notched wheel sends one large event per notch,
+  while a free-spinning wheel or a trackpad sends a stream of small ones; both
+  have to travel the same distance to send one AID. Reversing direction starts
+  the count again.
+- **Nothing is sent while the keyboard is locked.** If the status line shows
+  `X SYSTEM` the host is still working, and queued AIDs would overshoot by
+  however far the wheel spun in the meantime, so the gesture is dropped rather
+  than banked.
+
+Horizontal is off until you set `tn3270.wheel.horizontal`. PF10 and PF11 shift
+left and right in ISPF but mean nothing in particular elsewhere, and a tilt
+wheel is easy to catch by accident. Binding `wheelleft` or `wheelright` in
+`tn3270.keymap` works whether or not the setting is on, since overrides are
+merged over the defaults.
 
 The right-click menu is the view's own. VS Code's webview menu builds Cut, Copy
 and Paste from Electron editing roles, which act on a text selection and an

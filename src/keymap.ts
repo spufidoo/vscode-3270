@@ -94,6 +94,12 @@ export const DEFAULT_KEYMAP: Keymap = {
   "ctrl+r": "local:reset",
   rightctrl: "local:reset",
 
+  // A 3270 has no scrollback, so the wheel can only mean an AID. PF7 and PF8
+  // are what scroll in ISPF, SDSF and File-AID. The horizontal pair is added
+  // by resolveKeymap when tn3270.wheel.horizontal is on.
+  wheelup: "aid:pf7",
+  wheeldown: "aid:pf8",
+
   // Mark a block without the mouse. The first one anchors at the cursor; the
   // 3270 cursor itself does not move, so the typing position survives a copy.
   "shift+left": "local:markleft",
@@ -136,10 +142,19 @@ export const ACTION_LABELS: Record<string, string> = {
 
 /** Defaults with the user's tn3270.keymap merged over the top. */
 export function resolveKeymap(): Keymap {
-  const overrides = vscode.workspace
-    .getConfiguration("tn3270")
-    .get<Keymap>("keymap", {});
+  const config = vscode.workspace.getConfiguration("tn3270");
+  const overrides = config.get<Keymap>("keymap", {});
   const map: Keymap = { ...DEFAULT_KEYMAP };
+
+  // Off by default: PF10 and PF11 shift left and right in ISPF, but elsewhere
+  // they are whatever the application made them, and a tilt wheel is easy to
+  // nudge by accident. Binding them in tn3270.keymap works either way, since
+  // overrides are merged after this.
+  if (config.get<boolean>("wheel.horizontal", false)) {
+    map.wheelleft = "aid:pf10";
+    map.wheelright = "aid:pf11";
+  }
+
   for (const [chord, action] of Object.entries(overrides || {})) {
     const key = String(chord).trim().toLowerCase();
     if (!key) {
