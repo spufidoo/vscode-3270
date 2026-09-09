@@ -97,6 +97,11 @@
           "default": false,
           "markdownDescription": "Log every step a script macro takes to the **3270** output channel: what is typed, which AID key is sent, where the cursor was, and what `on_screen` found. Passwords from `ask_password` are replaced with asterisks. The channel opens automatically when a traced macro starts."
         },
+        "tn3270.wheel.horizontal": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Let a sideways tilt wheel send PF10 and PF11, which shift left and right in ISPF. Off by default: outside ISPF those keys are whatever the application made them, and a tilt wheel is easy to nudge by accident. The vertical wheel always sends PF7 and PF8. Either pair can be rebound in `tn3270.keymap` as `wheelup`, `wheeldown`, `wheelleft` and `wheelright`."
+        },
         "tn3270.selection": {
           "type": "string",
           "enum": [

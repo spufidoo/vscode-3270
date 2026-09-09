@@ -71,7 +71,11 @@ export function activate(context: vscode.ExtensionContext): void {
           }
         }
       }
-      if (e.affectsConfiguration("tn3270.keymap")) {
+      if (
+        e.affectsConfiguration("tn3270.keymap") ||
+        // Turning the tilt wheel on or off adds or removes two defaults.
+        e.affectsConfiguration("tn3270.wheel.horizontal")
+      ) {
         for (const panel of sessions.values()) {
           panel.sendConfig();
         }

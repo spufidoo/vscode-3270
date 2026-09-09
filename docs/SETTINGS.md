@@ -107,8 +107,29 @@ action:
 An empty value removes a default binding. Run **3270 Terminal: Show Keyboard Map** to
 see the merged result. Full syntax is in [KEYMAP.md](KEYMAP.md).
 
+The mouse wheel is bound the same way, under the chord names `wheelup`,
+`wheeldown`, `wheelleft` and `wheelright`.
+
 - Type: `object` (chord → action string)
 - Default: `{}`
+- Applies: live
+
+### `tn3270.wheel.horizontal`
+
+Let a sideways tilt wheel send PF10 and PF11, the keys that shift left and right
+in ISPF. Off by default: elsewhere those keys are whatever the application made
+them, and a tilt wheel is easy to nudge by accident.
+
+The vertical wheel always sends PF7 and PF8. Both pairs can be rebound in
+`tn3270.keymap`, and binding `wheelleft` or `wheelright` there works whether or
+not this setting is on, because overrides are merged over the defaults.
+
+Wheel motion moves the cursor to the cell under the pointer before sending the
+AID, and is ignored while the host holds the keyboard. See
+[KEYMAP.md](KEYMAP.md#the-wheel).
+
+- Type: `boolean`
+- Default: `false`
 - Applies: live
 
 ### `tn3270.macros`
@@ -319,6 +340,7 @@ the original used `[password:Password]` (or `ask_password` in a script) instead.
     ],
     "tn3270.fontFamily": "Consolas",
     "tn3270.selection": "block",
+    "tn3270.wheel.horizontal": true,
     "tn3270.macros": {
         "password": "[password:Password]",
         "probe": "[prompt:Type something]",
