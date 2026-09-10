@@ -71,6 +71,28 @@ body {
   mix-blend-mode: difference;
 }
 
+#cursor.blinking {
+  animation: cursor-blink 1.06s steps(2, start) infinite;
+}
+
+@keyframes cursor-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* The rule line through the cursor. Differenced like the cursor so it reads
+   on any palette, but faint enough to leave the character underneath legible. */
+#cross-row,
+#cross-col {
+  position: absolute;
+  pointer-events: none;
+  background: #ffffff;
+  mix-blend-mode: difference;
+  opacity: 0.3;
+  display: none;
+}
+
 /* Same difference-blend trick as the cursor, so the marked rectangle reads as
    reverse video over any colour scheme. */
 #mark {

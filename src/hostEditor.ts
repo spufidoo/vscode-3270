@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 import { listFontFamilies } from "./fonts";
 import { normalizeColors } from "./hosts";
 import { log, reportError } from "./log";
+import { getMacros } from "./macros";
 import { getDefaultFontFamily } from "./session";
 import { getIdleTimeout, getSyntax } from "./transfer";
 import { HostProfile } from "./types";
@@ -110,6 +111,7 @@ export class HostEditorPanel {
       blink: raw.blink === true,
       colors: normalizeColors(raw.colors),
       fontFamily: String(raw.fontFamily || "").trim(),
+      connectMacro: String(raw.connectMacro || "").trim(),
       transferSyntax:
         raw.transferSyntax === "tso" || raw.transferSyntax === "cms"
           ? raw.transferSyntax
@@ -131,6 +133,7 @@ export class HostEditorPanel {
       host,
       isNew: this.isNew,
       defaultFontFamily: getDefaultFontFamily(),
+      macros: Object.keys(getMacros()).sort(),
       // Shown as placeholders, so an empty box says what it will fall back to.
       defaultTransfer: {
         syntax: getSyntax(),
@@ -270,6 +273,20 @@ export class HostEditorPanel {
 
       <span class="label-spacer"></span>
       <label class="check"><input id="f-tn3270e" type="checkbox" /> Negotiate TN3270E</label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Automation</h2>
+    <div class="grid">
+      <label for="f-connectMacro">Logon macro</label>
+      <input id="f-connectMacro" type="text" list="macros" placeholder="None" />
+      <datalist id="macros"></datalist>
+
+      <span class="label-spacer"></span>
+      <p class="hint">Run once, as soon as the host draws its first screen after
+      connecting. Names come from <code>tn3270.macros</code>. A script macro can
+      ask for the password each time, so nothing has to be stored here.</p>
     </div>
   </section>
 

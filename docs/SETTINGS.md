@@ -90,6 +90,93 @@ keyboard in either mode, anchored on the 3270 cursor, and Escape drops it. See
 - Default: `block`
 - Applies: live
 
+### `tn3270.crosshair`
+
+Draw a rule line through the cursor, as PCOMM and Vista do, to find it on a
+crowded screen. The line follows the 3270 cursor, not the mouse, so it also shows
+where typing will land.
+
+- `off` (default), `row`, `column`, or `cross` for both
+
+- Type: `string` (`off` | `row` | `column` | `cross`)
+- Default: `off`
+- Applies: live
+
+### `tn3270.cursor.style`
+
+Shape of the 3270 cursor: a full-height `block` or a bottom `underline`. Insert
+mode shows the other shape, so the two states are always distinguishable
+whichever way round they are.
+
+- Type: `string` (`block` | `underline`)
+- Default: `block`
+- Applies: live
+
+### `tn3270.cursor.blink`
+
+Blink the cursor, the way a real terminal does.
+
+- Type: `boolean`
+- Default: `false`
+- Applies: live
+
+## Hotspots and the alarm
+
+### `tn3270.hotspots`
+
+Make text on the screen clickable. `F3=Exit` sends PF3, and an `http://` or
+`https://` address opens in your browser.
+
+Only **protected** fields count. Applications write their function-key legends
+into protected fields and everything you type goes into unprotected ones, so a
+click in an entry field always just moves the cursor. A word is a hotspot if it
+reads `PF3`, `F3`, `F3=Exit` or `3=Exit`, for keys 1 to 24; a bare number is
+data, not a key. Ctrl+click is left to `tn3270.clickMacro`.
+
+- `click` (default) — a single click follows the hotspot
+- `doubleclick` — a double-click follows it; a single click still moves the
+  cursor, and a double-click elsewhere still sends ENTER
+- `off` — clicks only move the cursor
+
+- Type: `string` (`click` | `doubleclick` | `off`)
+- Default: `click`
+- Applies: live
+
+### `tn3270.alarm`
+
+Sound a short beep when the host sets the alarm bit in a write control character
+— the 3270's own bell, which TSO, ISPF and CICS use to say something needs
+attention. The tone is generated in the session panel, so it follows the system
+output volume and needs no sound file.
+
+- Type: `boolean`
+- Default: `true`
+- Applies: live
+
+## Capture and logging
+
+Two palette commands write the screen to a file:
+
+- **3270 Terminal: Capture Screen** — the screen as it stands, in one text file.
+- **3270 Terminal: Start or Stop Session Log** — every screen from now until it
+  is stopped, each with a timestamp header. The tab title gains `(log)` while it
+  runs, and a screen is recorded once it has stood still for a moment, so typing
+  a command leaves one entry rather than one per keystroke. Closing the tab stops
+  the log and closes the file.
+
+Non-display fields are blank in both, because the sidecar blanks them before the
+screen ever reaches this side. A password cannot be captured or logged.
+
+### `tn3270.capture.directory`
+
+Where both commands write. A relative path is taken from the workspace folder,
+`~` from your home directory. Empty uses the extension's own storage folder, and
+the message that appears after each capture has an **Open** button.
+
+- Type: `string`
+- Default: `""`
+- Applies: next capture
+
 ## Keyboard and macros
 
 ### `tn3270.keymap`
@@ -222,7 +309,7 @@ for you; this is what it writes.
 | `secure` | boolean | TLS. New profiles are plain telnet (`false`) |
 | `verifyCert` | boolean | Verify the server certificate (TLS only) |
 | `secLevel` | number | TLS level for older stacks; `1` is common. Omit for default |
-| `luName` | string | LU name; requires `tn3270e` |
+| `luName` | string | LU name; requires `tn3270e`. A pinned LU allows only one session at a time |
 | `tn3270e` | boolean | Negotiate TN3270E |
 | `codePage` | string | EBCDIC code page, e.g. `037` |
 | `psSize` | string | Screen size as `rowsxcols`, e.g. `24x80` or `30x133` |
@@ -230,6 +317,7 @@ for you; this is what it writes.
 | `blink` | boolean | Render the blink highlight instead of ignoring it |
 | `colors` | object | Per-host palette (`background`, `black`, `blue`, `red`, `pink`, `green`, `turquoise`, `yellow`, `white`) |
 | `fontFamily` | string | Per-host font; empty follows `tn3270.fontFamily` |
+| `connectMacro` | string | Macro to run once the host draws its first screen after connecting; empty means none |
 | `transferSyntax` | string | `tso`, `cms`, or empty to follow `tn3270.transfer.syntax` |
 | `transferOptions` | string | Default IND$FILE options; empty follows `tn3270.transfer.options` |
 | `transferIdleTimeout` | number | Seconds before a transfer is abandoned; `0` follows `tn3270.transfer.idleTimeout` |
@@ -238,6 +326,24 @@ The three transfer fields exist because IND$FILE syntax is a property of the hos
 rather than a preference: TSO rejects the parenthesis that CMS requires. A shop
 with both kinds of system cannot be served by one workspace setting, so each
 profile can pin its own and the settings act as the fallback.
+
+`connectMacro` is the logon macro. It runs once per connect, and again on each
+reconnect.
+
+Timing is the whole difficulty with it. Connecting means the socket is up, which
+happens well before the host has written anything, and the sidecar draws the
+empty buffer straight away. Typing into that goes nowhere, and the logon panel
+then arrives on top of it. So the macro waits for a screen that is unlocked, has
+something on it, and has stopped changing for about half a second — the last
+condition because VTAM front ends and session managers often paint two or three
+panels in quick succession. There is no need to begin the macro with `[wait]`,
+though one does no harm.
+
+If no such screen arrives within thirty seconds the macro is not run at all, and
+a warning says so rather than letting it type into whatever eventually appears.
+The **3270** output channel records which screen it did start on, by its topmost
+line, which is the quickest way to tell a macro that ran too early from one with
+a bug in it.
 
 Passwords are never stored in a profile. Log on in the 3270 screen, or use a script
 macro that prompts with `ask_password`.
@@ -282,7 +388,8 @@ the original used `[password:Password]` (or `ask_password` in a script) instead.
                 "yellow": "#ffff00",
                 "white": "#ffffff"
             },
-            "fontFamily": "Consolas"
+            "fontFamily": "Consolas",
+            "connectMacro": "startlpar"
         },
         {
             "id": "934a857f-0742-4933-87cd-5a445bab2c73",
@@ -340,6 +447,12 @@ the original used `[password:Password]` (or `ask_password` in a script) instead.
     ],
     "tn3270.fontFamily": "Consolas",
     "tn3270.selection": "block",
+    "tn3270.crosshair": "cross",
+    "tn3270.cursor.style": "block",
+    "tn3270.cursor.blink": true,
+    "tn3270.alarm": true,
+    "tn3270.hotspots": "click",
+    "tn3270.capture.directory": "~/3270-captures",
     "tn3270.wheel.horizontal": true,
     "tn3270.macros": {
         "password": "[password:Password]",

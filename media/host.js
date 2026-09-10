@@ -130,6 +130,18 @@ function renderPreview() {
   }
 }
 
+// Suggestions for the logon macro box. Small enough for a datalist, unlike
+// the font list, and a name that is not defined yet is still allowed.
+function applyMacros(names) {
+  const list = el("macros");
+  list.textContent = "";
+  for (const name of names || []) {
+    const option = document.createElement("option");
+    option.value = name;
+    list.appendChild(option);
+  }
+}
+
 function syncEnabled() {
   const tls = el("f-secure").value === "tls";
   el("f-verifyCert").disabled = !tls;
@@ -159,6 +171,7 @@ function applyHost(host, isNew) {
   el("f-fontFamily").placeholder = defaultFontFamily
     ? `${defaultFontFamily} (from settings)`
     : "Default monospace";
+  el("f-connectMacro").value = host.connectMacro || "";
   el("f-transferSyntax").value = host.transferSyntax || "";
   el("f-transferOptions").value = host.transferOptions || "";
   el("f-transferOptions").placeholder =
@@ -196,6 +209,7 @@ function collect() {
     blink: el("f-blink").checked,
     colors: currentColors(),
     fontFamily: el("f-fontFamily").value,
+    connectMacro: el("f-connectMacro").value,
     transferSyntax: el("f-transferSyntax").value,
     transferOptions: el("f-transferOptions").value,
     transferIdleTimeout: Number(el("f-transferIdleTimeout").value) || 0,
@@ -394,6 +408,7 @@ window.addEventListener("message", (event) => {
   if (msg.op === "load") {
     defaultFontFamily = String(msg.defaultFontFamily || "").trim();
     defaultTransfer = { ...defaultTransfer, ...(msg.defaultTransfer || {}) };
+    applyMacros(msg.macros);
     applyHost(msg.host, msg.isNew);
   } else if (msg.op === "fonts") {
     applyFonts(msg.names);
