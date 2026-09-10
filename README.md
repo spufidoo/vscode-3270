@@ -44,6 +44,7 @@ settings), so they can also be edited as JSON.
 | extendedColor | Advertise colour capability to the host |
 | blink | Render the blink highlight instead of ignoring it |
 | colors | Per-host palette |
+| Logon macro | Macro to run on the first screen after connecting. Empty means none |
 | IND$FILE syntax | TSO or CMS. Empty follows `tn3270.transfer.syntax` |
 | Default options / Idle timeout | Per-host transfer defaults; empty follows the `tn3270.transfer.*` settings |
 
@@ -69,6 +70,25 @@ sidebar reopens it. A session tab left open across a window reload comes back an
 reconnects itself, so a 3270 tab survives **Developer: Reload Window** the way an
 editor does — it does not resume the host session, it logs on again.
 
+One profile can have several tabs at once. **New Session** on the host, from the
+`+` on a connected row or the right-click menu, opens another one; **Connect**
+keeps going to the tabs that are already open. The second and later tabs are
+numbered in the title, as `DB2B (#2)`. Each has its own screen, logon macro,
+keyboard state, logging and transfers; they only share the profile, so editing it
+repaints all of them.
+
+A host with more than one session becomes a branch in the sidebar, with a row per
+session showing its state. Clicking one brings its tab forward, and each has its
+own **Reconnect** and **Disconnect**. The commands on the host row above work on
+the host as a whole: **Connect** revives every idle tab it has, and **Disconnect**
+asks which session to drop, or all of them. **3270 Terminal: Reconnect Session**
+in the palette acts on the tab in front of you.
+
+The one thing that does not multiply is a pinned LU: a profile with an **LU name**
+can only be in session once, and the host refuses the second attempt. Leave the LU
+blank on profiles you want several sessions of, or duplicate the profile and give
+each copy its own LU.
+
 All sessions share one Python sidecar process. If it stops, the open tabs say
 `SIDECAR STOPPED` on the status line and connecting any host starts it again.
 
@@ -90,7 +110,7 @@ All sessions share one Python sidecar process. If it stops, the open tabs say
 | Ctrl+Enter | New line |
 | Insert (Ctrl+I on macOS) | Toggle insert |
 | Ctrl+R, Right Ctrl | Reset |
-| Click / double-click | Cursor / cursor + ENTER |
+| Click / double-click | Hotspot or cursor / cursor + ENTER |
 | Wheel up / down | PF7 / PF8 at the pointer |
 | Right-click | Copy, Paste and Mark all menu |
 | Drag | Mark a rectangle (block) or a run of text (stream) |
@@ -148,6 +168,46 @@ binds PF10 and PF11. All four are ordinary chords — `wheelup`, `wheeldown`,
 `wheelleft`, `wheelright` — so `tn3270.keymap` can change them. See
 [docs/KEYMAP.md](docs/KEYMAP.md#the-wheel).
 
+## Hotspots
+
+`F3=Exit` on the screen sends PF3 when clicked, and an `http://` address opens in
+a browser. The pointer turns into a hand over one.
+
+Only protected fields are treated this way. Applications write their function-key
+legends into protected fields and everything you type goes into unprotected ones,
+so a click in an entry field always just moves the cursor. `PF3`, `F3`, `F3=Exit`
+and `3=Exit` all count, for keys 1 to 24; a bare number does not.
+
+`tn3270.hotspots` turns this off, or asks for a double-click instead.
+
+## The cursor, the rule line and the bell
+
+`tn3270.crosshair` draws PCOMM's rule line through the cursor — `row`, `column`
+or `cross` — which is how to find it on a full screen. It follows the 3270
+cursor rather than the mouse, so it also shows where typing will land.
+
+`tn3270.cursor.style` picks a block or an underline, and `tn3270.cursor.blink`
+makes it blink. Insert mode always shows the other shape, so the two states stay
+distinguishable whichever way round you set them.
+
+`tn3270.alarm` sounds the 3270 bell when the host sets the alarm bit — the beep
+TSO and ISPF use to say something needs attention. It is generated in the panel,
+so there is no sound file and no volume of its own.
+
+## Capturing and logging
+
+**3270 Terminal: Capture Screen** writes the screen as it stands to a text file.
+**Start or Stop Session Log** keeps writing every screen until you stop it, each
+with a timestamp, size and cursor position; the tab title shows `(log)` while it
+runs, and closing the tab ends the log.
+
+A screen is recorded once it has stood still for a moment, so typing a command
+leaves one entry rather than one per keystroke. Both write to
+`tn3270.capture.directory`, or to the extension's storage folder if that is
+empty, and the message afterwards opens the file. Non-display fields are already
+blank by the time a screen reaches this side, so no capture or log can contain a
+password.
+
 ## Macros
 
 **3270 Terminal: Run Macro**, or a keymap chord `macro:<name>`, plays a named
@@ -156,6 +216,13 @@ example `=3.4[enter][wait]MY.JCL[enter]`. A **script** is
 `{ "script": "startlpar" }`, a Python file in the macros folder that can read
 the screen and ask as it runs. **Open Macros Folder** creates that folder.
 Ctrl+click runs `tn3270.clickMacro` if set.
+
+A profile's **Logon macro** runs by itself after connecting, once the host has
+drawn a screen that is unlocked and has stopped changing — not the moment the
+socket is up, when there is nothing yet to type into. It gives up after thirty
+seconds rather than typing into whatever finally appears. A script macro suits
+it best, since it can wait for the screen it expects and prompt for the password
+rather than storing one.
 
 See [docs/MACROS.md](docs/MACROS.md) for tape markers, the script API, and
 examples.

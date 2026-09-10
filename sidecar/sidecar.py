@@ -755,6 +755,8 @@ class Session:
         self.tns: Tnz | None = None
         self.secure = False
         self.last_click: tuple[int, int] | None = None
+        # Set by the WCC hook, cleared by the screen that reports it.
+        self.alarm = False
         self.thread = threading.Thread(
             target=self._run, name=f"3270-{session_id}", daemon=True
         )
@@ -894,6 +896,22 @@ class Session:
                 }
             )
 
+    def _hook_alarm(self, tns) -> None:
+        """Notice the alarm bit in a write control character.
+
+        Bit 5 of the WCC is the 3270's beep. tnz only writes it to its log,
+        so its handler is wrapped: an instance attribute shadows the bound
+        method, and every later call goes through here first.
+        """
+        original = tns._process_wcc
+
+        def watch(wcc, for_mdt=False, zti=None):
+            if not for_mdt and (wcc & 0x04):
+                self.alarm = True
+            return original(wcc, for_mdt=for_mdt, zti=zti)
+
+        tns._process_wcc = watch
+
     def _connect(self, cmd: dict) -> None:
         self._disconnect()
         host = cmd.get("host") or "127.0.0.1"
@@ -911,6 +929,7 @@ class Session:
         tn3270e = bool(cmd.get("tn3270e", True))
 
         tns = Tnz(name=self.session_id)
+        self._hook_alarm(tns)
         # Advertising colour in the query reply is what invites the host to
         # send extended colour orders; without it we only get field colours.
         tns.capable_color = bool(cmd.get("capableColor", True))
@@ -1408,6 +1427,10 @@ class Session:
         attrs, eff_eh, eff_fg, eff_bg = _effective_planes(tns, size)
         text = _mask_hidden(text, tns.plane_fa, attrs, size)
         cur = tns.curadd
+        # Read and cleared together, so one beep sounds once however many
+        # screens the host writes afterwards.
+        alarm = self.alarm
+        self.alarm = False
         emit(
             {
                 "op": "screen",
@@ -1423,6 +1446,7 @@ class Session:
                 "bg": b64(eff_bg),
                 "eh": b64(eff_eh),
                 "extendedColor": bool(tns.extended_color_mode()),
+                "alarm": alarm,
             }
         )
 

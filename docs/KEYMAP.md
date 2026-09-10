@@ -205,7 +205,7 @@ current field.
 
 | Action | Result |
 | --- | --- |
-| Click | Move the cursor |
+| Click | Follow a hotspot, or move the cursor |
 | Ctrl+click (Cmd+click on macOS) | Move the cursor and run `tn3270.clickMacro`, if set |
 | Double-click | Move the cursor and send ENTER |
 | Drag | Select text |
@@ -213,6 +213,21 @@ current field.
 | Right-click | Copy, Paste and Mark all menu |
 | Wheel up / down | Move the cursor to the pointer and send PF7 / PF8 |
 | Wheel left / right | PF10 / PF11, if `tn3270.wheel.horizontal` is on |
+
+### Hotspots
+
+Text an application has written into a **protected** field can be clicked:
+`F3=Exit` sends PF3, and an `http://` or `https://` address opens in a browser.
+The pointer turns into a hand over one, so you can tell before you click.
+
+A word counts as a key if it reads `PF3`, `F3`, `F3=Exit` or `3=Exit`, for keys 1
+to 24. A bare number does not: `3` on its own is data. Only protected fields are
+considered, so a click in something you can type into always just moves the
+cursor, whatever it happens to contain.
+
+`tn3270.hotspots` turns this off, or requires a double-click instead — in which
+case a double-click away from a hotspot still sends ENTER as usual. Ctrl+click
+belongs to `tn3270.clickMacro` and is never taken by a hotspot.
 
 ### The wheel
 

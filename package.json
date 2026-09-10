@@ -2,7 +2,7 @@
   "name": "vscode-3270",
   "displayName": "3270 Terminal",
   "description": "Native 3270 terminal view for VS Code and Cursor, powered by IBM tnz.",
-  "version": "0.11.1",
+  "version": "0.12.0",
   "publisher": "mdavage",
   "license": "Apache-2.0",
   "icon": "media/icon.png",
@@ -91,6 +91,62 @@
           "type": "string",
           "default": "",
           "markdownDescription": "Default font for 3270 screens, as a CSS font list, e.g. `Cascadia Mono` or `\"IBM 3270\", Consolas`. A host profile with its own **Font** set overrides this. Empty uses the built-in monospace stack. Must be monospaced: columns sit on a fixed pitch, so a proportional font will not line up."
+        },
+        "tn3270.crosshair": {
+          "type": "string",
+          "enum": [
+            "off",
+            "row",
+            "column",
+            "cross"
+          ],
+          "default": "off",
+          "enumDescriptions": [
+            "No rule line.",
+            "A line across the cursor's row.",
+            "A line down the cursor's column.",
+            "Both, crossing at the cursor."
+          ],
+          "markdownDescription": "Draw a rule line through the cursor, as PCOMM and Vista do, to find it on a crowded screen. The line follows the 3270 cursor, not the mouse."
+        },
+        "tn3270.cursor.style": {
+          "type": "string",
+          "enum": [
+            "block",
+            "underline"
+          ],
+          "default": "block",
+          "markdownDescription": "Shape of the 3270 cursor. Insert mode shows the other shape, so the two are always told apart."
+        },
+        "tn3270.cursor.blink": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Blink the 3270 cursor, the way a real terminal does."
+        },
+        "tn3270.alarm": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Sound a short beep when the host sets the alarm bit — the 3270's own bell, used by TSO, ISPF and CICS to say something needs attention."
+        },
+        "tn3270.hotspots": {
+          "type": "string",
+          "enum": [
+            "click",
+            "doubleclick",
+            "off"
+          ],
+          "default": "click",
+          "enumDescriptions": [
+            "A single click on a hotspot follows it.",
+            "A double-click follows it; a single click still moves the cursor.",
+            "Clicks only move the cursor."
+          ],
+          "markdownDescription": "Make `F3=Exit` and `http://…` on a protected part of the screen clickable: the first sends PF3, the second opens the URL in a browser. Only protected fields count, so a click in an input field always just moves the cursor."
+        },
+        "tn3270.capture.directory": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Where **Capture Screen** and **Start or Stop Session Log** write. A relative path is taken from the workspace folder, `~` from your home directory. Empty uses the extension's own storage, and the message that appears after each capture opens the file."
         },
         "tn3270.macroTrace": {
           "type": "boolean",
@@ -198,8 +254,31 @@
         "category": "3270 Terminal"
       },
       {
+        "command": "tn3270.hosts.newSession",
+        "title": "New Session",
+        "icon": "$(add)",
+        "category": "3270 Terminal"
+      },
+      {
         "command": "tn3270.hosts.disconnect",
         "title": "Disconnect",
+        "icon": "$(debug-disconnect)",
+        "category": "3270 Terminal"
+      },
+      {
+        "command": "tn3270.session.reveal",
+        "title": "Show Session",
+        "category": "3270 Terminal"
+      },
+      {
+        "command": "tn3270.session.reconnect",
+        "title": "Reconnect Session",
+        "icon": "$(debug-start)",
+        "category": "3270 Terminal"
+      },
+      {
+        "command": "tn3270.session.disconnect",
+        "title": "Disconnect Session",
         "icon": "$(debug-disconnect)",
         "category": "3270 Terminal"
       },
@@ -239,6 +318,16 @@
         "category": "3270 Terminal"
       },
       {
+        "command": "tn3270.session.capture",
+        "title": "Capture Screen",
+        "category": "3270 Terminal"
+      },
+      {
+        "command": "tn3270.session.toggleLog",
+        "title": "Start or Stop Session Log",
+        "category": "3270 Terminal"
+      },
+      {
         "command": "tn3270.session.download",
         "title": "Download File from Host (IND$FILE)",
         "category": "3270 Terminal",
@@ -266,6 +355,11 @@
           "group": "inline"
         },
         {
+          "command": "tn3270.hosts.newSession",
+          "when": "view == tn3270.hosts && viewItem == hostConnected",
+          "group": "inline"
+        },
+        {
           "command": "tn3270.hosts.disconnect",
           "when": "view == tn3270.hosts && viewItem == hostConnected",
           "group": "inline"
@@ -273,6 +367,11 @@
         {
           "command": "tn3270.hosts.connect",
           "when": "view == tn3270.hosts && viewItem == host",
+          "group": "1_session"
+        },
+        {
+          "command": "tn3270.hosts.newSession",
+          "when": "view == tn3270.hosts && viewItem =~ /host/",
           "group": "1_session"
         },
         {
@@ -294,6 +393,32 @@
           "command": "tn3270.hosts.delete",
           "when": "view == tn3270.hosts && viewItem =~ /host/",
           "group": "3_delete"
+        },
+        {
+          "command": "tn3270.session.reconnect",
+          "when": "view == tn3270.hosts && viewItem == session",
+          "group": "inline"
+        },
+        {
+          "command": "tn3270.session.disconnect",
+          "when": "view == tn3270.hosts && viewItem == sessionConnected",
+          "group": "inline"
+        },
+        {
+          "command": "tn3270.session.reconnect",
+          "when": "view == tn3270.hosts && viewItem == session",
+          "group": "1_session"
+        },
+        {
+          "command": "tn3270.session.disconnect",
+          "when": "view == tn3270.hosts && viewItem == sessionConnected",
+          "group": "1_session"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "tn3270.session.reveal",
+          "when": "false"
         }
       ],
       "editor/title": [

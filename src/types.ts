@@ -47,6 +47,8 @@ export interface HostProfile {
   colors?: HostColors;
   /** CSS font list for the screen. Empty means the built-in monospace stack. */
   fontFamily?: string;
+  /** Macro to run once the host draws its first screen. Empty means none. */
+  connectMacro?: string;
   /** IND$FILE option syntax. Empty follows tn3270.transfer.syntax. */
   transferSyntax?: TransferSyntax | "";
   /** Extra IND$FILE options offered by default. Empty follows the setting. */
@@ -81,6 +83,8 @@ export interface ScreenEvent {
   bg: string;
   eh: string;
   extendedColor: boolean;
+  /** The host set the WCC alarm bit on the write that produced this screen. */
+  alarm?: boolean;
 }
 
 export interface StatusEvent {

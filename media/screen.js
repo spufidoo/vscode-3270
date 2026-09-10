@@ -63,13 +63,26 @@ const cursorEl = document.createElement("div");
 cursorEl.id = "cursor";
 const markEl = document.createElement("div");
 markEl.id = "mark";
+const crossRowEl = document.createElement("div");
+crossRowEl.id = "cross-row";
+const crossColEl = document.createElement("div");
+crossColEl.id = "cross-col";
 const menuEl = document.createElement("div");
 menuEl.id = "menu";
 menuEl.hidden = true;
+gridEl.appendChild(crossRowEl);
+gridEl.appendChild(crossColEl);
 gridEl.appendChild(cursorEl);
 gridEl.appendChild(markEl);
 screenEl.appendChild(gridEl);
 document.body.appendChild(menuEl);
+
+// View settings, replaced whole on a config message.
+let crosshair = config.crosshair || "off";
+let cursorStyle = config.cursorStyle === "underline" ? "underline" : "block";
+let cursorBlink = config.cursorBlink === true;
+let alarmEnabled = config.alarm !== false;
+let hotspotMode = config.hotspots || "click";
 
 // "block" marks a row/column rectangle like Vista; "stream" is the browser's
 // linear text selection. Set from config, updated live on a config message.
@@ -408,12 +421,82 @@ function positionCursor() {
   // carrying both is differenced twice and comes back unmarked. Hide the
   // cursor there: inside a reverse-video block it would be invisible anyway.
   cursorEl.style.display = cursorInMark() ? "none" : "block";
+  // The setting chooses the shape and insert mode shows the other one, so
+  // the two states are always distinguishable whichever way round they are.
+  const underline = (cursorStyle === "underline") !== insertMode;
+  const bar = Math.max(2, Math.round(cellH / 8));
   cursorEl.style.width = `${cellW}px`;
-  cursorEl.style.height = insertMode ? "2px" : `${cellH}px`;
+  cursorEl.style.height = underline ? `${bar}px` : `${cellH}px`;
   cursorEl.style.left = `${(state.cursorCol - 1) * cellW}px`;
   cursorEl.style.top = `${
-    (state.cursorRow - 1) * cellH + (insertMode ? cellH - 2 : 0)
+    (state.cursorRow - 1) * cellH + (underline ? cellH - bar : 0)
   }px`;
+  drawCross();
+}
+
+// PCOMM's rule line. It follows the 3270 cursor rather than the pointer,
+// which is what makes it useful for finding where typing will land.
+function drawCross() {
+  const wantRow = crosshair === "row" || crosshair === "cross";
+  const wantCol = crosshair === "column" || crosshair === "cross";
+  const thick = Math.max(1, Math.round(cellH / 16));
+  crossRowEl.style.display = wantRow ? "block" : "none";
+  if (wantRow) {
+    crossRowEl.style.left = "0px";
+    crossRowEl.style.width = `${state.cols * cellW}px`;
+    crossRowEl.style.height = `${thick}px`;
+    crossRowEl.style.top = `${state.cursorRow * cellH - thick}px`;
+  }
+  crossColEl.style.display = wantCol ? "block" : "none";
+  if (wantCol) {
+    crossColEl.style.top = "0px";
+    crossColEl.style.height = `${state.rows * cellH}px`;
+    crossColEl.style.width = `${thick}px`;
+    crossColEl.style.left = `${(state.cursorCol - 1) * cellW}px`;
+  }
+}
+
+function applyCursorStyle() {
+  cursorEl.classList.toggle("blinking", cursorBlink);
+  positionCursor();
+}
+
+/**
+ * The 3270 bell.
+ *
+ * An oscillator rather than a sound file: the webview's content security
+ * policy allows no media source, and this needs none. The context is built
+ * on the first beep, by which time the user has certainly interacted with
+ * the panel, so nothing is blocked by the autoplay rules.
+ */
+let audioCtx = null;
+
+function beep() {
+  const Ctor = window.AudioContext || window.webkitAudioContext;
+  if (!Ctor) {
+    return;
+  }
+  try {
+    audioCtx = audioCtx || new Ctor();
+    if (audioCtx.state === "suspended") {
+      void audioCtx.resume();
+    }
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.value = 880;
+    // Ramped at both ends: a gate that opens instantly clicks.
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.07, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.18);
+  } catch {
+    /* no audio device, or the host will not give us one */
+  }
 }
 
 function fit() {
@@ -477,6 +560,9 @@ window.addEventListener("message", (event) => {
     fit();
     paint();
     setOia();
+    if (msg.alarm && alarmEnabled) {
+      beep();
+    }
   } else if (msg.op === "status") {
     if (msg.seslost) {
       document.getElementById("oia-msg").textContent = msg.reason
@@ -501,11 +587,22 @@ window.addEventListener("message", (event) => {
       selectionMode = msg.selection === "stream" ? "stream" : "block";
       applySelectionMode();
     }
+    crosshair = msg.crosshair || "off";
+    cursorStyle = msg.cursorStyle === "underline" ? "underline" : "block";
+    cursorBlink = msg.cursorBlink === true;
+    alarmEnabled = msg.alarm !== false;
+    hotspotMode = msg.hotspots || "click";
+    if (hotspotMode === "off") {
+      // Drop any pointer left over from hovering a hotspot.
+      gridEl.style.cursor = "";
+      hoverCell = "";
+    }
     applyColors();
     FONT_STACK = fontStack(msg.fontFamily);
     fit();
     rowSig.fill(null);
     paint();
+    applyCursorStyle();
   } else if (msg.op === "focus") {
     screenEl.focus();
   } else if (msg.op === "toggleInsert") {
@@ -706,6 +803,75 @@ screenEl.addEventListener("keyup", (e) => {
   }
 });
 
+/**
+ * Hotspots.
+ *
+ * Protected text only. A legend like `F3=Exit` is written by the application
+ * into a protected field, while anything a user types sits in an unprotected
+ * one, so this rule keeps a click in an entry field from ever being read as
+ * a function key.
+ */
+const HOTSPOT_PF = /^(pf|f)?(\d{1,2})(=|$)/i;
+
+function wordAt(row, col) {
+  const start = (row - 1) * state.cols;
+  const i = start + (col - 1);
+  if (!(state.attr[i] & 0x20) || cellColor(i).hidden) {
+    return "";
+  }
+  const at = (c) => state.text[start + c] || " ";
+  let from = col - 1;
+  let to = col - 1;
+  if (at(from) === " ") {
+    return "";
+  }
+  while (from > 0 && at(from - 1) !== " ") {
+    from--;
+  }
+  while (to < state.cols - 1 && at(to + 1) !== " ") {
+    to++;
+  }
+  return state.text.slice(start + from, start + to + 1);
+}
+
+function hotspotAt(row, col) {
+  const word = wordAt(row, col).replace(/[.,;:)\]]+$/, "");
+  if (!word) {
+    return null;
+  }
+  if (/^https?:\/\/\S+$/i.test(word)) {
+    return { kind: "url", url: word };
+  }
+  const match = HOTSPOT_PF.exec(word);
+  if (!match) {
+    return null;
+  }
+  // A bare number is data. It takes either the letter or the equals sign to
+  // make it a key: `F3` and `3=Exit` are hotspots, `3` is not.
+  if (!match[1] && match[3] !== "=") {
+    return null;
+  }
+  const number = Number(match[2]);
+  if (number < 1 || number > 24) {
+    return null;
+  }
+  return { kind: "pf", aid: `pf${number}` };
+}
+
+function runHotspot(row, col) {
+  const spot = hotspotAt(row, col);
+  if (!spot) {
+    return false;
+  }
+  screenEl.focus();
+  if (spot.kind === "url") {
+    vscode.postMessage({ op: "openLink", url: spot.url });
+  } else {
+    runAction(`aid:${spot.aid}`);
+  }
+  return true;
+}
+
 function cellFromEvent(e) {
   const rect = gridEl.getBoundingClientRect();
   const col = Math.min(
@@ -728,6 +894,9 @@ gridEl.addEventListener("mouseup", (e) => {
   screenEl.focus();
   if (e.detail === 2) {
     const { row, col } = cellFromEvent(e);
+    if (hotspotMode === "doubleclick" && runHotspot(row, col)) {
+      return;
+    }
     vscode.postMessage({ op: "click", row, col, double: true });
     return;
   }
@@ -735,12 +904,17 @@ gridEl.addEventListener("mouseup", (e) => {
     return;
   }
   const { row, col } = cellFromEvent(e);
+  const ctrl = Boolean(e.ctrlKey || e.metaKey);
+  // Ctrl+click belongs to the click macro, so a hotspot never steals it.
+  if (!ctrl && hotspotMode === "click" && runHotspot(row, col)) {
+    return;
+  }
   vscode.postMessage({
     op: "click",
     row,
     col,
     double: false,
-    ctrl: Boolean(e.ctrlKey || e.metaKey),
+    ctrl,
   });
 });
 
@@ -765,6 +939,23 @@ gridEl.addEventListener("mousedown", (e) => {
   e.preventDefault();
 });
 
+// A hotspot should look clickable before it is clicked. Recomputed only when
+// the pointer crosses into another cell, since it reads the screen buffer.
+let hoverCell = "";
+
+gridEl.addEventListener("mousemove", (e) => {
+  if (hotspotMode === "off" || dragging) {
+    return;
+  }
+  const { row, col } = cellFromEvent(e);
+  const cell = `${row},${col}`;
+  if (cell === hoverCell) {
+    return;
+  }
+  hoverCell = cell;
+  gridEl.style.cursor = hotspotAt(row, col) ? "pointer" : "";
+});
+
 // On window, so a drag that leaves the grid keeps tracking (clamped by
 // cellFromEvent) instead of freezing at the edge.
 window.addEventListener("mousemove", (e) => {
@@ -785,6 +976,9 @@ window.addEventListener("mouseup", (e) => {
   screenEl.focus();
   if (e.detail === 2) {
     clearMark();
+    if (hotspotMode === "doubleclick" && runHotspot(row, col)) {
+      return;
+    }
     vscode.postMessage({ op: "click", row, col, double: true });
     return;
   }
@@ -792,12 +986,16 @@ window.addEventListener("mouseup", (e) => {
   // and position the cursor, keeping Ctrl+click for the click macro.
   if (row === dragAnchor.row && col === dragAnchor.col) {
     clearMark();
+    const ctrl = Boolean(e.ctrlKey || e.metaKey);
+    if (!ctrl && hotspotMode === "click" && runHotspot(row, col)) {
+      return;
+    }
     vscode.postMessage({
       op: "click",
       row,
       col,
       double: false,
-      ctrl: Boolean(e.ctrlKey || e.metaKey),
+      ctrl,
     });
   }
 });
@@ -939,11 +1137,16 @@ buildGrid();
 fit();
 paint();
 setOia();
+applyCursorStyle();
 screenEl.focus();
 
 // Kept so VS Code can hand this panel back to the right host after a window
 // reload; the extension reads it from the serialized state.
-vscode.setState({ hostId: config.hostId || "" });
+vscode.setState({
+  hostId: config.hostId || "",
+  sessionId: config.sessionId || "",
+  ordinal: config.ordinal || 1,
+});
 
 // The grid starts empty, and the host only sends a screen when it changes, so
 // ask for the current one. Also covers a webview reloaded after being hidden.

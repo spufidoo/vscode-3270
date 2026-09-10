@@ -18,23 +18,56 @@ import { getMacros } from "./macros";
 import { migrateFromTnzView } from "./migrate";
 import { download, upload } from "./transfer";
 import { Sidecar } from "./sidecar";
-import { SessionPanel } from "./session";
-import { HostItem, HostTreeProvider } from "./tree";
-import { HostProfile, SidecarEvent } from "./types";
+import { SessionPanel, VIEW_SETTINGS } from "./session";
+import { HostItem, HostTreeProvider, SessionItem } from "./tree";
+import { HostProfile, SessionStatus, SidecarEvent } from "./types";
 
 export function activate(context: vscode.ExtensionContext): void {
   initLog(context);
-  const tree = new HostTreeProvider();
-  // Host profiles may arrive from the old prefix, so repaint the list after.
-  void migrateFromTnzView(context).then(() => tree.refresh());
   const sidecar = new Sidecar(
     context.extensionPath,
     context.logUri.fsPath,
     context.globalStorageUri.fsPath
   );
   const macrosDir = path.join(context.globalStorageUri.fsPath, "macros");
+  const capturesDir = path.join(context.globalStorageUri.fsPath, "captures");
+  /** Every open tab, by session id. A host profile may own more than one. */
   const sessions = new Map<string, SessionPanel>();
+  const sessionStatus = new Map<string, SessionStatus>();
   let focusedId: string | undefined;
+
+  const sessionsFor = (hostId: string): SessionPanel[] =>
+    [...sessions.values()].filter((p) => p.hostId === hostId);
+
+  const statusOf = (sessionId: string): SessionStatus =>
+    sessionStatus.get(sessionId) ?? "disconnected";
+
+  const isLive = (sessionId: string): boolean => {
+    const status = statusOf(sessionId);
+    return status === "connected" || status === "connecting";
+  };
+
+  // The tree reads session state from here rather than being told about it,
+  // so a host row and its children cannot disagree with the tabs.
+  const tree = new HostTreeProvider((hostId) =>
+    sessionsFor(hostId).map((panel) => ({
+      sessionId: panel.sessionId,
+      ordinal: panel.ordinal,
+      status: statusOf(panel.sessionId),
+    }))
+  );
+
+  // Host profiles may arrive from the old prefix, so repaint the list after.
+  void migrateFromTnzView(context).then(() => tree.refresh());
+
+  const setStatus = (sessionId: string, status: SessionStatus): void => {
+    if (status === "disconnected") {
+      sessionStatus.delete(sessionId);
+    } else {
+      sessionStatus.set(sessionId, status);
+    }
+    tree.refresh();
+  };
 
   /**
    * Track which session tab is on top.
@@ -64,8 +97,8 @@ export function activate(context: vscode.ExtensionContext): void {
         // just the editor tab, and a live session should not have to be
         // reconnected to pick up a new palette.
         const hosts = getHosts();
-        for (const [id, panel] of sessions) {
-          const host = hosts.find((h) => h.id === id);
+        for (const panel of sessions.values()) {
+          const host = hosts.find((h) => h.id === panel.hostId);
           if (host) {
             panel.applyProfile(host);
           }
@@ -83,7 +116,7 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       if (
         e.affectsConfiguration("tn3270.fontFamily") ||
-        e.affectsConfiguration("tn3270.selection")
+        VIEW_SETTINGS.some((key) => e.affectsConfiguration(key))
       ) {
         for (const panel of sessions.values()) {
           panel.sendConfig();
@@ -101,11 +134,11 @@ export function activate(context: vscode.ExtensionContext): void {
     panel?.handleEvent(ev);
     if (ev.op === "status" && ev.sessionId) {
       if (ev.seslost) {
-        tree.setStatus(ev.sessionId, "lost");
+        setStatus(ev.sessionId, "lost");
       } else if (ev.connected) {
-        tree.setStatus(ev.sessionId, "connected");
+        setStatus(ev.sessionId, "connected");
       } else {
-        tree.setStatus(ev.sessionId, "disconnected");
+        setStatus(ev.sessionId, "disconnected");
       }
     }
   });
@@ -113,9 +146,9 @@ export function activate(context: vscode.ExtensionContext): void {
     log().info(msg);
   });
   sidecar.on("exit", () => {
-    const open = [...sessions.entries()];
-    for (const [id, panel] of open) {
-      tree.setStatus(id, "lost");
+    const open = [...sessions.values()];
+    for (const panel of open) {
+      setStatus(panel.sessionId, "lost");
       panel.handleSidecarExit();
     }
     if (open.length) {
@@ -134,42 +167,113 @@ export function activate(context: vscode.ExtensionContext): void {
       return true;
     } catch (err) {
       reportError("start sidecar", err);
-      tree.setStatus(host.id, "disconnected");
+      tree.refresh();
       return false;
     }
+  };
+
+  /** The lowest number a host's live tabs are not using, so titles stay short. */
+  const nextOrdinal = (hostId: string): number => {
+    const used = new Set(sessionsFor(hostId).map((p) => p.ordinal));
+    let n = 1;
+    while (used.has(n)) {
+      n += 1;
+    }
+    return n;
   };
 
   /**
    * Open a session panel for a host and track it.
    *
-   * `restored` is the panel VS Code hands back after a window reload; without
-   * one a new tab is created.
+   * A host may have several. The sidecar keys its worker threads by session
+   * id, so tabs on one profile only need ids of their own to be independent.
+   * `restored` is the panel VS Code hands back after a window reload, with the
+   * ids it had before; without one a new tab and a new id are created.
    */
   const createSession = (
     host: HostProfile,
-    restored?: vscode.WebviewPanel
+    opts: {
+      sessionId?: string;
+      ordinal?: number;
+      restored?: vscode.WebviewPanel;
+    } = {}
   ): SessionPanel => {
+    const sessionId =
+      opts.sessionId && !sessions.has(opts.sessionId)
+        ? opts.sessionId
+        : `${host.id}#${randomUUID().slice(0, 8)}`;
+    const taken = new Set(sessionsFor(host.id).map((p) => p.ordinal));
+    const ordinal =
+      opts.ordinal && !taken.has(opts.ordinal)
+        ? opts.ordinal
+        : nextOrdinal(host.id);
     const panel = new SessionPanel(
       sidecar,
       host,
       context.extensionUri,
       macrosDir,
+      capturesDir,
       {
         onDispose: () => {
-          sessions.delete(host.id);
-          if (focusedId === host.id) {
+          sessions.delete(sessionId);
+          sessionStatus.delete(sessionId);
+          if (focusedId === sessionId) {
             focusedId = undefined;
           }
-          tree.setStatus(host.id, "disconnected");
+          tree.refresh();
           syncSession();
         },
         onViewState: syncSession,
       },
-      restored
+      { sessionId, ordinal },
+      opts.restored
     );
-    sessions.set(host.id, panel);
-    focusedId = host.id;
+    sessions.set(sessionId, panel);
+    focusedId = sessionId;
+    tree.refresh();
     return panel;
+  };
+
+  /**
+   * Connect a fresh tab, whether or not the host already has one.
+   *
+   * Shared by Connect (when nothing is open) and New Session (always).
+   */
+  const openSession = async (host: HostProfile): Promise<void> => {
+    if (!(await startSidecar(host))) {
+      return;
+    }
+    // A pinned LU can only be in session once, so the host will refuse the
+    // second attempt. Cheaper to say so than to let VTAM explain it.
+    if (sessionsFor(host.id).length && host.luName) {
+      void vscode.window.showWarningMessage(
+        `3270 Terminal: ${host.label} asks for LU ${host.luName}, which is already in session. The host will refuse this one unless the LU is free.`
+      );
+    }
+    const panel = createSession(host);
+    setStatus(panel.sessionId, "connecting");
+    panel.connect();
+    // A new panel is active straight away, but onDidChangeViewState only
+    // fires on a change, so the context key has to be set here too.
+    syncSession();
+  };
+
+  /** The tab a session command means: the one clicked, or the one on top. */
+  const panelFor = (item?: SessionItem): SessionPanel | undefined => {
+    if (item instanceof SessionItem) {
+      return sessions.get(item.session.sessionId);
+    }
+    return focusedId ? sessions.get(focusedId) : undefined;
+  };
+
+  /** Drop one tab's host session, leaving the tab open to reconnect. */
+  const dropSession = (panel: SessionPanel): void => {
+    try {
+      sidecar.send({ op: "disconnect", sessionId: panel.sessionId });
+    } catch (err) {
+      reportError("disconnect", err);
+    }
+    setStatus(panel.sessionId, "disconnected");
   };
 
   const hostFromArg = (item?: HostItem | HostProfile): HostProfile | undefined => {
@@ -190,7 +294,9 @@ export function activate(context: vscode.ExtensionContext): void {
   const saveHost = async (host: HostProfile): Promise<void> => {
     await upsertHost(host);
     tree.refresh();
-    sessions.get(host.id)?.applyProfile(host);
+    for (const panel of sessionsFor(host.id)) {
+      panel.applyProfile(host);
+    }
   };
 
   const openEditor = (host: HostProfile, isNew: boolean): void => {
@@ -205,12 +311,15 @@ export function activate(context: vscode.ExtensionContext): void {
         panel: vscode.WebviewPanel,
         state: unknown
       ): Promise<void> {
-        const hostId =
-          state && typeof state === "object"
-            ? String((state as { hostId?: unknown }).hostId ?? "")
-            : "";
+        const saved = (state ?? {}) as {
+          hostId?: unknown;
+          sessionId?: unknown;
+          ordinal?: unknown;
+        };
+        const hostId = String(saved.hostId ?? "");
+        const sessionId = String(saved.sessionId ?? "");
         const host = getHosts().find((h) => h.id === hostId);
-        if (!host || sessions.has(hostId)) {
+        if (!host || (sessionId && sessions.has(sessionId))) {
           // The profile is gone, or something already owns this session.
           panel.dispose();
           return;
@@ -218,12 +327,16 @@ export function activate(context: vscode.ExtensionContext): void {
         // Started before the panel is adopted, so the webview's first request
         // for a screen has something to reach.
         const started = await startSidecar(host);
-        const restored = createSession(host, panel);
+        const restored = createSession(host, {
+          sessionId,
+          ordinal: Number(saved.ordinal) || undefined,
+          restored: panel,
+        });
         syncSession();
         if (!started) {
           return;
         }
-        tree.setStatus(host.id, "connecting");
+        setStatus(restored.sessionId, "connecting");
         restored.connect();
       },
     })
@@ -286,11 +399,14 @@ export function activate(context: vscode.ExtensionContext): void {
         if (!host) {
           return;
         }
-        const existing = sessions.get(host.id);
-        if (existing) {
-          existing.reveal();
-          const status = tree.getStatus(host.id);
-          if (status === "connected" || status === "connecting") {
+        // Connect reuses the tabs a host already has; New Session is the way
+        // to ask for another one. Every idle tab is revived, not just the
+        // first, so a host disconnected with two tabs comes back with two.
+        const existing = sessionsFor(host.id);
+        if (existing.length) {
+          existing[0].reveal();
+          const idle = existing.filter((p) => !isLive(p.sessionId));
+          if (!idle.length) {
             return;
           }
           // The sidecar may have died under an open panel, so reconnecting
@@ -298,19 +414,22 @@ export function activate(context: vscode.ExtensionContext): void {
           if (!(await startSidecar(host))) {
             return;
           }
-          tree.setStatus(host.id, "connecting");
-          existing.connect();
+          for (const panel of idle) {
+            setStatus(panel.sessionId, "connecting");
+            panel.connect();
+          }
           return;
         }
-        if (!(await startSidecar(host))) {
-          return;
+        await openSession(host);
+      }
+    ),
+    vscode.commands.registerCommand(
+      "tn3270.hosts.newSession",
+      async (item?: HostItem | HostProfile) => {
+        const host = hostFromArg(item) ?? (await pickHost());
+        if (host) {
+          await openSession(host);
         }
-        tree.setStatus(host.id, "connecting");
-        const panel = createSession(host);
-        panel.connect();
-        // A new panel is active straight away, but onDidChangeViewState only
-        // fires on a change, so the context key has to be set here too.
-        syncSession();
       }
     ),
     vscode.commands.registerCommand(
@@ -320,12 +439,79 @@ export function activate(context: vscode.ExtensionContext): void {
         if (!host) {
           return;
         }
-        try {
-          sidecar.send({ op: "disconnect", sessionId: host.id });
-        } catch (err) {
-          reportError("disconnect", err);
+        // The tree row stands for the profile, which may have several tabs
+        // behind it. Dropping them all on one click is too blunt to guess at,
+        // so anything past the first asks which. Expanding the row and using
+        // a session is the way to skip the question.
+        const own = sessionsFor(host.id);
+        let targets = own;
+        if (own.length > 1) {
+          const picked = await vscode.window.showQuickPick(
+            [
+              ...own.map((panel) => ({
+                label: `Session #${panel.ordinal}`,
+                description: statusOf(panel.sessionId),
+                panel,
+              })),
+              {
+                label: `All ${own.length} sessions`,
+                description: "",
+                panel: undefined,
+              },
+            ],
+            { title: `Disconnect ${host.label}` }
+          );
+          if (!picked) {
+            return;
+          }
+          targets = picked.panel ? [picked.panel] : own;
         }
-        tree.setStatus(host.id, "disconnected");
+        for (const panel of targets) {
+          dropSession(panel);
+        }
+      }
+    ),
+    // Clicking a session under a host brings its tab forward.
+    vscode.commands.registerCommand(
+      "tn3270.session.reveal",
+      (item?: SessionItem) => {
+        panelFor(item)?.reveal();
+      }
+    ),
+    // Connect and Disconnect on the sidebar row work on the host. These work
+    // on one tab, whether picked in the tree or the one in front of you,
+    // which is the only way to deal with one of several.
+    vscode.commands.registerCommand(
+      "tn3270.session.reconnect",
+      async (item?: SessionItem) => {
+        const panel = panelFor(item);
+        if (!panel) {
+          void vscode.window.showWarningMessage("3270 Terminal: no active session.");
+          return;
+        }
+        if (isLive(panel.sessionId)) {
+          void vscode.window.showInformationMessage(
+            `3270 Terminal: ${panel.host.label} is already connected.`
+          );
+          return;
+        }
+        if (!(await startSidecar(panel.host))) {
+          return;
+        }
+        setStatus(panel.sessionId, "connecting");
+        panel.connect();
+        panel.focus();
+      }
+    ),
+    vscode.commands.registerCommand(
+      "tn3270.session.disconnect",
+      (item?: SessionItem) => {
+        const panel = panelFor(item);
+        if (!panel) {
+          void vscode.window.showWarningMessage("3270 Terminal: no active session.");
+          return;
+        }
+        dropSession(panel);
       }
     ),
     vscode.commands.registerCommand("tn3270.session.clear", () => {
@@ -405,6 +591,55 @@ export function activate(context: vscode.ExtensionContext): void {
         await panel.runMacro(name);
         panel.focus();
       }
+    }),
+    vscode.commands.registerCommand("tn3270.session.capture", async () => {
+      const panel = focusedId ? sessions.get(focusedId) : undefined;
+      if (!panel) {
+        void vscode.window.showWarningMessage("3270 Terminal: no active session.");
+        return;
+      }
+      let file: string | undefined;
+      try {
+        file = panel.captureScreen();
+      } catch (err) {
+        reportError("capture screen", err);
+        return;
+      }
+      if (!file) {
+        return;
+      }
+      const choice = await vscode.window.showInformationMessage(
+        `3270 Terminal: screen saved to ${path.basename(file)}.`,
+        "Open"
+      );
+      if (choice === "Open") {
+        await vscode.window.showTextDocument(vscode.Uri.file(file));
+      }
+      panel.focus();
+    }),
+    vscode.commands.registerCommand("tn3270.session.toggleLog", async () => {
+      const panel = focusedId ? sessions.get(focusedId) : undefined;
+      if (!panel) {
+        void vscode.window.showWarningMessage("3270 Terminal: no active session.");
+        return;
+      }
+      let result: { logging: boolean; path: string } | undefined;
+      try {
+        result = panel.toggleLog();
+      } catch (err) {
+        reportError("session log", err);
+        return;
+      }
+      const choice = await vscode.window.showInformationMessage(
+        result.logging
+          ? `3270 Terminal: logging to ${path.basename(result.path)}.`
+          : `3270 Terminal: logging stopped. ${path.basename(result.path)} is complete.`,
+        "Open"
+      );
+      if (choice === "Open") {
+        await vscode.window.showTextDocument(vscode.Uri.file(result.path));
+      }
+      panel.focus();
     }),
     vscode.commands.registerCommand("tn3270.session.download", async () => {
       const panel = focusedId ? sessions.get(focusedId) : undefined;
