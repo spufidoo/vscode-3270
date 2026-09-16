@@ -121,7 +121,7 @@ export class SessionPanel {
         // settings and ask the host side for the screen it is missing.
         this.sendConfig();
         this.send({ op: "refresh", sessionId: this.sessionId });
-      } else if (msg.op === "key" || msg.op === "paste") {
+      } else if (msg.op === "key" || msg.op === "paste" || msg.op === "cut") {
         this.send({ ...msg, sessionId: this.sessionId });
       } else if (msg.op === "click") {
         this.send({ ...msg, sessionId: this.sessionId });
