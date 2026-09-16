@@ -112,11 +112,12 @@ All sessions share one Python sidecar process. If it stops, the open tabs say
 | Ctrl+R, Right Ctrl | Reset |
 | Click / double-click | Hotspot or cursor / cursor + ENTER |
 | Wheel up / down | PF7 / PF8 at the pointer |
-| Right-click | Copy, Paste and Mark all menu |
+| Right-click | Copy, Cut, Paste and Mark all menu |
 | Drag | Mark a rectangle (block) or a run of text (stream) |
 | Shift+arrows | Mark a rectangle from the keyboard |
 | Escape | Drop the marked block |
 | Ctrl+C | Copy the marked block, else ATTN |
+| Ctrl+X | Copy the marked block and blank its input fields |
 | Ctrl+A | Mark the whole screen (block mode) |
 | Ctrl+V | Paste into fields |
 
@@ -150,10 +151,17 @@ cursor is, and Escape drops it. The cursor itself stays put and nothing goes to
 the host, so copying never loses your place in a field. This works in both modes:
 `tn3270.selection` governs the mouse, while the keyboard always marks a rectangle.
 
-Right-click offers Copy, Paste and Mark all. This is the view's own menu rather
-than VS Code's, whose Cut/Copy/Paste entries are wired to a text selection and an
-editable target and so do nothing on a 3270 screen. There is no Cut: cutting host
-data is not a thing a terminal can do.
+Right-click offers Copy, Cut, Paste and Mark all. This is the view's own menu
+rather than VS Code's, whose Cut/Copy/Paste entries are wired to a text selection
+and an editable target and so do nothing on a 3270 screen.
+
+Cut (Ctrl+X, or the menu) copies the marked rectangle and then blanks the parts
+of it you could have typed over: input fields are cleared and marked as changed,
+while protected text — everything the application wrote — is left alone, since a
+terminal cannot delete that. It needs a marked rectangle, so Ctrl+X does nothing
+with a stream selection or with nothing marked, and it is refused outright while
+the keyboard is locked rather than clearing half the block. Nothing is sent to
+the host until you press ENTER or a PF key, as with any other typing.
 
 ## The wheel
 

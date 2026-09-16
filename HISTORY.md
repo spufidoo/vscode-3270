@@ -1,6 +1,6 @@
 # Development history
 
-This is a record of the Cursor chats that produced this extension (20 August – 9 September 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
+This is a record of the Cursor chats that produced this extension (20 August – 16 September 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
 
 It uses [IBM tnz](https://github.com/IBM/tnz) at runtime. Until 0.10.0 that was a `pip install` the user had to do; since then tnz and ebcdic are bundled.
 
@@ -22,6 +22,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 | [9 Sep][d10] | The wheel pages the screen | 0.12.0 |
 | [9 Sep][d11] | Bell, rule line, hotspots, logging | 0.12.0 |
 | [9-10 Sep][d12] | Several sessions to one host | 0.12.0 |
+| [16 Sep][d13] | Cut blanks the input fields in a block | 0.13.0 |
 
 [Why this exists](#why-this-exists) · [What was left on purpose](#what-was-left-on-purpose) · [Where it stands](#where-it-stands)
 
@@ -37,6 +38,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 [d10]: #9-september--the-wheel
 [d11]: #9-september--the-easy-half-of-the-gap-list
 [d12]: #9-10-september--several-sessions-to-one-host
+[d13]: #16-september--cut-reconsidered
 
 ## Why this exists
 
@@ -198,7 +200,7 @@ The first byte always looked unselected. Cursor and mark both paint white throug
 
 ### A right-click menu that works
 
-Cut, Copy and Paste in the webview's context menu did nothing. That menu is built from Electron editing roles, which act on a DOM selection and an editable target; block mode suppresses the first and a grid of `div`s is never the second. Overriding the `copy` event would not have helped either, since with no selection it is never dispatched. The view now draws its own menu — Copy, Paste, Mark all — copying the mark and pasting via the extension host, the only side that can read the clipboard. No Cut: a terminal cannot cut host data.
+Cut, Copy and Paste in the webview's context menu did nothing. That menu is built from Electron editing roles, which act on a DOM selection and an editable target; block mode suppresses the first and a grid of `div`s is never the second. Overriding the `copy` event would not have helped either, since with no selection it is never dispatched. The view now draws its own menu — Copy, Paste, Mark all — copying the mark and pasting via the extension host, the only side that can read the clipboard. No Cut, on the reasoning that a terminal cannot cut host data; that turned out to be half right, and Cut arrived later.
 
 ### Transfer settings that belong to the host
 
@@ -270,6 +272,18 @@ Those per-tab rows hang off the host, which becomes a branch as soon as it has t
 
 Two things fall out of the profile being shared rather than copied. Editing it repaints every tab on it, which is free and right. A pinned LU is not: VTAM will only have it in session once, so a second tab on a profile with an LU name is refused by the host. Saying so before connecting is cheaper than letting the user read a VTAM message, so New Session warns and then tries anyway, in case the LU has since been freed.
 
+## 16 September — Cut, reconsidered
+
+Tags: `v0.13.0`
+
+A tester asked for Cut, which had been left out of the right-click menu on the grounds that a terminal cannot cut host data. That reasoning only holds for protected text. Everything inside an input field is the user's own, was typed a character at a time, and can be blanked the same way, which is exactly what PCOMM and Vista do with a marked block: copy it, clear the input fields inside it, leave the application's text where it is.
+
+So the erase is a normal typing operation, not a buffer poke. The view sends the block; the sidecar walks it row by row, collecting runs of cells that are not protected and typing spaces over each run. A run stops at a field attribute by construction, so it is always one field and one MDT however wide it is, and the host sees ordinary modified input on the next AID. The 3270 cursor goes back where it started, matching the rule that marking never costs you your place.
+
+The cells are filled with spaces rather than nulls, which is the one real choice in it. Erase-EOF writes nulls, and nulls are dropped on the way to the host, so cutting the middle of a field with them would show `AB  EF` on the screen and send `ABEF`. Spaces keep the two the same, and match what the user would have done by hand.
+
+Two refusals. A locked keyboard is checked before the first character rather than discovered at it, because `key_data` raises on the write and a block half erased is worse than one not erased at all. And Cut needs a rectangle: a stream selection has no shape the host side can walk, so Ctrl+X with one does nothing. A block with no input fields in it is not an error — the copy still happened, and a screen that does not change is the correct answer.
+
 ## What was left on purpose
 
 - DUP / Field Mark keys.
@@ -277,14 +291,13 @@ Two things fall out of the profile being shared rather than copied. Editing it r
 - Per-host macros.
 - A chord-capture or editable keymap UI (the setting and Show Keyboard Map were enough).
 - Title-bar transfer icons, if they still fail to appear; the palette commands are the supported path.
-- Cut in the right-click menu; a terminal cannot cut host data.
 - A font weight in the host profile. Light faces of families that Windows does not split into their own family are therefore unreachable by name.
 - Fonts the webview's Chromium will not resolve, such as the CaskaydiaCove NF families here. They are named differently to what it will match, and guessing the other spelling was judged worse than leaving them out.
 - Deriving the keymap platform from the UI rather than the extension host; see the Remote-SSH note above.
 
 ## Where it stands
 
-Current packaged version at the end of this record: **0.12.0**.
+Current packaged version at the end of this record: **0.13.0**.
 
 `origin` is the BMC GHE repository and the source of truth; the public GitHub repository is a mirror. The same source builds both flavours, the display name coming from a branding overlay at package time.
 

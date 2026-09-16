@@ -142,6 +142,16 @@ def _suggest_sizes(address: int, cols: int) -> list[str]:
     return same[:1] + wider[:1] or ["62x160"]
 
 
+def _span(a, b, limit: int) -> tuple[int, int]:
+    """Two 1-based edges as an ordered pair, clamped to the screen.
+
+    A block is stored as dragged, so either corner may be the larger one.
+    """
+    lo = max(1, min(int(a or 1), limit))
+    hi = max(1, min(int(b or 1), limit))
+    return (lo, hi) if lo <= hi else (hi, lo)
+
+
 def _deadline_wait(tns, idle_seconds: float):
     """A tns.wait that gives up once the transfer stops making progress.
 
@@ -877,6 +887,8 @@ class Session:
             self._key(cmd)
         elif op == "click":
             self._click(cmd)
+        elif op == "cut":
+            self._cut(cmd)
         elif op == "paste":
             self._paste(cmd)
         elif op == "transfer":
@@ -1153,6 +1165,81 @@ class Session:
             )
             return
         self._emit_screen()
+
+    def _cut(self, cmd: dict) -> None:
+        """Blank the parts of a marked block that can be typed into.
+
+        The view has already put the text on the clipboard, so all that is
+        left is the erase. Protected cells are skipped rather than refused:
+        a block almost always catches some of the application's own text,
+        and a 3270 has no way to delete that. Erasing only the input fields
+        is what PCOMM and Vista do with the same selection.
+        """
+        tns = self.tns
+        if tns is None:
+            return
+        rows = tns.maxrow or 24
+        cols = tns.maxcol or 80
+        top, bottom = _span(cmd.get("r1"), cmd.get("r2"), rows)
+        left, right = _span(cmd.get("c1"), cmd.get("c2"), cols)
+        # Checked before anything is erased: key_data raises on the first
+        # locked write, which would otherwise leave the block half done.
+        if tns.pwait or tns.system_lock_wait:
+            emit(
+                {
+                    "op": "error",
+                    "sessionId": self.session_id,
+                    "message": "cut: the keyboard is locked",
+                    "lock": True,
+                }
+            )
+            return
+        # Marking deliberately leaves the 3270 cursor alone, so cutting has
+        # to put it back where the user left it.
+        home = tns.curadd
+        erased = 0
+        try:
+            for row in range(top, bottom + 1):
+                base = (row - 1) * cols
+                start = None
+                run = 0
+                # One column past the end, so a run that reaches the edge of
+                # the block is flushed by the same branch as any other.
+                for col in range(left, right + 2):
+                    addr = base + col - 1
+                    typable = (
+                        col <= right
+                        and addr < tns.buffer_size
+                        and not tns.is_protected(addr)
+                    )
+                    if typable:
+                        if start is None:
+                            start, run = addr, 0
+                        run += 1
+                        continue
+                    if start is not None:
+                        # A run never crosses a field attribute, so this is
+                        # one field and one MDT however wide it is.
+                        tns.curadd = start
+                        tns.key_data(" " * run)
+                        erased += run
+                        start = None
+        except TnzError as exc:
+            tns.curadd = home
+            emit(
+                {
+                    "op": "error",
+                    "sessionId": self.session_id,
+                    "message": f"cut: {exc}",
+                    "lock": True,
+                }
+            )
+            return
+        tns.curadd = home
+        # Nothing typable in the block is a normal outcome, not a failure:
+        # the copy has happened and the screen is right to be unchanged.
+        if erased:
+            self._emit_screen()
 
     def _paste(self, cmd: dict) -> None:
         tns = self.tns

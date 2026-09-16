@@ -195,6 +195,33 @@ function copyMark() {
   screenEl.focus();
 }
 
+/**
+ * Copy the marked block, then blank what the host will let us blank.
+ *
+ * Only a rectangle can be cut: a stream selection has no shape the host side
+ * can walk, and the useful case — clearing an input field or a column of
+ * them — is a rectangle anyway. The sidecar decides what is typable; from
+ * here it is one message carrying the block.
+ */
+function cutMark() {
+  if (!mark) {
+    return;
+  }
+  const text = markedText();
+  if (text) {
+    vscode.postMessage({ op: "copy", text });
+  }
+  vscode.postMessage({
+    op: "cut",
+    r1: mark.r1,
+    c1: mark.c1,
+    r2: mark.r2,
+    c2: mark.c2,
+  });
+  clearMark();
+  screenEl.focus();
+}
+
 // Copy whichever kind of selection is in play: a marked rectangle if there is
 // one, otherwise whatever the browser has selected in stream mode.
 function copySelection() {
@@ -231,6 +258,8 @@ function hideMenu() {
 function showMenu(x, y) {
   const items = [
     { label: "Copy", enabled: Boolean(mark) || hasSelection(), run: copySelection },
+    // A rectangle only, and only the input fields inside it get blanked.
+    { label: "Cut", enabled: Boolean(mark), run: cutMark },
     { label: "Paste", enabled: true, run: () => vscode.postMessage({ op: "pasteRequest" }) },
     { label: "Mark all", enabled: selectionMode === "block", run: markAll },
   ];
@@ -749,6 +778,11 @@ screenEl.addEventListener("keydown", (e) => {
         e.preventDefault();
         runAction("aid:attn");
       }
+    } else if (clip === "x" && mark) {
+      // Cut needs a block to work on. Without one the key does nothing,
+      // rather than guessing at a field.
+      e.preventDefault();
+      cutMark();
     } else if (clip === "a" && selectionMode === "block") {
       // Mark the whole screen; stream mode keeps the browser's select-all.
       e.preventDefault();

@@ -195,8 +195,9 @@ These are handled before the keymap is consulted and cannot be rebound:
 | Chord | Behaviour |
 | --- | --- |
 | `ctrl+c` | Copy when text is selected, ATTN when it is not |
+| `ctrl+x` | Cut the marked block: copy it, then blank its input fields |
 | `ctrl+v` | Paste into fields |
-| `ctrl+x` `ctrl+a` | Left to the editor |
+| `ctrl+a` | Mark the whole screen in block mode, otherwise select all |
 
 Any printable key with no binding and no Ctrl, Alt or Meta is typed into the
 current field.
@@ -210,7 +211,7 @@ current field.
 | Double-click | Move the cursor and send ENTER |
 | Drag | Select text |
 | Shift+click | Pull the near corner of a marked block (block mode) |
-| Right-click | Copy, Paste and Mark all menu |
+| Right-click | Copy, Cut, Paste and Mark all menu |
 | Wheel up / down | Move the cursor to the pointer and send PF7 / PF8 |
 | Wheel left / right | PF10 / PF11, if `tn3270.wheel.horizontal` is on |
 
@@ -272,7 +273,9 @@ and Paste from Electron editing roles, which act on a text selection and an
 editable target; block mode suppresses the first and a grid of `div`s is never
 the second, so those entries do nothing here. Ours copies the marked block and
 pastes through the extension host, which is the only side able to read the
-clipboard. There is no Cut, as a terminal cannot cut host data.
+clipboard. Cut copies the block and then blanks the input fields inside it,
+leaving protected text alone; it needs a marked rectangle and is refused while
+the keyboard is locked.
 
 ## Troubleshooting
 

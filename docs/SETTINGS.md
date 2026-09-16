@@ -80,7 +80,9 @@ How selecting and copying works in a session.
   dragging text out to another app and the webview's own right-click Copy.
 
 Either way, Ctrl+C copies and Ctrl+V pastes, and non-display (password) fields
-read as blanks so they can never be copied.
+read as blanks so they can never be copied. Ctrl+X cuts a marked rectangle: it
+copies the block, then blanks the input fields inside it and leaves protected
+text alone.
 
 This setting governs the **mouse** only. Shift+arrows mark a rectangle from the
 keyboard in either mode, anchored on the 3270 cursor, and Escape drops it. See
