@@ -2,14 +2,18 @@
   "name": "vscode-3270",
   "displayName": "3270 Terminal",
   "description": "Native 3270 terminal view for VS Code and Cursor, powered by IBM tnz.",
-  "version": "0.13.0",
-  "publisher": "mdavage",
+  "version": "1.0.0",
+  "publisher": "spufidoo",
   "license": "Apache-2.0",
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.bmc.com/mdavage/VSCode-3270.git"
+    "url": "https://github.com/spufidoo/vscode-3270.git"
   },
+  "bugs": {
+    "url": "https://github.com/spufidoo/vscode-3270/issues"
+  },
+  "homepage": "https://github.com/spufidoo/vscode-3270",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -47,7 +51,7 @@
         "tn3270.keymap": {
           "type": "object",
           "default": {},
-          "markdownDescription": "Override 3270 key bindings. Each entry maps a chord such as `alt+1` to an action: `aid:<name>` (enter, clear, attn, pa1-3, pf1-24), `nav:<name>` (tab, backtab, left, right, up, down, home, end, wordleft, wordright, backspace, delete, eraseeof, eraseinput, newline), `local:<name>` (insert, reset) or `macro:<name>` for an entry in `#tn3270.macros#`. An empty value removes a default binding. Run **3270 Terminal: Show Keyboard Map** to see the result, or see [docs/KEYMAP.md](https://github.bmc.com/mdavage/VSCode-3270/blob/main/docs/KEYMAP.md).",
+          "markdownDescription": "Override 3270 key bindings. Each entry maps a chord such as `alt+1` to an action: `aid:<name>` (enter, clear, attn, pa1-3, pf1-24), `nav:<name>` (tab, backtab, left, right, up, down, home, end, wordleft, wordright, backspace, delete, eraseeof, eraseinput, newline), `local:<name>` (insert, reset) or `macro:<name>` for an entry in `#tn3270.macros#`. An empty value removes a default binding. Run **3270 Terminal: Show Keyboard Map** to see the result, or see [docs/KEYMAP.md](https://github.com/spufidoo/vscode-3270/blob/main/docs/KEYMAP.md).",
           "additionalProperties": {
             "type": "string"
           }
@@ -55,7 +59,7 @@
         "tn3270.macros": {
           "type": "object",
           "default": {},
-          "markdownDescription": "Named macros, playable from a key with the `macro:<name>` keymap action or from **3270 Terminal: Run Macro**. A tape is text with `[action]` markers, for example `TSO[enter][wait]LISTC[enter]`. A script is `{ \"script\": \"startlpar\" }`, a Python file in the macros folder (**3270 Terminal: Open Macros Folder**). Never put a password in this file. See [docs/MACROS.md](https://github.bmc.com/mdavage/VSCode-3270/blob/main/docs/MACROS.md).",
+          "markdownDescription": "Named macros, playable from a key with the `macro:<name>` keymap action or from **3270 Terminal: Run Macro**. A tape is text with `[action]` markers, for example `TSO[enter][wait]LISTC[enter]`. A script is `{ \"script\": \"startlpar\" }`, a Python file in the macros folder (**3270 Terminal: Open Macros Folder**). Never put a password in this file. See [docs/MACROS.md](https://github.com/spufidoo/vscode-3270/blob/main/docs/MACROS.md).",
           "additionalProperties": {
             "oneOf": [
               {
@@ -606,8 +610,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "node scripts/package.js",
-    "package:bmc": "node scripts/package.js bmc"
+    "package": "node scripts/package.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

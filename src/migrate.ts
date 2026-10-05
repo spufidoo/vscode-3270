@@ -16,7 +16,7 @@ import { log } from "./log";
 
 const OLD_SECTION = "tnzView";
 const NEW_SECTION = "tn3270";
-const OLD_EXTENSION_ID = "mdavage.tnz-view";
+const OLD_EXTENSION_IDS = ["mdavage.vscode-3270", "mdavage.tnz-view"];
 const DONE = "migrated.tnzView";
 
 /** Old key to new key. Only tnzPath was renamed as well as re-prefixed. */
@@ -129,20 +129,22 @@ async function removeOldSettings(): Promise<void> {
 /** Bring script macros over to the new extension id's storage. */
 function copyMacros(storageDir: string): boolean {
   const target = path.join(storageDir, "macros");
-  const source = path.join(
-    path.dirname(storageDir),
-    OLD_EXTENSION_ID,
-    "macros"
-  );
-  if (fs.existsSync(target) || !fs.existsSync(source)) {
+  if (fs.existsSync(target)) {
     return false;
   }
-  try {
-    fs.mkdirSync(storageDir, { recursive: true });
-    fs.cpSync(source, target, { recursive: true });
-    return true;
-  } catch (err) {
-    log().error(`migrate macros: ${String(err)}`);
-    return false;
+  const parent = path.dirname(storageDir);
+  for (const oldId of OLD_EXTENSION_IDS) {
+    const source = path.join(parent, oldId, "macros");
+    if (!fs.existsSync(source)) {
+      continue;
+    }
+    try {
+      fs.mkdirSync(storageDir, { recursive: true });
+      fs.cpSync(source, target, { recursive: true });
+      return true;
+    } catch (err) {
+      log().error(`migrate macros from ${oldId}: ${String(err)}`);
+    }
   }
+  return false;
 }
