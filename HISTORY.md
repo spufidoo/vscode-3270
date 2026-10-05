@@ -1,10 +1,10 @@
 # Development history
 
-This is a record of the Cursor chats that produced this extension (20 August – 16 September 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
+This is a record of the Cursor chats that produced this extension (20 August 2026 – 5 October 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
 
 It uses [IBM tnz](https://github.com/IBM/tnz) at runtime. Until 0.10.0 that was a `pip install` the user had to do; since then tnz and ebcdic are bundled.
 
-The extension was called TNZ 3270 throughout the period this records, and its settings `tnzView.*`. Both were renamed in 0.9.0 when it moved to BMC: the names below are left as they were said at the time rather than rewritten.
+The extension was called TNZ 3270 throughout the period this records, and its settings `tnzView.*`. Both were renamed in 0.9.0: the names below are left as they were said at the time rather than rewritten.
 
 ## Contents
 
@@ -23,6 +23,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 | [9 Sep][d11] | Bell, rule line, hotspots, logging | 0.12.0 |
 | [9-10 Sep][d12] | Several sessions to one host | 0.12.0 |
 | [16 Sep][d13] | Cut blanks the input fields in a block | 0.13.0 |
+| [5 Oct][d14] | Public Marketplace identity | 1.0.0 |
 
 [Why this exists](#why-this-exists) · [What was left on purpose](#what-was-left-on-purpose) · [Where it stands](#where-it-stands)
 
@@ -39,6 +40,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 [d11]: #9-september--the-easy-half-of-the-gap-list
 [d12]: #9-10-september--several-sessions-to-one-host
 [d13]: #16-september--cut-reconsidered
+[d14]: #5-october--a-public-listing
 
 ## Why this exists
 
@@ -176,9 +178,7 @@ Each was contained rather than papered over — the worker loop catches per comm
 
 ### A name that is not a library's
 
-Tab titles read `DB2B.REP.plain`; a tester wanted `DB2B`. Status moved to the OIA where it belongs. Then the product name itself: `mdavage.tnz-view` became `mdavage.vscode-3270` and every `tnzView.*` setting became `tn3270.*`, with a one-time migration that copies settings and the macros folder and offers to remove the old keys.
-
-Because the same source ships to two audiences, display names live in a branding overlay applied at package time: `3270 Terminal` by default, `BMC AMI DevX 3270` for the BMC build, from one identifier and one codebase. BMC GHE became `origin` with the public GitHub repo as a mirror.
+Tab titles read `DB2B.REP.plain`; a tester wanted `DB2B`. Status moved to the OIA where it belongs. Then the product name itself: `mdavage.tnz-view` became `mdavage.vscode-3270` and every `tnzView.*` setting became `tn3270.*`, with a one-time migration that copies settings and the macros folder and offers to remove the old keys. Display names live in a branding overlay applied at package time.
 
 ## 2 September — no prerequisites
 
@@ -284,6 +284,12 @@ The cells are filled with spaces rather than nulls, which is the one real choice
 
 Two refusals. A locked keyboard is checked before the first character rather than discovered at it, because `key_data` raises on the write and a block half erased is worse than one not erased at all. And Cut needs a rectangle: a stream selection has no shape the host side can walk, so Ctrl+X with one does nothing. A block with no input fields in it is not an error — the copy still happened, and a screen that does not change is the correct answer.
 
+## 5 October — a public listing
+
+Tags: `v1.0.0`
+
+The extension id is `spufidoo.vscode-3270`. Links, the publisher field, and the extra branded build were removed so the first Marketplace listing is one product on the public GitHub repo. First-run migration still copies macros from the earlier `mdavage.*` ids. 1.0.0 is that listing, not a claim that every traditional emulator feature is present.
+
 ## What was left on purpose
 
 - DUP / Field Mark keys.
@@ -297,8 +303,8 @@ Two refusals. A locked keyboard is checked before the first character rather tha
 
 ## Where it stands
 
-Current packaged version at the end of this record: **0.13.0**.
+Current packaged version at the end of this record: **1.0.0**.
 
-`origin` is the BMC GHE repository and the source of truth; the public GitHub repository is a mirror. The same source builds both flavours, the display name coming from a branding overlay at package time.
+The public GitHub repository is `spufidoo/vscode-3270`. The Marketplace publisher id is `spufidoo`.
 
 Reference documentation lives beside this file: [README](README.md), [keymap](docs/KEYMAP.md), [macros](docs/MACROS.md), [file transfer](docs/TRANSFER.md) and [settings](docs/SETTINGS.md).

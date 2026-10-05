@@ -8,8 +8,7 @@
  * branding/<flavour>.json just long enough to build, then put back exactly
  * as it was. That keeps one codebase behind every build.
  *
- *   node scripts/package.js        neutral build
- *   node scripts/package.js bmc    BMC AMI DevX build
+ *   node scripts/package.js        3270 Terminal build
  */
 
 const fs = require("fs");

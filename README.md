@@ -330,16 +330,12 @@ your macros folder, to the new names, then offers to tidy the old keys away.
 
 ## Builds
 
-The source carries no product name. A build takes one from `branding/`, which is
-overlaid on the manifest only while the `.vsix` is being made:
-
 ```console
-npm run package        # 3270 Terminal      -> vscode-3270-<version>.vsix
-npm run package:bmc    # BMC AMI DevX 3270  -> vscode-3270-bmc-<version>.vsix
+npm run package        # 3270 Terminal -> vscode-3270-<version>.vsix
 ```
 
-Both produce the same extension id, so they are the same extension wearing a
-different label. Add a flavour by dropping another JSON file in `branding/`.
+The display name in `branding/default.json` is overlaid on the manifest only
+while the `.vsix` is being made.
 
 ## Layout
 

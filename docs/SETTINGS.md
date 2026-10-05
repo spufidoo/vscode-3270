@@ -355,8 +355,8 @@ macro that prompts with `ask_password`.
 A working extract from a user `settings.json`. Hosts, fonts, macros, and keymap
 overrides sit alongside each other; anything not listed here uses the defaults
 above, so transfers here use TSO syntax. Three of the
-profiles are shown so the shape is obvious: a dark BMC session with its own font,
-a light Compuware session that inherits the global font, and a TLS host on a
+profiles are shown so the shape is obvious: a dark work session with its own font,
+a light session that inherits the global font, and a TLS host on a
 non-standard port.
 
 Do not put a password in a tape. The `mypassword` entry below is a placeholder;
@@ -368,7 +368,7 @@ the original used `[password:Password]` (or `ask_password` in a script) instead.
         {
             "id": "f7ea3eb2-77e1-4277-bc7b-848c78a75eb6",
             "label": "DB2B",
-            "group": "BMC",
+            "group": "Work",
             "host": "db2b",
             "port": 23,
             "secure": false,
