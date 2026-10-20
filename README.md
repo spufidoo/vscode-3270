@@ -5,6 +5,8 @@ Native 3270 terminal view for VS Code and Cursor. Hosts live in the left activit
 The TN3270 protocol is handled by [IBM tnz](https://github.com/IBM/tnz) in a Python sidecar.
 tnz and ebcdic are packaged inside the extension, so there is nothing to pip install.
 
+<img width="963" height="505" alt="image" src="https://github.com/user-attachments/assets/214b98b9-8546-4e0c-93f8-5b41755d3752" />
+
 ## Prerequisites
 
 - Python 3.10 or later
@@ -14,18 +16,6 @@ Both are pure Python, so one `.vsix` works on every platform. The packaged copy 
 used ahead of anything in site-packages, so a stale tnz on the machine cannot
 interfere. Point `tn3270.libraryPath` at a local IBM/tnz checkout to override it
 while developing.
-
-## Setup
-
-```console
-cd vscode-3270
-npm install
-npm run compile
-```
-
-Press **F5** (Run Extension) from this folder, or install the folder as an unpacked extension.
-
-Open the **3270 Terminal** icon in the activity bar → **Add Host** → Connect.
 
 ## Host profiles
 
@@ -327,15 +317,6 @@ with what it does, its default, and where it applies.
 
 Settings used to be `tnzView.*`. The first run after upgrading copies them, and
 your macros folder, to the new names, then offers to tidy the old keys away.
-
-## Builds
-
-```console
-npm run package        # 3270 Terminal -> vscode-3270-<version>.vsix
-```
-
-The display name in `branding/default.json` is overlaid on the manifest only
-while the `.vsix` is being made.
 
 ## Layout
 
