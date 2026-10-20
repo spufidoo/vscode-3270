@@ -5,8 +5,6 @@ Native 3270 terminal view for VS Code and Cursor. Hosts live in the left activit
 The TN3270 protocol is handled by [IBM tnz](https://github.com/IBM/tnz) in a Python sidecar.
 tnz and ebcdic are packaged inside the extension, so there is nothing to pip install.
 
-<img width="963" height="505" alt="image" src="https://github.com/user-attachments/assets/214b98b9-8546-4e0c-93f8-5b41755d3752" />
-
 ## Prerequisites
 
 - Python 3.10 or later
