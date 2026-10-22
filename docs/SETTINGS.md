@@ -70,6 +70,14 @@ built-in stack of Lucida Console, Cascadia Mono, Consolas and Courier New.
 - Default: `""`
 - Applies: live, to every session that has not set its own font
 
+The host settings tab suggests the monospaced fonts installed on the machine, and
+measures each one in the view, so a proportional font is not offered. Those are
+family names, not face names: Windows may list a Light face under a different
+string from the family the view will match. A name that is not offered can still
+be typed, including a comma-separated list. The built-in stack is always appended,
+so a font the machine does not have falls back to a monospace. The editor warns
+when the name you typed does not appear to be installed.
+
 ### `tn3270.selection`
 
 How selecting and copying works in a session.
@@ -350,6 +358,20 @@ a bug in it.
 Passwords are never stored in a profile. Log on in the 3270 screen, or use a script
 macro that prompts with `ask_password`.
 
+### Screen size
+
+`psSize` must match the size the host's LU was defined with. The host formats for
+that size and does not renegotiate it when a session is resumed. The columns have
+to match exactly, because a buffer address is turned into a row and column using
+the column count. The rows may be higher, which only leaves blank lines at the
+bottom. Any `rowsxcols` is accepted, not only the standard models: a PCOMM session
+showing `30x133` needs `30x133` here.
+
+If the size is too small, the host writes past the end of the buffer and tnz drops
+the session. The address in the error is the first one past the end, so it is only
+a lower bound. Raising the size one model at a time will keep failing until the
+columns match.
+
 ## Example
 
 A working extract from a user `settings.json`. Hosts, fonts, macros, and keymap
@@ -484,3 +506,4 @@ shape as DB2B or CW01: same `codePage` and `tn3270e`, with `psSize`, `group`,
 - [KEYMAP.md](KEYMAP.md) — chords and action names
 - [MACROS.md](MACROS.md) — tape markers and the script API
 - [TRANSFER.md](TRANSFER.md) — IND$FILE file names and options
+- [CHANGELOG.md](../CHANGELOG.md) — what each release changed

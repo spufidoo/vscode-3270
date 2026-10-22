@@ -1,6 +1,6 @@
 # Development history
 
-This is a record of the Cursor chats that produced this extension (20 August 2026 – 5 October 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
+This is a record of the Cursor chats that produced this extension (20 August 2026 – 22 October 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
 
 It uses [IBM tnz](https://github.com/IBM/tnz) at runtime. Until 0.10.0 that was a `pip install` the user had to do; since then tnz and ebcdic are bundled.
 
@@ -24,6 +24,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 | [9-10 Sep][d12] | Several sessions to one host | 0.12.0 |
 | [16 Sep][d13] | Cut blanks the input fields in a block | 0.13.0 |
 | [5 Oct][d14] | Public Marketplace identity | 1.0.0 |
+| [22 Oct][d15] | Listing page: demo, shorter README, changelog, keywords | 1.0.1 |
 
 [Why this exists](#why-this-exists) · [What was left on purpose](#what-was-left-on-purpose) · [Where it stands](#where-it-stands)
 
@@ -41,6 +42,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 [d12]: #9-10-september--several-sessions-to-one-host
 [d13]: #16-september--cut-reconsidered
 [d14]: #5-october--a-public-listing
+[d15]: #22-october--the-listing-page
 
 ## Why this exists
 
@@ -290,6 +292,14 @@ Tags: `v1.0.0`
 
 The extension id is `spufidoo.vscode-3270`. Links, the publisher field, and the extra branded build were removed so the first Marketplace listing is one product on the public GitHub repo. First-run migration still copies macros from the earlier `mdavage.*` ids. 1.0.0 is that listing, not a claim that every traditional emulator feature is present.
 
+## 22 October — the listing page
+
+Tags: `v1.0.1`
+
+The page a visitor sees is the README, and the README had grown into the manual. The manual was already written — settings, the keyboard, macros, file transfer — so the README was cut back to how you connect, the keys that surprise people, and links to those files. The screen-size and font notes that used to live only in the README moved into the settings reference, which is where someone looks when a session drops. A recording of a real session, `images/demo.gif`, sits at the top, which is the fold both stores render.
+
+The Marketplace search keywords were still the five the scaffold was given. They now name the systems and products a mainframer would type. `CHANGELOG.md` is new, which is what puts a Changelog tab on the listing. User-facing changes from here are recorded there; this file keeps the decisions. Both stores refuse a version they already have, so the page went out as 1.0.1 with no code change. The recording is left out of the package: the stores fetch README images from GitHub, so shipping it would only add 2.5 MB to every install.
+
 ## What was left on purpose
 
 - DUP / Field Mark keys.
@@ -303,8 +313,8 @@ The extension id is `spufidoo.vscode-3270`. Links, the publisher field, and the 
 
 ## Where it stands
 
-Current packaged version at the end of this record: **1.0.0**.
+Current packaged version at the end of this record: **1.0.1**.
 
 The public GitHub repository is `spufidoo/vscode-3270`. The Marketplace publisher id is `spufidoo`.
 
-Reference documentation lives beside this file: [README](README.md), [keymap](docs/KEYMAP.md), [macros](docs/MACROS.md), [file transfer](docs/TRANSFER.md) and [settings](docs/SETTINGS.md).
+Reference documentation lives beside this file: [README](README.md), [changelog](CHANGELOG.md), [keymap](docs/KEYMAP.md), [macros](docs/MACROS.md), [file transfer](docs/TRANSFER.md) and [settings](docs/SETTINGS.md).

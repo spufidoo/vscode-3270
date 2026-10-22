@@ -9,5 +9,6 @@ tsconfig.json
 sidecar/__pycache__/**
 media/icon-source.svg
 branding/**
+images/**
 scripts/**
 node_modules/**
