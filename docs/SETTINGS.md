@@ -201,7 +201,9 @@ action:
 - `local:<name>` — `insert`, `reset`
 - `macro:<name>` — a `tn3270.macros` entry
 
-An empty value removes a default binding. Run **3270 Terminal: Show Keyboard Map** to
+An empty value removes a default binding. The numeric keypad has its own names
+(`numpad0`–`numpad9`, `numpadenter`, and the operator keys), so a binding there
+does not take the number row with it. Run **3270 Terminal: Show Keyboard Map** to
 see the merged result. Full syntax is in [KEYMAP.md](KEYMAP.md).
 
 The mouse wheel is bound the same way, under the chord names `wheelup`,

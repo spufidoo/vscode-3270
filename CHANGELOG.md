@@ -2,6 +2,10 @@
 
 Notable changes, newest first. The decisions behind them are in [HISTORY.md](HISTORY.md).
 
+## [Unreleased]
+
+- The numeric keypad can be bound on its own. `numpad1` is not the `1` on the number row, and `numpadenter` is not the main Enter key.
+
 ## [1.0.1] - 2026-10-22
 
 - Shorter README. The reference material now lives in the docs it links to, and a session recording sits at the top.

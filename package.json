@@ -64,7 +64,7 @@
         "tn3270.keymap": {
           "type": "object",
           "default": {},
-          "markdownDescription": "Override 3270 key bindings. Each entry maps a chord such as `alt+1` to an action: `aid:<name>` (enter, clear, attn, pa1-3, pf1-24), `nav:<name>` (tab, backtab, left, right, up, down, home, end, wordleft, wordright, backspace, delete, eraseeof, eraseinput, newline), `local:<name>` (insert, reset) or `macro:<name>` for an entry in `#tn3270.macros#`. An empty value removes a default binding. Run **3270 Terminal: Show Keyboard Map** to see the result, or see [docs/KEYMAP.md](https://github.com/spufidoo/vscode-3270/blob/main/docs/KEYMAP.md).",
+          "markdownDescription": "Override 3270 key bindings. Each entry maps a chord such as `alt+1` to an action: `aid:<name>` (enter, clear, attn, pa1-3, pf1-24), `nav:<name>` (tab, backtab, left, right, up, down, home, end, wordleft, wordright, backspace, delete, eraseeof, eraseinput, newline), `local:<name>` (insert, reset) or `macro:<name>` for an entry in `#tn3270.macros#`. An empty value removes a default binding. Keypad keys are `numpad0`–`numpad9`, `numpadenter`, `numpadadd`, `numpadsubtract`, `numpadmultiply`, `numpaddivide` and `numpaddecimal`, so a binding does not take the number row with it. Run **3270 Terminal: Show Keyboard Map** to see the result, or see [docs/KEYMAP.md](https://github.com/spufidoo/vscode-3270/blob/main/docs/KEYMAP.md).",
           "additionalProperties": {
             "type": "string"
           }

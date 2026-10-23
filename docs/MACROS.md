@@ -391,13 +391,13 @@ Set `tn3270.macroTrace` to `true` and every step is logged to the **3270**
 output channel, which opens by itself when a traced macro starts:
 
 ```
-[DB2B] macro startlpar: start (…\macros\startlpar.py)
-[DB2B] ask('Enter LPAR') -> 'DB2B'
-[DB2B] type('DB2B MVSMJD') [1,7 unlocked]
-[DB2B] enter() [1,18 unlocked]
-[DB2B] wait_unlock(10) returned after 0.31s [4,16 unlocked]
-[DB2B] on_screen('Password  ===>') -> False
-[DB2B] warn Can't find the password prompt anywhere.
+[LPAR] macro startlpar: start (…\macros\startlpar.py)
+[LPAR] ask('Enter LPAR') -> 'LPAR'
+[LPAR] type('LPAR USERID') [1,7 unlocked]
+[LPAR] enter() [1,18 unlocked]
+[LPAR] wait_unlock(10) returned after 0.31s [4,16 unlocked]
+[LPAR] on_screen('Password  ===>') -> False
+[LPAR] warn Can't find the password prompt anywhere.
 ```
 
 The square brackets are the cursor row and column, then whether the host had the
@@ -419,6 +419,106 @@ name, map a short userid code, log on, stop with a message if the screen is
 wrong. After **Open Macros Folder**, that file is in the macros directory as
 `startlpar.py`. Point `tn3270.macros` at it and set `tn3270.clickMacro` as
 in the sample at the top of this page.
+
+### A longer script
+
+`startlpar.py` logs on and stops. A script that goes further has to recognise
+each panel it lands on, because the keyboard unlocking does not mean the screen
+you wanted has arrived. This one opens a member in ISPF Edit from the primary
+menu, and backs out with a message when the data set or the member is not
+there.
+
+**3270 Terminal: Open Macros Folder**, then save the script below as
+`editmember.py` in that folder. Do not put a password in the file. Register it
+and give it a key:
+
+```json
+"tn3270.macros": {
+  "editmember": { "script": "editmember" }
+},
+"tn3270.keymap": {
+  "ctrl+alt+e": "macro:editmember"
+}
+```
+
+Run it from the ISPF primary option menu, with the cursor anywhere. The first
+time, set `tn3270.macroTrace` to `true` and watch the **3270** output channel.
+`trace_screen()` prints the panel with row numbers, which is how you correct
+the strings in `wait_for` and the slice in `screen` when your ISPF wording or
+field positions differ. Turn tracing off once the script lands where you
+expect.
+
+```python
+# editmember.py — open a member in ISPF Edit from the primary menu.
+# No import, and no try/except: neither is available. See "What the script
+# namespace has" above.
+
+if not on_screen("ISPF Primary Option Menu"):
+    warn("Start this from the ISPF primary option menu")
+    return
+
+dataset = ask("Data set name", max=44)
+member = ask("Member", max=8)
+if not dataset or not member:
+    return
+
+# =2 jumps to Edit from any ISPF panel. Wait for the entry panel itself.
+type("=2")
+enter()
+seen = wait_for("ISPF Edit Entry", "ISREDM01", seconds=15)
+if not seen:
+    trace_screen()
+    warn("Edit entry panel did not appear")
+    return
+
+# The data set name field on this panel starts at row 3, column 26.
+# screen() keeps the trailing spaces, so strip before comparing.
+home()
+type(dataset)
+tab()
+type(member)
+enter()
+
+seen = wait_for(
+    "EDIT ",
+    "Member not found",
+    "Data set not cataloged",
+    seconds=20,
+)
+if seen == "Member not found":
+    warn(member + " is not in " + dataset)
+    pf3()
+    return
+if seen == "Data set not cataloged":
+    warn(dataset + " is not catalogued")
+    pf3()
+    return
+if not seen:
+    trace_screen()
+    warn("Edit did not open, and the panel was not a known error")
+    return
+
+# In the editor the member name sits on row 2. A mismatch here means
+# wait_for matched a header that was not this edit session.
+title = screen(2, 1, 40).strip()
+trace(title)
+if member not in title:
+    warn("Opened a panel, but it does not show " + member)
+    pf3()
+```
+
+Three habits make a script this long reliable.
+
+- **Name every screen you might land on**, and put the specific fragments
+  before the vague ones. `wait_for` returns the first fragment that is
+  anywhere on the screen, so `"EDIT "` will match a tutorial that mentions
+  Edit if you list it first.
+- **Read a field when the title is not enough.** `screen(row, col, length)` is
+  1-based and includes trailing spaces. `strip()` before you compare.
+- **Leave the session somewhere recognisable when you stop.** `pf3()` here
+  returns to the edit entry panel. A script that `return`s in the middle of a
+  panel is not wrong, but the next one then has to cope with wherever you
+  abandoned it.
 
 ## Related
 

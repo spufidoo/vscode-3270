@@ -34,26 +34,77 @@ A chord is modifiers followed by a key name, all lower case:
 ctrl+alt+shift+meta+<key>
 ```
 
-Modifiers must appear in that order, and only the ones you need. The key name is
-the browser's `event.key` lower-cased, with these substitutions:
+Modifiers must appear in that order, and only the ones you need. Any subset is
+legal: `f1`, `shift+f1`, `ctrl+shift+f1`, `ctrl+alt+shift+meta+f1`. `meta` is the
+Windows key, or Command on a Mac. `shift+ctrl+f1` does nothing, because the
+order is wrong.
 
-| Key | Name |
+A key name is the browser's `event.key`, lower-cased, except for the
+substitutions in the tables below. The value of a binding is an action
+(`aid:`, `nav:`, `local:`, or `macro:`), never a character. There is no chord
+that means "type S instead." A one-character macro is the way to type a fixed
+string, and binding `a` to it means the A key no longer types A.
+
+### Letters and digits
+
+| Keys | Chord |
 | --- | --- |
-| Arrow keys | `left` `right` `up` `down` |
-| Space bar | `space` |
-| Page Up / Page Down | `pageup` `pagedown` |
+| A–Z | `a` … `z` |
+| 0–9, on the row above the letters | `0` … `9` |
+
+Shift does not make a second chord for a letter. A and a both arrive as `a`, so
+bind `a`, not `shift+a`. Binding `a` catches both and replaces typing that
+letter. A digit is only the unshifted key. Shift+1 is whatever symbol your
+layout produces (`!` on a US keyboard), not `shift+1`.
+
+### Symbols
+
+These are the characters a US keyboard produces. Another layout uses the
+character that key produces there, still lower-cased, so a UK Shift+3 is `£`
+and not `#`. The space bar is `space`, not a space character.
+
+Unshifted, along a US keyboard: backtick, hyphen, equals, `[` `]`, backslash, `;` `'`, comma, full stop, `/`. The chord is that character. Shifted, the same keys are `~` `!` `@` `#` `$` `%` `^` `&` `*` `(` `)` `_` `+` `{` `}` `|` `:` `"` `<` `>` `?`.
+
+### Editing and navigation
+
+| Key | Chord |
+| --- | --- |
+| Enter | `enter` |
+| Tab | `tab` |
+| Backspace | `backspace` |
 | Esc | `escape` |
+| Insert | `insert` |
+| Delete | `delete` |
+| Home / End | `home` `end` |
+| Page Up / Page Down | `pageup` `pagedown` |
+| Arrows | `left` `right` `up` `down` |
 
-Everything else is the obvious lower-case name: `a`, `7`, `f9`, `enter`, `tab`,
-`home`, `end`, `insert`, `delete`, `backspace`, `pause`.
+`shift+tab`, `shift+left` and the other shifted navigation keys are their own
+chords, because Shift does not turn them into a character. `ctrl+enter` and
+`alt+delete` likewise.
 
-The mouse wheel has four names of its own — `wheelup`, `wheeldown`, `wheelleft`
-and `wheelright` — which take modifiers like any other chord. See
-[The wheel](#the-wheel).
+### Function keys
 
-Use `shift+` only for keys where Shift does not already change the character.
-`shift+f3` and `shift+tab` are right; a shifted letter arrives as that letter, so
-bind `a`, not `shift+a`.
+`f1` … `f12`. Shift, Ctrl, Alt and the Windows key combine in the usual order,
+which is how PF13–PF24 are `shift+f1` … `shift+f12`.
+
+`f13` … `f24` are also chords, if the keyboard sends them. Some firmware turns
+Fn plus a function key into one of these. Bind `f13`, not `fn+f1`: Fn never
+appears in a chord. See [Keys that are not chords](#keys-that-are-not-chords).
+
+### Lock and system keys
+
+| Key | Chord |
+| --- | --- |
+| Caps Lock | `capslock` |
+| Num Lock | `numlock` |
+| Scroll Lock | `scrolllock` |
+| Pause / Break | `pause` |
+| Print Screen | `printscreen` |
+| The menu key | `contextmenu` |
+
+Windows may still toggle Caps Lock, Num Lock or Scroll Lock after the session
+has handled the key. Vista can suppress that. This extension cannot.
 
 ### Modifiers on their own
 
@@ -65,6 +116,77 @@ out, where the keys a PC uses for Ctrl carry ENTER and RESET.
 They fire on release, and only when nothing else was pressed in between, so
 `rightctrl` still behaves as an ordinary modifier in `rightctrl`+C. Writing them
 with a `+`, as in `ctrl+rightctrl`, does nothing.
+
+### The numeric keypad
+
+The keypad is named by the physical key, so a binding does not take the number
+row or the main Enter key with it. Num Lock does not matter: keypad 1 is
+`numpad1` whether it would otherwise type `1` or move to End.
+
+| Key | Chord |
+| --- | --- |
+| 0–9 | `numpad0` … `numpad9` |
+| Enter | `numpadenter` |
+| `+` | `numpadadd` |
+| `-` | `numpadsubtract` |
+| `*` | `numpadmultiply` |
+| `/` | `numpaddivide` |
+| `.` | `numpaddecimal` |
+
+The Num Lock key itself is `numlock`, from the table above, not a `numpad` name.
+Modifiers combine as usual: `shift+numpad1`, `ctrl+numpadenter`. A keypad key
+with no binding keeps its ordinary behaviour. This puts PF1–PF12 on the keypad,
+New Line on the keypad Enter, and ENTER on the right Ctrl key:
+
+```json
+"tn3270.keymap": {
+  "numpad7": "aid:pf1",
+  "numpad8": "aid:pf2",
+  "numpad9": "aid:pf3",
+  "numpad4": "aid:pf4",
+  "numpad5": "aid:pf5",
+  "numpad6": "aid:pf6",
+  "numpad1": "aid:pf7",
+  "numpad2": "aid:pf8",
+  "numpad3": "aid:pf9",
+  "numpad0": "aid:pf10",
+  "numpaddecimal": "aid:pf11",
+  "numpadenter": "nav:newline",
+  "numpadadd": "aid:pf12",
+  "rightctrl": "aid:enter"
+}
+```
+
+`rightctrl` replaces Reset on that key. Reset stays on Ctrl+R. The main Enter
+key is still ENTER.
+
+### Wheel chords
+
+`wheelup` `wheeldown` `wheelleft` `wheelright`. Modifiers combine as usual
+(`ctrl+wheelup`). What the wheel does with them is under [The wheel](#the-wheel).
+
+### Extra keys
+
+A media or browser key is a chord when the keyboard sends it. The name is
+`event.key` lower-cased:
+
+`mediaplaypause` `mediatracknext` `mediatrackprevious` `mediastop`
+`volumeup` `volumedown` `volumemute`
+`browserback` `browserforward` `browserrefresh` `browserhome`
+
+An ISO keyboard's extra key, the one beside left Shift on many UK and European
+layouts, arrives as `intlbackslash` when it is not producing a character.
+
+### Keys that are not chords
+
+**Fn.** The keyboard handles it before Windows sees it. `fn+p` is not a name
+you can write. If that combination reaches the session at all, it arrives as
+`p`, or as whatever key the firmware substituted, with no record that Fn was
+held.
+
+**The four clipboard chords.** `ctrl+c`, `ctrl+x`, `ctrl+v` and `ctrl+a` are
+taken before the keymap is consulted, and so are the same four with the Windows
+or Command key. They are listed again under [Reserved keys](#reserved-keys).
 
 ## Actions
 

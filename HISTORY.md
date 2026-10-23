@@ -25,6 +25,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 | [16 Sep][d13] | Cut blanks the input fields in a block | 0.13.0 |
 | [5 Oct][d14] | Public Marketplace identity | 1.0.0 |
 | [22 Oct][d15] | Listing page: demo, shorter README, changelog, keywords | 1.0.1 |
+| [22 Oct][d16] | Keypad keys are their own chords | — |
 
 [Why this exists](#why-this-exists) · [What was left on purpose](#what-was-left-on-purpose) · [Where it stands](#where-it-stands)
 
@@ -43,6 +44,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 [d13]: #16-september--cut-reconsidered
 [d14]: #5-october--a-public-listing
 [d15]: #22-october--the-listing-page
+[d16]: #22-october--the-keypad
 
 ## Why this exists
 
@@ -299,6 +301,12 @@ Tags: `v1.0.1`
 The page a visitor sees is the README, and the README had grown into the manual. The manual was already written — settings, the keyboard, macros, file transfer — so the README was cut back to how you connect, the keys that surprise people, and links to those files. The screen-size and font notes that used to live only in the README moved into the settings reference, which is where someone looks when a session drops. A recording of a real session, `images/demo.gif`, sits at the top, which is the fold both stores render.
 
 The Marketplace search keywords were still the five the scaffold was given. They now name the systems and products a mainframer would type. `CHANGELOG.md` is new, which is what puts a Changelog tab on the listing. User-facing changes from here are recorded there; this file keeps the decisions. Both stores refuse a version they already have, so the page went out as 1.0.1 with no code change. The recording is left out of the package: the stores fetch README images from GitHub, so shipping it would only add 2.5 MB to every install.
+
+## 22 October — the keypad
+
+No tag. The packaged version is still 1.0.1.
+
+Vista's keyboard editor can put PF keys on the numeric keypad because Windows reports the physical key. The keymap here named a key by the character the browser produced, and with Num Lock on that character is the same one the number row produces, so keypad 1 and the 1 above the letters were one chord. The browser event already carries the physical name (`Numpad1`, `NumpadEnter`). A bound keypad key now uses that name — `numpad1`, `numpadenter`, and the operator keys — and an unbound one falls back to the character or cursor chord it had before, so a keypad nobody has remapped still types and still moves the cursor. Right Ctrl was already its own chord.
 
 ## What was left on purpose
 

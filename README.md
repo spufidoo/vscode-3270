@@ -35,7 +35,7 @@ While a 3270 tab has focus:
 | Ctrl+C / Ctrl+X / Ctrl+V | Copy / Cut / Paste a marked block |
 | Drag, or Shift+arrows | Mark a rectangle |
 
-Any binding can be changed, and an open session picks the change up on save. The full map, chord syntax, the wheel (PF7 and PF8), and clickable `F3=Exit` hotspots are in [docs/KEYMAP.md](docs/KEYMAP.md).
+Any binding can be changed, and an open session picks the change up on save. The keypad has its own names (`numpad1`, `numpadenter`, and the rest), so it can be PF keys without giving up the number row. The full map, chord syntax, the wheel (PF7 and PF8), and clickable `F3=Exit` hotspots are in [docs/KEYMAP.md](docs/KEYMAP.md).
 
 ## In a session
 

@@ -710,9 +710,46 @@ function modifierPrefix(e) {
   return chord;
 }
 
+// Physical keypad keys. event.key reports the character, which is the same
+// character the number row produces, so a binding has to be by event.code
+// or keypad 1 and the 1 above the letters cannot be told apart.
+const NUMPAD_CODES = {
+  Numpad0: "numpad0",
+  Numpad1: "numpad1",
+  Numpad2: "numpad2",
+  Numpad3: "numpad3",
+  Numpad4: "numpad4",
+  Numpad5: "numpad5",
+  Numpad6: "numpad6",
+  Numpad7: "numpad7",
+  Numpad8: "numpad8",
+  Numpad9: "numpad9",
+  NumpadEnter: "numpadenter",
+  NumpadAdd: "numpadadd",
+  NumpadSubtract: "numpadsubtract",
+  NumpadMultiply: "numpadmultiply",
+  NumpadDivide: "numpaddivide",
+  NumpadDecimal: "numpaddecimal",
+};
+
 function chordFor(e) {
   const key = KEY_ALIASES[e.key] || e.key.toLowerCase();
   return modifierPrefix(e) + key;
+}
+
+function numpadChord(e) {
+  const name = NUMPAD_CODES[e.code];
+  return name ? modifierPrefix(e) + name : "";
+}
+
+// A bound keypad key wins. An unbound one keeps the character or cursor
+// chord it had before these names existed, Num Lock included.
+function actionFor(e) {
+  const pad = numpadChord(e);
+  if (pad && Object.prototype.hasOwnProperty.call(keymap, pad)) {
+    return keymap[pad];
+  }
+  return keymap[chordFor(e)];
 }
 
 function setInsert(on) {
@@ -791,7 +828,7 @@ screenEl.addEventListener("keydown", (e) => {
     return;
   }
 
-  const action = keymap[chordFor(e)];
+  const action = actionFor(e);
 
   // The marking keys are the one thing that must not drop the mark first.
   if (action && action.startsWith("local:mark")) {
