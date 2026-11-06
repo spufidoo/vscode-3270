@@ -2,9 +2,10 @@
 
 Notable changes, newest first. The decisions behind them are in [HISTORY.md](HISTORY.md).
 
-## [Unreleased]
+## [1.1.0] - 2026-11-06
 
 - The numeric keypad can be bound on its own. `numpad1` is not the `1` on the number row, and `numpadenter` is not the main Enter key.
+- Copy as Rich Text (RTF), HTML or an image (PNG), keeping the screen's colours. Right-click **Copy** opens a submenu of formats, and `tn3270.copyFormat` sets the one Ctrl+C uses.
 
 ## [1.0.1] - 2026-10-22
 

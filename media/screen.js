@@ -25,6 +25,15 @@ let colors = { ...DEFAULT_COLORS, ...(config.colors || {}) };
 let blinkEnabled = config.blink === true;
 let keymap = config.keymap || {};
 
+const COPY_FORMATS = ["text", "rtf", "html", "image"];
+const COPY_LABELS = {
+  text: "Text",
+  rtf: "Rich Text (RTF)",
+  html: "HTML",
+  image: "Image (PNG)",
+};
+let copyFormat = COPY_FORMATS.includes(config.copyFormat) ? config.copyFormat : "text";
+
 // Colour value 0 means "use the field default".
 let PALETTE = {};
 
@@ -70,12 +79,16 @@ crossColEl.id = "cross-col";
 const menuEl = document.createElement("div");
 menuEl.id = "menu";
 menuEl.hidden = true;
+const submenuEl = document.createElement("div");
+submenuEl.id = "submenu";
+submenuEl.hidden = true;
 gridEl.appendChild(crossRowEl);
 gridEl.appendChild(crossColEl);
 gridEl.appendChild(cursorEl);
 gridEl.appendChild(markEl);
 screenEl.appendChild(gridEl);
 document.body.appendChild(menuEl);
+document.body.appendChild(submenuEl);
 
 // View settings, replaced whole on a config message.
 let crosshair = config.crosshair || "off";
@@ -186,11 +199,296 @@ function clamp(value, low, high) {
   return Math.min(Math.max(value, low), high);
 }
 
-function copyMark() {
-  const text = markedText();
-  if (text) {
-    vscode.postMessage({ op: "copy", text });
+// The cells a copy covers: one { row, from, to } per screen row, 1-based and
+// inclusive. A mark gives a rectangle, a stream selection a ragged run.
+function markedSegments() {
+  if (!mark) {
+    return [];
   }
+  const left = Math.min(mark.c1, mark.c2);
+  const right = Math.max(mark.c1, mark.c2);
+  const segments = [];
+  for (let r = Math.min(mark.r1, mark.r2); r <= Math.max(mark.r1, mark.r2); r++) {
+    segments.push({ row: r, from: left, to: right });
+  }
+  return segments;
+}
+
+// Where a DOM selection boundary falls, as a 0-based cell index. Rows are
+// built from spans whose text together is exactly one screen row wide.
+function cellIndexAt(node, offset) {
+  if (node === gridEl) {
+    const rowsBefore = Array.from(gridEl.childNodes)
+      .slice(0, offset)
+      .filter((child) => rowEls.includes(child)).length;
+    return rowsBefore * state.cols;
+  }
+  let el = node;
+  while (el && !rowEls.includes(el)) {
+    el = el.parentNode;
+  }
+  if (!el) {
+    return -1;
+  }
+  const rowIndex = rowEls.indexOf(el);
+  let col = 0;
+  if (node === el) {
+    for (const child of Array.from(el.childNodes).slice(0, offset)) {
+      col += child.textContent.length;
+    }
+  } else {
+    const span = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+    let prev = span === el ? null : span.previousSibling;
+    while (prev) {
+      col += prev.textContent.length;
+      prev = prev.previousSibling;
+    }
+    col += node.nodeType === Node.TEXT_NODE ? offset : 0;
+  }
+  return rowIndex * state.cols + Math.min(col, state.cols);
+}
+
+function streamSegments() {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+    return [];
+  }
+  const range = sel.getRangeAt(0);
+  const start = cellIndexAt(range.startContainer, range.startOffset);
+  const end = cellIndexAt(range.endContainer, range.endOffset);
+  if (start < 0 || end <= start) {
+    return [];
+  }
+  const segments = [];
+  const firstRow = Math.floor(start / state.cols);
+  const lastRow = Math.floor((end - 1) / state.cols);
+  for (let r = firstRow; r <= lastRow && r < state.rows; r++) {
+    segments.push({
+      row: r + 1,
+      from: r === firstRow ? (start % state.cols) + 1 : 1,
+      to: r === lastRow ? ((end - 1) % state.cols) + 1 : state.cols,
+    });
+  }
+  return segments;
+}
+
+// The segments as styled runs, one array per row. Hidden fields come out as
+// blanks here too, for the same reason as in markedText.
+function segmentRuns(segments) {
+  return segments.map(({ row, from, to }) => {
+    const runs = [];
+    for (let c = from; c <= to; c++) {
+      const i = (row - 1) * state.cols + (c - 1);
+      const { fg, bg, hidden } = cellColor(i);
+      const underline = state.eh[i] === EH_UNDERSCORE;
+      const ch = hidden ? " " : state.text[i] || " ";
+      const last = runs[runs.length - 1];
+      if (last && last.fg === fg && last.bg === bg && last.underline === underline) {
+        last.text += ch;
+      } else {
+        runs.push({ text: ch, fg, bg, underline });
+      }
+    }
+    return { from, runs };
+  });
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function toHtml(rows) {
+  // The style attribute is double-quoted, and the font stack has quotes in it.
+  const family = FONT_STACK.replace(/"/g, "'");
+  const lines = rows.map(({ runs }) =>
+    runs
+      .map(
+        (run) =>
+          `<span style="color:${run.fg};background:${run.bg}${
+            run.underline ? ";text-decoration:underline" : ""
+          }">${escapeHtml(run.text)}</span>`
+      )
+      .join("")
+  );
+  return (
+    `<pre style="margin:0;font-family:${family};font-size:10pt;` +
+    `background:${colors.background};color:${colors.green}">${lines.join("\n")}</pre>`
+  );
+}
+
+function parseHex(color) {
+  let hex = String(color || "").trim().replace(/^#/, "");
+  if (/^[0-9a-f]{3}$/i.test(hex)) {
+    hex = hex.replace(/./g, "$&$&");
+  }
+  if (!/^[0-9a-f]{6}$/i.test(hex)) {
+    return [0, 0, 0];
+  }
+  return [0, 2, 4].map((n) => parseInt(hex.slice(n, n + 2), 16));
+}
+
+function rtfEscape(text) {
+  let out = "";
+  for (const ch of text) {
+    const code = ch.codePointAt(0);
+    if (ch === "\\" || ch === "{" || ch === "}") {
+      out += `\\${ch}`;
+    } else if (code < 0x80) {
+      out += ch;
+    } else if (code <= 0xffff) {
+      // RTF's \u takes a signed 16-bit value, then a fallback character.
+      out += `\\u${code > 0x7fff ? code - 0x10000 : code}?`;
+    } else {
+      out += "?";
+    }
+  }
+  return out;
+}
+
+function toRtf(rows) {
+  const table = [];
+  const index = new Map();
+  const colorIndex = (color) => {
+    if (!index.has(color)) {
+      table.push(parseHex(color));
+      // Entry 0 is the "auto" colour the leading semicolon declares.
+      index.set(color, table.length);
+    }
+    return index.get(color);
+  };
+  // Every run is shaded, the screen background too, so the block pastes as a
+  // solid rectangle rather than green text on a white page.
+  const body = rows
+    .map(({ runs }) =>
+      runs
+        .map((run) => {
+          const fg = colorIndex(run.fg);
+          const bg = colorIndex(run.bg);
+          const ul = run.underline ? "\\ul" : "\\ulnone";
+          return `{\\cf${fg}\\cb${bg}\\chcbpat${bg}${ul} ${rtfEscape(run.text)}}`;
+        })
+        .join("")
+    )
+    .join("\\line\n");
+  const font = FONT_STACK.split(",")[0].trim().replace(/^["']|["']$/g, "");
+  const colortbl = table.map(([r, g, b]) => `\\red${r}\\green${g}\\blue${b};`).join("");
+  return (
+    `{\\rtf1\\ansi\\ansicpg1252\\deff0{\\fonttbl{\\f0\\fmodern\\fcharset0 ${rtfEscape(font)};}}` +
+    `{\\colortbl ;${colortbl}}\n\\pard\\f0\\fs20 ${body}\\par\n}`
+  );
+}
+
+// Drawn at the size the screen is showing, times the display's pixel ratio,
+// so the picture is as sharp as the panel it came from.
+function toPng(rows) {
+  const scale = window.devicePixelRatio || 1;
+  const left = Math.min(...rows.map((row) => row.from));
+  const right = Math.max(
+    ...rows.map((row) => row.from + row.runs.reduce((n, run) => n + run.text.length, 0) - 1)
+  );
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.ceil((right - left + 1) * cellW * scale);
+  canvas.height = Math.ceil(rows.length * cellH * scale);
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+  ctx.fillStyle = colors.background;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.font = `${fontPx}px ${FONT_STACK}`;
+  ctx.textBaseline = "middle";
+  const bar = Math.max(1, Math.round(cellH / 16));
+  rows.forEach(({ from, runs }, r) => {
+    let col = from - left;
+    const y = r * cellH;
+    for (const run of runs) {
+      const x = col * cellW;
+      const width = run.text.length * cellW;
+      if (run.bg !== colors.background) {
+        ctx.fillStyle = run.bg;
+        ctx.fillRect(x, y, width, cellH);
+      }
+      ctx.fillStyle = run.fg;
+      // One character at a time, so a font a hair off the measured pitch
+      // cannot drift a long run out of its columns.
+      for (let k = 0; k < run.text.length; k++) {
+        if (run.text[k] !== " ") {
+          ctx.fillText(run.text[k], x + k * cellW, y + cellH / 2);
+        }
+      }
+      if (run.underline) {
+        ctx.fillRect(x, y + cellH - bar * 2, width, bar);
+      }
+      col += run.text.length;
+    }
+  });
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("no image"))), "image/png");
+  });
+}
+
+async function blobToBase64(blob) {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(bin);
+}
+
+/**
+ * Put the cells on the clipboard in one format, with plain text alongside.
+ *
+ * HTML and PNG go through the webview's own clipboard, which is the local
+ * machine's even when the extension host is remote. Chromium will not write
+ * RTF at all, so that goes to the extension host, and so do HTML and PNG if
+ * the webview's write is refused.
+ */
+async function copyAs(format, segments, text) {
+  if (format === "text" || !segments.length) {
+    if (text) {
+      vscode.postMessage({ op: "copy", text });
+    }
+    return;
+  }
+  const rows = segmentRuns(segments);
+  if (format === "rtf") {
+    vscode.postMessage({ op: "copyRich", format, text, rtf: toRtf(rows) });
+    return;
+  }
+  if (format === "html") {
+    const html = toHtml(rows);
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/html": new Blob([html], { type: "text/html" }),
+          "text/plain": new Blob([text], { type: "text/plain" }),
+        }),
+      ]);
+    } catch {
+      vscode.postMessage({ op: "copyRich", format, text, html });
+    }
+    return;
+  }
+  let png;
+  try {
+    png = await toPng(rows);
+  } catch {
+    vscode.postMessage({ op: "copy", text });
+    return;
+  }
+  try {
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        "image/png": png,
+        "text/plain": new Blob([text], { type: "text/plain" }),
+      }),
+    ]);
+  } catch {
+    vscode.postMessage({ op: "copyRich", format, text, png: await blobToBase64(png) });
+  }
+}
+
+function copyMark(format = copyFormat) {
+  void copyAs(format, markedSegments(), markedText());
   clearMark();
   screenEl.focus();
 }
@@ -207,10 +505,7 @@ function cutMark() {
   if (!mark) {
     return;
   }
-  const text = markedText();
-  if (text) {
-    vscode.postMessage({ op: "copy", text });
-  }
+  void copyAs(copyFormat, markedSegments(), markedText());
   vscode.postMessage({
     op: "cut",
     r1: mark.r1,
@@ -224,15 +519,13 @@ function cutMark() {
 
 // Copy whichever kind of selection is in play: a marked rectangle if there is
 // one, otherwise whatever the browser has selected in stream mode.
-function copySelection() {
+function copySelection(format = copyFormat) {
   if (mark) {
-    copyMark();
+    copyMark(format);
     return;
   }
   const text = window.getSelection()?.toString() ?? "";
-  if (text) {
-    vscode.postMessage({ op: "copy", text });
-  }
+  void copyAs(format, format === "text" ? [] : streamSegments(), text);
   screenEl.focus();
 }
 
@@ -250,14 +543,62 @@ function markAll() {
  * come up dead. This menu works on the mark instead, and gets clipboard text
  * from the extension host, which is the only side allowed to read it.
  */
+function hideSubmenu() {
+  submenuEl.hidden = true;
+  submenuEl.textContent = "";
+}
+
 function hideMenu() {
   menuEl.hidden = true;
   menuEl.textContent = "";
+  hideSubmenu();
+}
+
+function menuButton(item) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "menu-item";
+  button.textContent = item.label;
+  button.disabled = !item.enabled;
+  if (item.submenu) {
+    const arrow = document.createElement("span");
+    arrow.className = "menu-arrow";
+    arrow.textContent = "\u203a";
+    button.appendChild(arrow);
+  }
+  button.addEventListener("click", () => {
+    hideMenu();
+    item.run();
+    // The button took focus on the way in; the 3270 needs it back.
+    screenEl.focus();
+  });
+  return button;
+}
+
+// Next to its parent item, or flipped to the left if the right would clip.
+function showSubmenu(parent, items) {
+  submenuEl.textContent = "";
+  for (const item of items) {
+    submenuEl.appendChild(menuButton(item));
+  }
+  submenuEl.hidden = false;
+  const box = parent.getBoundingClientRect();
+  const { width, height } = submenuEl.getBoundingClientRect();
+  const left = box.right + width <= window.innerWidth ? box.right : box.left - width;
+  submenuEl.style.left = `${Math.max(0, left)}px`;
+  submenuEl.style.top = `${clamp(box.top - 4, 0, Math.max(0, window.innerHeight - height))}px`;
 }
 
 function showMenu(x, y) {
+  const canCopy = Boolean(mark) || hasSelection();
+  // Copy itself uses the default format; the submenu picks one for this copy.
+  const copyItems = COPY_FORMATS.map((format) => ({
+    label: format === copyFormat ? `${COPY_LABELS[format]} (default)` : COPY_LABELS[format],
+    enabled: canCopy,
+    run: () => copySelection(format),
+  }));
   const items = [
-    { label: "Copy", enabled: Boolean(mark) || hasSelection(), run: copySelection },
+    { label: "Copy", enabled: canCopy, run: () => copySelection(), submenu: copyItems },
     // A rectangle only, and only the input fields inside it get blanked.
     { label: "Cut", enabled: Boolean(mark), run: cutMark },
     { label: "Paste", enabled: true, run: () => vscode.postMessage({ op: "pasteRequest" }) },
@@ -265,17 +606,15 @@ function showMenu(x, y) {
   ];
 
   menuEl.textContent = "";
+  hideSubmenu();
   for (const item of items) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "menu-item";
-    button.textContent = item.label;
-    button.disabled = !item.enabled;
-    button.addEventListener("click", () => {
-      hideMenu();
-      item.run();
-      // The button took focus on the way in; the 3270 needs it back.
-      screenEl.focus();
+    const button = menuButton(item);
+    button.addEventListener("mouseenter", () => {
+      if (item.submenu && item.enabled) {
+        showSubmenu(button, item.submenu);
+      } else {
+        hideSubmenu();
+      }
     });
     menuEl.appendChild(button);
   }
@@ -307,6 +646,7 @@ let state = {
 let insertMode = false;
 let cellW = 8;
 let cellH = 16;
+let fontPx = 13;
 let rowEls = [];
 let rowSig = [];
 
@@ -538,6 +878,7 @@ function fit() {
     Math.min(w / state.cols / ratio, h / state.rows / LINE_RATIO)
   );
   fontSize = Math.max(fontSize, 8);
+  fontPx = fontSize;
   cellW = fontSize * ratio;
   cellH = Math.round(fontSize * LINE_RATIO);
 
@@ -621,6 +962,7 @@ window.addEventListener("message", (event) => {
     cursorBlink = msg.cursorBlink === true;
     alarmEnabled = msg.alarm !== false;
     hotspotMode = msg.hotspots || "click";
+    copyFormat = COPY_FORMATS.includes(msg.copyFormat) ? msg.copyFormat : "text";
     if (hotspotMode === "off") {
       // Drop any pointer left over from hovering a hotspot.
       gridEl.style.cursor = "";
@@ -811,6 +1153,10 @@ screenEl.addEventListener("keydown", (e) => {
       if (mark) {
         e.preventDefault();
         copyMark();
+      } else if (copyFormat !== "text" && hasSelection()) {
+        // The browser's own copy would only ever give plain text.
+        e.preventDefault();
+        copySelection();
       } else if (selectionMode === "block" || !hasSelection()) {
         e.preventDefault();
         runAction("aid:attn");
@@ -1160,7 +1506,7 @@ screenEl.addEventListener("contextmenu", (e) => {
 window.addEventListener(
   "mousedown",
   (e) => {
-    if (!menuEl.hidden && !menuEl.contains(e.target)) {
+    if (!menuEl.hidden && !menuEl.contains(e.target) && !submenuEl.contains(e.target)) {
       hideMenu();
     }
   },

@@ -96,6 +96,35 @@ This setting governs the **mouse** only. Shift+arrows mark a rectangle from the
 keyboard in either mode, anchored on the 3270 cursor, and Escape drops it. See
 [KEYMAP.md](KEYMAP.md) for the `local:mark*` actions behind those chords.
 
+### `tn3270.copyFormat`
+
+What Ctrl+C, Ctrl+X and the right-click **Copy** put on the clipboard. To pick
+a different format for one copy, use the submenu that opens from **Copy**.
+
+| Value | Label | Pastes as |
+|---|---|---|
+| `text` (default) | Text | Plain text, one line per row |
+| `rtf` | Rich Text Format | Coloured text, for Word, Outlook and WordPad |
+| `html` | HTML | Coloured text, for browsers, mail and Teams |
+| `image` | Image | A PNG picture of the block, in the session's font and colours |
+
+The rich formats keep each cell's colour and underline, and the screen
+background, so a pasted block looks like the screen. Non-display fields are
+blank in every format.
+
+The webview's own clipboard writes HTML and Image, so they land on your local
+machine even when the extension runs remotely. Plain text goes on the clipboard
+alongside them. The webview cannot write RTF, so the extension host writes it
+with the operating system's clipboard tool:
+
+- Windows uses PowerShell.
+- macOS uses `pbcopy`.
+- Linux uses `xclip` or `wl-copy`, which you may need to install.
+
+Over Remote SSH or WSL, an RTF copy therefore goes to the remote machine's
+clipboard. If a rich copy fails, the text is copied instead and a warning says
+why.
+
 - Type: `string` (`block` | `stream`)
 - Default: `block`
 - Applies: live

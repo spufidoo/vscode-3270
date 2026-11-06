@@ -1,6 +1,6 @@
 # Development history
 
-This is a record of the Cursor chats that produced this extension (20 August 2026 – 22 October 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
+This is a record of the Cursor chats that produced this extension (20 August 2026 – 6 November 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
 
 It uses [IBM tnz](https://github.com/IBM/tnz) at runtime. Until 0.10.0 that was a `pip install` the user had to do; since then tnz and ebcdic are bundled.
 
@@ -25,7 +25,8 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 | [16 Sep][d13] | Cut blanks the input fields in a block | 0.13.0 |
 | [5 Oct][d14] | Public Marketplace identity | 1.0.0 |
 | [22 Oct][d15] | Listing page: demo, shorter README, changelog, keywords | 1.0.1 |
-| [22 Oct][d16] | Keypad keys are their own chords | — |
+| [22 Oct][d16] | Keypad keys are their own chords | 1.1.0 |
+| [6 Nov][d17] | Copy as RTF, HTML or an image | 1.1.0 |
 
 [Why this exists](#why-this-exists) · [What was left on purpose](#what-was-left-on-purpose) · [Where it stands](#where-it-stands)
 
@@ -45,6 +46,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 [d14]: #5-october--a-public-listing
 [d15]: #22-october--the-listing-page
 [d16]: #22-october--the-keypad
+[d17]: #6-november--copy-formats
 
 ## Why this exists
 
@@ -304,9 +306,17 @@ The Marketplace search keywords were still the five the scaffold was given. They
 
 ## 22 October — the keypad
 
-No tag. The packaged version is still 1.0.1.
+Tags: `v1.1.0`
 
 Vista's keyboard editor can put PF keys on the numeric keypad because Windows reports the physical key. The keymap here named a key by the character the browser produced, and with Num Lock on that character is the same one the number row produces, so keypad 1 and the 1 above the letters were one chord. The browser event already carries the physical name (`Numpad1`, `NumpadEnter`). A bound keypad key now uses that name — `numpad1`, `numpadenter`, and the operator keys — and an unbound one falls back to the character or cursor chord it had before, so a keypad nobody has remapped still types and still moves the cursor. Right Ctrl was already its own chord.
+
+## 6 November — copy formats
+
+Tags: `v1.1.0`
+
+A copied block of plain text loses what makes a 3270 screen readable: the colours and the underlined input fields. Copy in the right-click menu now opens a submenu offering Text, Rich Text (RTF), HTML and Image (PNG). `tn3270.copyFormat` chooses the format that Ctrl+C, Cut and the Copy item itself use. All four formats are built from the same cells and the same colour rules that paint the screen, and non-display fields still come out blank.
+
+The formats take different routes to the clipboard. `vscode.env.clipboard` writes text only. The webview's own clipboard can write HTML and PNG, and it is the local machine's clipboard even when the extension host is remote, so HTML and PNG go that way, with plain text alongside. Chromium will not write RTF at all, so RTF goes to the extension host, which writes it with the platform's own tool: Windows Forms from PowerShell, `pbcopy` on macOS, and `xclip` or `wl-copy` on Linux. HTML and PNG fall back to the same route if the webview's write is refused. If that fails too, the text is copied and a warning says why.
 
 ## What was left on purpose
 
@@ -321,7 +331,7 @@ Vista's keyboard editor can put PF keys on the numeric keypad because Windows re
 
 ## Where it stands
 
-Current packaged version at the end of this record: **1.0.1**.
+Current packaged version at the end of this record: **1.1.0**.
 
 The public GitHub repository is `spufidoo/vscode-3270`. The Marketplace publisher id is `spufidoo`.
 

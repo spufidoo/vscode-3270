@@ -333,7 +333,7 @@ current field.
 | Double-click | Move the cursor and send ENTER |
 | Drag | Select text |
 | Shift+click | Pull the near corner of a marked block (block mode) |
-| Right-click | Copy, Cut, Paste and Mark all menu |
+| Right-click | Copy (with a Text / RTF / HTML / Image submenu), Cut, Paste and Mark all menu |
 | Wheel up / down | Move the cursor to the pointer and send PF7 / PF8 |
 | Wheel left / right | PF10 / PF11, if `tn3270.wheel.horizontal` is on |
 
@@ -398,6 +398,11 @@ pastes through the extension host, which is the only side able to read the
 clipboard. Cut copies the block and then blanks the input fields inside it,
 leaving protected text alone; it needs a marked rectangle and is refused while
 the keyboard is locked.
+
+Copy, Ctrl+C and Cut use the format set in `tn3270.copyFormat`, which is plain
+text unless you change it. Hover over **Copy** to pick Text, Rich Text (RTF),
+HTML or Image (PNG) for one copy; the format marked "(default)" is the
+setting's. See [SETTINGS.md](SETTINGS.md#tn3270copyformat).
 
 ## Troubleshooting
 

@@ -2,7 +2,7 @@
   "name": "vscode-3270",
   "displayName": "3270 Terminal",
   "description": "Native 3270 terminal view for VS Code and Cursor, powered by IBM tnz.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "publisher": "spufidoo",
   "license": "Apache-2.0",
   "icon": "media/icon.png",
@@ -187,6 +187,29 @@
             "Linear text selection, like a text editor: from one character to another, wrapping across lines."
           ],
           "markdownDescription": "How selecting and copying works in a 3270 session. **block** marks a rectangle of rows and columns, the way Vista TN3270 and PCOMM do. **stream** selects a run of characters like a text editor, which also allows drag-to-another-app and the webview's own context-menu copy. Either way, Ctrl+C copies and Ctrl+V pastes."
+        },
+        "tn3270.copyFormat": {
+          "type": "string",
+          "enum": [
+            "text",
+            "rtf",
+            "html",
+            "image"
+          ],
+          "default": "text",
+          "enumItemLabels": [
+            "Text",
+            "Rich Text Format",
+            "HTML",
+            "Image"
+          ],
+          "enumDescriptions": [
+            "Plain text, one line per row.",
+            "RTF with the screen's colours, for Word, Outlook and WordPad.",
+            "HTML with the screen's colours, for browsers, mail and Teams.",
+            "A PNG picture of the marked block, drawn in the session's font and colours."
+          ],
+          "markdownDescription": "What Ctrl+C and the right-click **Copy** put on the clipboard. The **Copy** submenu can pick any of the four for one copy. RTF is written by the extension host with the operating system's clipboard tool (PowerShell on Windows, `pbcopy` on macOS, `xclip` or `wl-copy` on Linux), so over Remote SSH or WSL it lands on the remote machine; HTML and Image use the local clipboard."
         },
         "tn3270.transfer.syntax": {
           "type": "string",

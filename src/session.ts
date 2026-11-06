@@ -5,6 +5,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
+import { RichCopy, writeRich } from "./clipboard";
 import { resolveKeymap } from "./keymap";
 import { log, reportError } from "./log";
 import { Sidecar } from "./sidecar";
@@ -136,6 +137,8 @@ export class SessionPanel {
         }
       } else if (msg.op === "copy") {
         void vscode.env.clipboard.writeText(String(msg.text ?? ""));
+      } else if (msg.op === "copyRich") {
+        void this.copyRich(msg as unknown as RichCopy);
       } else if (msg.op === "pasteRequest") {
         // A webview cannot read the clipboard, so the context menu asks us to.
         void vscode.env.clipboard.readText().then((text) => {
@@ -158,6 +161,21 @@ export class SessionPanel {
 
   reveal(): void {
     this.panel.reveal();
+  }
+
+  /** RTF always lands here; HTML and PNG only when the webview's write failed. */
+  private async copyRich(copy: RichCopy): Promise<void> {
+    const text = String(copy.text ?? "");
+    try {
+      await writeRich({ ...copy, text });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      log().warn(`copy as ${copy.format}: ${message}`);
+      await vscode.env.clipboard.writeText(text);
+      void vscode.window.showWarningMessage(
+        `3270 Terminal: could not copy as ${copy.format}, so the text was copied instead. ${firstLine(message)}`
+      );
+    }
   }
 
   get isActive(): boolean {
@@ -754,12 +772,14 @@ export const VIEW_SETTINGS = [
   "tn3270.cursor.blink",
   "tn3270.alarm",
   "tn3270.hotspots",
+  "tn3270.copyFormat",
 ];
 
 function viewSettings(): Record<string, unknown> {
   const config = vscode.workspace.getConfiguration("tn3270");
   const crosshair = config.get<string>("crosshair", "off");
   const hotspots = config.get<string>("hotspots", "click");
+  const copyFormat = config.get<string>("copyFormat", "text");
   return {
     selection: getSelectionMode(),
     crosshair: ["row", "column", "cross"].includes(crosshair)
@@ -772,6 +792,7 @@ function viewSettings(): Record<string, unknown> {
     cursorBlink: config.get<boolean>("cursor.blink", false),
     alarm: config.get<boolean>("alarm", true),
     hotspots: ["click", "doubleclick"].includes(hotspots) ? hotspots : "off",
+    copyFormat: ["rtf", "html", "image"].includes(copyFormat) ? copyFormat : "text",
   };
 }
 

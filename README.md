@@ -32,7 +32,7 @@ While a 3270 tab has focus:
 | Alt+1 / Alt+2 / Alt+3 | PA1 / PA2 / PA3 |
 | Alt+C or Pause | CLEAR |
 | Alt+A, or Ctrl+C with nothing marked | ATTN |
-| Ctrl+C / Ctrl+X / Ctrl+V | Copy / Cut / Paste a marked block |
+| Ctrl+C / Ctrl+X / Ctrl+V | Copy / Cut / Paste a marked block. Right-click Copy can also copy as RTF, HTML or an image |
 | Drag, or Shift+arrows | Mark a rectangle |
 
 Any binding can be changed, and an open session picks the change up on save. The keypad has its own names (`numpad1`, `numpadenter`, and the rest), so it can be PF keys without giving up the number row. The full map, chord syntax, the wheel (PF7 and PF8), and clickable `F3=Exit` hotspots are in [docs/KEYMAP.md](docs/KEYMAP.md).

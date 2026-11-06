@@ -105,7 +105,8 @@ body {
 
 /* Our own right-click menu. VS Code's is built from Electron editing roles,
    which need a DOM selection and an editable target; block mode has neither. */
-#menu {
+#menu,
+#submenu {
   position: fixed;
   z-index: 10;
   min-width: 140px;
@@ -119,8 +120,19 @@ body {
   user-select: none;
 }
 
-#menu[hidden] {
+#menu[hidden],
+#submenu[hidden] {
   display: none;
+}
+
+#submenu {
+  z-index: 11;
+}
+
+.menu-arrow {
+  float: right;
+  margin-left: 16px;
+  margin-right: -10px;
 }
 
 .menu-item {
