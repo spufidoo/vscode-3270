@@ -1,10 +1,11 @@
 # Publish a GitHub Release to the Marketplace and Open VSX.
 #
 # Runs only when a full release is published (not a draft or prerelease).
-# Both registries must trust this file before the first run can succeed:
-#   Marketplace: trusted publishing for spufidoo/vscode-3270, workflow publish.yml
-#   Open VSX:    trusted publisher for the same owner, repo, and filename,
-#                with the environment left blank
+#   Marketplace: repository secret VSCE_PAT, a personal access token for
+#                publisher spufidoo with the Marketplace (Manage) scope.
+#                Trusted publishing was rejected for this publisher.
+#   Open VSX:    trusted publisher for spufidoo/vscode-3270, workflow
+#                publish.yml, with the environment left blank.
 
 name: Publish
 
@@ -61,7 +62,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -73,7 +73,17 @@ jobs:
           node-version: 22
 
       - name: Publish to the Visual Studio Marketplace
-        run: npx --yes @vscode/vsce publish --packagePath dist/*.vsix --oidc
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "Missing repository secret VSCE_PAT."
+            echo "Create a Marketplace personal access token for publisher spufidoo"
+            echo "(Marketplace Manage scope), then add it with:"
+            echo "  gh secret set VSCE_PAT --repo spufidoo/vscode-3270"
+            exit 1
+          fi
+          npx --yes @vscode/vsce publish --packagePath dist/*.vsix
 
   open-vsx:
     needs: package
