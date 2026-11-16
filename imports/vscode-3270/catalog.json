@@ -1,0 +1,53 @@
+{
+  "schema": "portable-ai-memory-conversations-catalog",
+  "schema_version": "1.0",
+  "exported_at": "2026-11-16T16:58:34.349Z",
+  "source": {
+    "type": "cursor-cloud-agents",
+    "repo": "github.com/spufidoo/vscode-3270",
+    "agent_count": 3,
+    "bc_ids": [
+      "bc-66d55415-fd49-468c-9eee-57248ad5938e",
+      "bc-2aaff8fb-4e3c-5be1-b144-71c7a0bab389",
+      "bc-32990eaf-ded3-4205-8e7f-51dba934fd66"
+    ]
+  },
+  "conversations": [
+    {
+      "id": "bc-66d55415-fd49-468c-9eee-57248ad5938e",
+      "title": "Runbook definition",
+      "path": "conversations/bc-66d55415-fd49-468c-9eee-57248ad5938e.json",
+      "message_count": 3,
+      "created_at": "2026-11-02T12:17:08.460Z",
+      "updated_at": "2026-11-09T11:15:18.320Z",
+      "url": "https://cursor.com/agents/bc-66d55415-fd49-468c-9eee-57248ad5938e",
+      "repoUrl": "github.com/spufidoo/vscode-3270",
+      "schema": "portable-ai-memory-conversation",
+      "schema_version": "1.0"
+    },
+    {
+      "id": "bc-2aaff8fb-4e3c-5be1-b144-71c7a0bab389",
+      "title": "Find chat by folder",
+      "path": "conversations/bc-2aaff8fb-4e3c-5be1-b144-71c7a0bab389.json",
+      "message_count": 22,
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "updated_at": "2026-10-22T21:53:56.955Z",
+      "url": "https://cursor.com/agents/bc-2aaff8fb-4e3c-5be1-b144-71c7a0bab389",
+      "repoUrl": "github.com/spufidoo/vscode-3270",
+      "schema": "portable-ai-memory-conversation",
+      "schema_version": "1.0"
+    },
+    {
+      "id": "bc-32990eaf-ded3-4205-8e7f-51dba934fd66",
+      "title": "Extension monetization",
+      "path": "conversations/bc-32990eaf-ded3-4205-8e7f-51dba934fd66.json",
+      "message_count": 70,
+      "created_at": "2026-09-29T13:18:54.794Z",
+      "updated_at": "2026-11-06T12:49:53.168Z",
+      "url": "https://cursor.com/agents/bc-32990eaf-ded3-4205-8e7f-51dba934fd66",
+      "repoUrl": "github.com/spufidoo/vscode-3270",
+      "schema": "portable-ai-memory-conversation",
+      "schema_version": "1.0"
+    }
+  ]
+}

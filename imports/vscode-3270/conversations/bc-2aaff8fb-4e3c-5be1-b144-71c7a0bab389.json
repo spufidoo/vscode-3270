@@ -1,0 +1,628 @@
+{
+  "schema": "portable-ai-memory-conversation",
+  "schema_version": "1.0",
+  "id": "bc-2aaff8fb-4e3c-5be1-b144-71c7a0bab389",
+  "provider": {
+    "name": "cursor",
+    "conversation_id": "bc-2aaff8fb-4e3c-5be1-b144-71c7a0bab389",
+    "account_id": "291038673",
+    "export_format_version": "cursor-cloud-transcript/2026-11"
+  },
+  "temporal": {
+    "created_at": "2026-10-22T21:51:53.804Z",
+    "updated_at": "2026-10-22T21:53:56.955Z"
+  },
+  "messages": [
+    {
+      "id": "89f02e6f-d206-5d51-9e10-c5b2a4161e67",
+      "role": "user",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "The user refreshed Cursor from a previous folder and says they lost all their chats. Answer from Cursor product docs: where local Composer/Agent chat history is stored/scoped (workspace folder path?), how to find previous chats after opening a different folder, whether chats are deleted vs hidden, and any UI path (Chat History, Previous Chats, agents.cursor.com) to recover them. Keep the answer short and actionable.",
+        "parts": null
+      },
+      "parent_id": null,
+      "children_ids": [
+        "f87c582d-800a-53b1-8251-e227321c078b"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    },
+    {
+      "id": "f87c582d-800a-53b1-8251-e227321c078b",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "Checking Cursor documentation for chat history storage paths, workspace scoping, and recovery options.",
+        "parts": null
+      },
+      "parent_id": "89f02e6f-d206-5d51-9e10-c5b2a4161e67",
+      "children_ids": [
+        "472a83d5-f5ef-5b4f-80dd-0cc733815308"
+      ],
+      "model": null,
+      "is_thought": true,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "thinking": "Checking Cursor documentation for chat history storage paths, workspace scoping, and recovery options."
+      }
+    },
+    {
+      "id": "472a83d5-f5ef-5b4f-80dd-0cc733815308",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "I'll pull Cursor's docs index and the pages that cover chat history storage and recovery.",
+        "parts": null
+      },
+      "parent_id": "f87c582d-800a-53b1-8251-e227321c078b",
+      "children_ids": [
+        "eb58e477-f734-5636-a256-1b48fb52f8d4"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    },
+    {
+      "id": "eb58e477-f734-5636-a256-1b48fb52f8d4",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "Found two relevant documentation pages: the conversation search guide and the agents window documentation.",
+        "parts": null
+      },
+      "parent_id": "472a83d5-f5ef-5b4f-80dd-0cc733815308",
+      "children_ids": [
+        "6ba1e370-1d0f-51db-98ce-56d0d7bdce44"
+      ],
+      "model": null,
+      "is_thought": true,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "thinking": "Found two relevant documentation pages: the conversation search guide and the agents window documentation."
+      }
+    },
+    {
+      "id": "6ba1e370-1d0f-51db-98ce-56d0d7bdce44",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "Fetching the chat-history and Agents Window docs next.",
+        "parts": null
+      },
+      "parent_id": "eb58e477-f734-5636-a256-1b48fb52f8d4",
+      "children_ids": [
+        "ddbbd9aa-acbf-5586-b58b-066d0eb53850"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    },
+    {
+      "id": "ddbbd9aa-acbf-5586-b58b-066d0eb53850",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": null,
+      "parent_id": "6ba1e370-1d0f-51db-98ce-56d0d7bdce44",
+      "children_ids": [
+        "de4a6b49-8f37-5279-934a-4d2869845a2e"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [
+        {
+          "id": "turn-0:step:9:tool",
+          "name": "web_search",
+          "input": null,
+          "output": null
+        }
+      ],
+      "raw_metadata": {}
+    },
+    {
+      "id": "de4a6b49-8f37-5279-934a-4d2869845a2e",
+      "role": "tool",
+      "created_at": "2026-10-22T21:52:02.662Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "{\"resultType\": \"webSearchResult\", \"value\": {\"references\": [{\"title\": \"Web search results\", \"url\": \"\", \"chunk\": \"Links:\\n1. [Chat history missing but local state and transcripts present](https://forum.cursor.com/t/chat-history-missing-but-local-state-and-transcripts-present/156422)\\n2. [Cant access chat history since latest update](https://forum.cursor.com/t/cant-access-chat-history-since-latest-update/158688)\\n3. [Archived Agent chats missing after migrating to new Mac — conversations exist in database](https://forum.cursor.com/t/archived-agent-chats-missing-after-migrating-to-new-mac-conversations-exist-in-database/174627/7)\\n4. [Chats missing in IDE sidebar but visible in Agents window after Windows PC migration](https://forum.cursor.com/t/chats-missing-in-ide-sidebar-but-visible-in-agents-window-after-windows-pc-migration/168192)\\n5. [Cursor IDE and Agent conflict](https://forum.cursor.com/t/cursor-ide-and-agent-conflict/171385)\\n\\nSynthesis:\\nYes. Cursor stores chat/Agent history locally per workspace, typically in workspaceStorage’s state.vscdb; transcripts may also be under ~/.cursor/projects/<workspace-slug>/agent-transcripts/. [1][2] If chats disappear after moving, renaming, or recreating a folder, the workspace ID changed and the old chats remain in the old workspace storage. Open the Agents Window to find them across workspace IDs, or restore by copying the old workspaceStorage folder into the newly created one after quitting Cursor. [3][4] Avoid editing global state.vscdb unless you have a backup.\\n\\nHighlights:\\n<result id=\\\"1\\\">\\n<title>Chat history missing but local state and transcripts present</title>\\n<url>https://forum.cursor.com/t/chat-history-missing-but-local-state-and-transcripts-present/156422</url>\\n<content>Where does the bug appear?\\nCursor IDE (chat/composer history UI)\\n\\nCursor version:\\n2.6.22\\n\\nOperating\\n\\n...\\n\\nThank you for the detailed report!\\n\\nChat history is tied to a workspace ID (a hash computed from your folder path). On Linux, this hash also incorporates the folder’s `inode` number as a salt. Chat history can become disconnected in a few situations:\\n\\n- Chats were created without a folder open. Looking at your repro steps (open IDE → chat → close → reopen), if you’re not opening a specific folder before chatting, those chats are stored under a special transient workspace. They won’t appear when you later open Cursor with a folder, and vice versa. This is the most common cause of this symptom.\\n- The folder was renamed or moved. Even `/home/oldname` → `/home/newname` produces a completely different workspace ID, orphaning your old chats in their original storage location.\\n- The folder’s inode changed. This can occur if the folder was deleted and recreated, the filesystem was reformatted, or you restored from a backup. Certain filesystem configurations (such as btrfs subvolumes or bind mounts) can also trigger this.\\n\\nA couple of questions to help narrow this down:\\n\\n1. In your repro steps, when you “Open IDE” — are you opening a specific folder (File → Open Folder), or just launching Cursor without opening anything?\\n2. Does the path in your `workspace.json` (`file:///home/xxxxxxxxx`) still match the exact folder you’re currently opening?\\n3. Does this happen consistently for every session, or only for specific folders?\\n\\nHopefully, this is just a renamed folder, but if the path hasn’t changed, your answers to the above questions will help us dig further.</content>\\n</result>\\n\\n<result id=\\\"2\\\">\\n<title>Cant access chat history since latest update</title>\\n<url>https://forum.cursor.com/t/cant-access-chat-history-since-latest-update/158688</url>\\n<content>Hi JW,\\n\\nThis is a known issue that can happen after updating. Your chat data is almost certainly still saved on disk – it’s just not showing up in the sidebar.\\n\\nChat transcripts are stored locally at `~/.cursor/projects/{workspace-slug}/agent-transcripts/`. To check if your data is still there, open a terminal and run:\\n\\n`ls ~/.cursor/projects/`\\n\\nYou should see folders for your workspaces. Inside each, there should be an `agent-transcripts/` directory with your chat history files (`.jsonl` files).\\n\\nThe most common cause after an update is the workspace identity changing slightly, which makes Cursor look in a different directory. A few things to try:\\n\\n1. Close and reopen your project using File > Open Folder and selecting the exact same folder path you were using before the update\\n2. Reload the window – `Ctrl+Shift+P` > Developer: Reload Window\\n3. If you see multiple similar-looking folders in `~/.cursor/projects/`, one of them likely contains your old transcripts – you can compare timestamps to find the right one\\n\\nYou may also find this related thread helpful: No history after update 3.1.17 – same version, same symptom.\\n\\nOur team is aware of this class of issues and actively working on it. Let me know if the files are there or if you need help recovering them.\\n\\n...\\n\\nSince you can see `agent-transcripts/` files in some of those directories, the data is still there – it’s just not being picked up by the sidebar index.\\n\\nOne thing worth trying: open a new agent chat in Cursor and ask it to help you locate and consolidate your transcript files. Something like “find all my agent transcript files under `~/.cursor/projects/` and list them by date.” The agent has shell access and can quickly scan through those directories to find where your actual work lives, which might save you a lot of manual digging.\\n\\nBeyond that, the underlying issue (sidebar not re-indexing old sessions after an update) is being tracked by our team. Unfortunately there’s no manual “reimport” step available right now – the transcripts exist on disk but the sidebar index doesn’t know about them after the workspace identity changed during the update.\\n\\nI’ll keep this thread updated if a fix ships that restores the index automatically.</content>\\n</result>\\n\\n<result id=\\\"3\\\">\\n<title>Archived Agent chats missing after migrating to new Mac — conversations exist in database</title>\\n<url>https://forum.cursor.com/t/archived-agent-chats-missing-after-migrating-to-new-mac-conversations-exist-in-database/174627/7</url>\\n<content>Hey @Kirsten_Kaptein, thanks for the report. Your chats aren’t lost.\\n\\nThe Agent history in the editor is tied to a workspace ID. For a local folder, Cursor computes that ID from the folder’s path plus the folder’s creation date on disk. When the project was copied to the Mac mini, the folder got a new creation date, so Cursor made a new ID even though the path is the same. The editor history only shows chats saved under that new ID. That’s also why renaming the new workspace storage folder didn’t help: Cursor recomputes the ID from the folder every time it opens it.\\n\\nThe Agents Window lists local chats across those IDs, so your older chats should be reachable there:\\n\\n1. In the editor, click Agents Window in the top-right of the title bar. Or open the command palette with Cmd+Shift+P and run Open Agents Window. Docs: Agents Window | Cursor Docs\\n2. In the Agents Window sidebar, find your project folder. Your older chats should be listed under it.\\n3. Archived chats stay out of that default list. Press Cmd+K and search by the chat title, or turn on Archived in the sidebar (the archive icon, or Archived in the sidebar customize menu).\\n4. Open a chat to view it or keep working in it.\\n\\nWe don’t have a supported way to bring those chats back into the editor history. This is an issue we’re tracking, and we’ve let the team know. I’ll post here when I have an update. Until then, I’d hold off on more manual database edits and keep your backups. Could you check whether the chats show up in the Agents Window and let me know here?</content>\\n</result>\\n\\n<result id=\\\"4\\\">\\n<title>Chats missing in IDE sidebar but visible in Agents window after Windows PC migration</title>\\n<url>https://forum.cursor.com/t/chats-missing-in-ide-sidebar-but-visible-in-agents-window-after-windows-pc-migration/168192</url>\\n<content>Hey, thanks for the detailed report. Good news first: your chats are still there, and the Agents window confirms it. I’ll explain why the chat sidebar is empty and share two ways to restore it.\\n\\nThe IDE chat sidebar links history to a specific project folder using an internal ID. On Windows, that ID is calculated from the folder path and its creation time. The Agents window works differently. It scans the whole storage without relying on that ID, so it can still see everything. When you copy folders to a new machine, Windows gives them a new creation time, even if the path and username are identical. Cursor then calculates a new empty ID for the project, so the sidebar looks blank. This is not data loss and not something you misconfigured.\\n\\nBefore trying either option, back up `%APPDATA%\\\\Cursor\\\\User\\\\workspaceStorage\\\\`.\\n\\nOption 1: restore the folders’ creation time (no DB edits, reversible)\\n\\n1. On the old laptop, for each project folder, get the original value in PowerShell:\\n\\n```powershell\\n(Get-Item 'C:\\\\path\\\\to\\\\project').CreationTimeUtc.ToString('o')\\n\\n```\\n\\n1. On the new PC, set the same value for the same folder:\\n\\n```powershell\\n(Get-Item 'C:\\\\path\\\\to\\\\project').CreationTimeUtc = [DateTime]'VALUE_FROM_STEP_1'\\n\\n```\\n\\n1. Reopen the project. The ID will be recalculated to the old one and the history should show up. Repeat for each project folder since they’ll have different values.\\n\\nOption 2: relink workspace storage directly\\n\\n1. Open the project in Cursor on the new PC once, so it creates a new workspace folder.\\n2. In `%APPDATA%\\\\Cursor\\\\User\\\\workspaceStorage\\\\`, find the old folder for that project. It will usually have a much larger `state.vscdb` with your history. You can confirm it’s the right project by checking `workspace.json` inside.\\n3. Copy the contents of the old folder into the new one created in step 1, replacing files.\\n4. Fully quit Cursor, then reopen it. The sidebar should load the history.\\n\\nBoth options work, so pick what’s easier. The one thing I’d avoid is manually editing or merging the global `state.vscdb`, it’s risky. In this thread Bug Report: The REASON why Cursor keeps losing our chats and agents - and how to fix it! there are also community scripts to automate it, but they do edit the database, so use them only at your own risk and only</content>\\n</result>\\n\\n<result id=\\\"5\\\">\\n<title>Cursor IDE and Agent conflict</title>\\n<url>https://forum.cursor.com/t/cursor-ide-and-agent-conflict/171385</url>\\n<content>Hey, thanks for the detailed report. There are two different things here, so I’ll go through them one by one.\\n\\nWhere the data lives this is working as intended\\n\\nYour chat history is stored locally on your Windows machine, not in the container and not on the remote host. Both the IDE and the Agents Window read from that same local storage. What you’re seeing is a filter, not two separate copies: the IDE sidebar only shows chats for the folder you currently opened, while the Agents Window shows all chats regardless of folder. So a chat started in the Agents Window will show up in the IDE only when the IDE has that same container folder open.\\n\\nOne important note for your dev container case: the IDE sidebar ties history to a folder using an internal workspace ID, which on Windows is computed from the folder path and its creation time. If the container was rebuilt or the folder got remounted, the path can stay the same but the workspace ID can become new. Then opening the same folder won’t show the old history in the IDE sidebar, even though the Agents Window still sees it. If you open the same folder and the IDE history still doesn’t appear, it’s more likely a workspace ID change than the filter. You can find the right folder under `%APPDATA%\\\\Cursor\\\\User\\\\workspaceStorage\\\\` by checking `workspace.json` contents and confirming there’s a non empty `state.vscdb`.\\n\\nThe other folders you listed are normal:\\n\\n- `%APPDATA%\\\\Cursor` is settings and state, `%LOCALAPPDATA%\\\\Programs\\\\cursor` is the app itself, `C:\\\\Users\\\\you\\\\.cursor` is extensions, `mcp.json`, rules.\\n- On the remote host and in the container `~/.cursor-server` is the server Cursor downloads per version, one per version, so it gets re downloaded after each update, and `~/.cursor` is `mcp.json`, rules, plugin cache, and transcripts on that machine. You see both `/root/.cursor` and `/home/app/.cursor` because some container steps run as root and the rest run as your `remoteUser`.\\n\\nYou don’t need to consolidate or force anything here, and deleting these folders will just make Cursor download the server again. Empty history with `--classic` is the same filter: that flag opens a fresh classic window, and chats will appear once you open the container folder in that window.</content>\\n</result>\"}], \"isFinal\": true, \"rejected\": false}}",
+        "parts": null
+      },
+      "parent_id": "ddbbd9aa-acbf-5586-b58b-066d0eb53850",
+      "children_ids": [
+        "e4268bdb-1814-5d34-8aa9-9a2bc5b6dbe6"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "tool_call_id": "turn-0:step:9:tool",
+        "tool_name": "web_search",
+        "tool_result": {
+          "resultType": "webSearchResult",
+          "value": {
+            "references": [
+              {
+                "title": "Web search results",
+                "url": "",
+                "chunk": "Links:\n1. [Chat history missing but local state and transcripts present](https://forum.cursor.com/t/chat-history-missing-but-local-state-and-transcripts-present/156422)\n2. [Cant access chat history since latest update](https://forum.cursor.com/t/cant-access-chat-history-since-latest-update/158688)\n3. [Archived Agent chats missing after migrating to new Mac — conversations exist in database](https://forum.cursor.com/t/archived-agent-chats-missing-after-migrating-to-new-mac-conversations-exist-in-database/174627/7)\n4. [Chats missing in IDE sidebar but visible in Agents window after Windows PC migration](https://forum.cursor.com/t/chats-missing-in-ide-sidebar-but-visible-in-agents-window-after-windows-pc-migration/168192)\n5. [Cursor IDE and Agent conflict](https://forum.cursor.com/t/cursor-ide-and-agent-conflict/171385)\n\nSynthesis:\nYes. Cursor stores chat/Agent history locally per workspace, typically in workspaceStorage’s state.vscdb; transcripts may also be under ~/.cursor/projects/<workspace-slug>/agent-transcripts/. [1][2] If chats disappear after moving, renaming, or recreating a folder, the workspace ID changed and the old chats remain in the old workspace storage. Open the Agents Window to find them across workspace IDs, or restore by copying the old workspaceStorage folder into the newly created one after quitting Cursor. [3][4] Avoid editing global state.vscdb unless you have a backup.\n\nHighlights:\n<result id=\"1\">\n<title>Chat history missing but local state and transcripts present</title>\n<url>https://forum.cursor.com/t/chat-history-missing-but-local-state-and-transcripts-present/156422</url>\n<content>Where does the bug appear?\nCursor IDE (chat/composer history UI)\n\nCursor version:\n2.6.22\n\nOperating\n\n...\n\nThank you for the detailed report!\n\nChat history is tied to a workspace ID (a hash computed from your folder path). On Linux, this hash also incorporates the folder’s `inode` number as a salt. Chat history can become disconnected in a few situations:\n\n- Chats were created without a folder open. Looking at your repro steps (open IDE → chat → close → reopen), if you’re not opening a specific folder before chatting, those chats are stored under a special transient workspace. They won’t appear when you later open Cursor with a folder, and vice versa. This is the most common cause of this symptom.\n- The folder was renamed or moved. Even `/home/oldname` → `/home/newname` produces a completely different workspace ID, orphaning your old chats in their original storage location.\n- The folder’s inode changed. This can occur if the folder was deleted and recreated, the filesystem was reformatted, or you restored from a backup. Certain filesystem configurations (such as btrfs subvolumes or bind mounts) can also trigger this.\n\nA couple of questions to help narrow this down:\n\n1. In your repro steps, when you “Open IDE” — are you opening a specific folder (File → Open Folder), or just launching Cursor without opening anything?\n2. Does the path in your `workspace.json` (`file:///home/xxxxxxxxx`) still match the exact folder you’re currently opening?\n3. Does this happen consistently for every session, or only for specific folders?\n\nHopefully, this is just a renamed folder, but if the path hasn’t changed, your answers to the above questions will help us dig further.</content>\n</result>\n\n<result id=\"2\">\n<title>Cant access chat history since latest update</title>\n<url>https://forum.cursor.com/t/cant-access-chat-history-since-latest-update/158688</url>\n<content>Hi JW,\n\nThis is a known issue that can happen after updating. Your chat data is almost certainly still saved on disk – it’s just not showing up in the sidebar.\n\nChat transcripts are stored locally at `~/.cursor/projects/{workspace-slug}/agent-transcripts/`. To check if your data is still there, open a terminal and run:\n\n`ls ~/.cursor/projects/`\n\nYou should see folders for your workspaces. Inside each, there should be an `agent-transcripts/` directory with your chat history files (`.jsonl` files).\n\nThe most common cause after an update is the workspace identity changing slightly, which makes Cursor look in a different directory. A few things to try:\n\n1. Close and reopen your project using File > Open Folder and selecting the exact same folder path you were using before the update\n2. Reload the window – `Ctrl+Shift+P` > Developer: Reload Window\n3. If you see multiple similar-looking folders in `~/.cursor/projects/`, one of them likely contains your old transcripts – you can compare timestamps to find the right one\n\nYou may also find this related thread helpful: No history after update 3.1.17 – same version, same symptom.\n\nOur team is aware of this class of issues and actively working on it. Let me know if the files are there or if you need help recovering them.\n\n...\n\nSince you can see `agent-transcripts/` files in some of those directories, the data is still there – it’s just not being picked up by the sidebar index.\n\nOne thing worth trying: open a new agent chat in Cursor and ask it to help you locate and consolidate your transcript files. Something like “find all my agent transcript files under `~/.cursor/projects/` and list them by date.” The agent has shell access and can quickly scan through those directories to find where your actual work lives, which might save you a lot of manual digging.\n\nBeyond that, the underlying issue (sidebar not re-indexing old sessions after an update) is being tracked by our team. Unfortunately there’s no manual “reimport” step available right now – the transcripts exist on disk but the sidebar index doesn’t know about them after the workspace identity changed during the update.\n\nI’ll keep this thread updated if a fix ships that restores the index automatically.</content>\n</result>\n\n<result id=\"3\">\n<title>Archived Agent chats missing after migrating to new Mac — conversations exist in database</title>\n<url>https://forum.cursor.com/t/archived-agent-chats-missing-after-migrating-to-new-mac-conversations-exist-in-database/174627/7</url>\n<content>Hey @Kirsten_Kaptein, thanks for the report. Your chats aren’t lost.\n\nThe Agent history in the editor is tied to a workspace ID. For a local folder, Cursor computes that ID from the folder’s path plus the folder’s creation date on disk. When the project was copied to the Mac mini, the folder got a new creation date, so Cursor made a new ID even though the path is the same. The editor history only shows chats saved under that new ID. That’s also why renaming the new workspace storage folder didn’t help: Cursor recomputes the ID from the folder every time it opens it.\n\nThe Agents Window lists local chats across those IDs, so your older chats should be reachable there:\n\n1. In the editor, click Agents Window in the top-right of the title bar. Or open the command palette with Cmd+Shift+P and run Open Agents Window. Docs: Agents Window | Cursor Docs\n2. In the Agents Window sidebar, find your project folder. Your older chats should be listed under it.\n3. Archived chats stay out of that default list. Press Cmd+K and search by the chat title, or turn on Archived in the sidebar (the archive icon, or Archived in the sidebar customize menu).\n4. Open a chat to view it or keep working in it.\n\nWe don’t have a supported way to bring those chats back into the editor history. This is an issue we’re tracking, and we’ve let the team know. I’ll post here when I have an update. Until then, I’d hold off on more manual database edits and keep your backups. Could you check whether the chats show up in the Agents Window and let me know here?</content>\n</result>\n\n<result id=\"4\">\n<title>Chats missing in IDE sidebar but visible in Agents window after Windows PC migration</title>\n<url>https://forum.cursor.com/t/chats-missing-in-ide-sidebar-but-visible-in-agents-window-after-windows-pc-migration/168192</url>\n<content>Hey, thanks for the detailed report. Good news first: your chats are still there, and the Agents window confirms it. I’ll explain why the chat sidebar is empty and share two ways to restore it.\n\nThe IDE chat sidebar links history to a specific project folder using an internal ID. On Windows, that ID is calculated from the folder path and its creation time. The Agents window works differently. It scans the whole storage without relying on that ID, so it can still see everything. When you copy folders to a new machine, Windows gives them a new creation time, even if the path and username are identical. Cursor then calculates a new empty ID for the project, so the sidebar looks blank. This is not data loss and not something you misconfigured.\n\nBefore trying either option, back up `%APPDATA%\\Cursor\\User\\workspaceStorage\\`.\n\nOption 1: restore the folders’ creation time (no DB edits, reversible)\n\n1. On the old laptop, for each project folder, get the original value in PowerShell:\n\n```powershell\n(Get-Item 'C:\\path\\to\\project').CreationTimeUtc.ToString('o')\n\n```\n\n1. On the new PC, set the same value for the same folder:\n\n```powershell\n(Get-Item 'C:\\path\\to\\project').CreationTimeUtc = [DateTime]'VALUE_FROM_STEP_1'\n\n```\n\n1. Reopen the project. The ID will be recalculated to the old one and the history should show up. Repeat for each project folder since they’ll have different values.\n\nOption 2: relink workspace storage directly\n\n1. Open the project in Cursor on the new PC once, so it creates a new workspace folder.\n2. In `%APPDATA%\\Cursor\\User\\workspaceStorage\\`, find the old folder for that project. It will usually have a much larger `state.vscdb` with your history. You can confirm it’s the right project by checking `workspace.json` inside.\n3. Copy the contents of the old folder into the new one created in step 1, replacing files.\n4. Fully quit Cursor, then reopen it. The sidebar should load the history.\n\nBoth options work, so pick what’s easier. The one thing I’d avoid is manually editing or merging the global `state.vscdb`, it’s risky. In this thread Bug Report: The REASON why Cursor keeps losing our chats and agents - and how to fix it! there are also community scripts to automate it, but they do edit the database, so use them only at your own risk and only</content>\n</result>\n\n<result id=\"5\">\n<title>Cursor IDE and Agent conflict</title>\n<url>https://forum.cursor.com/t/cursor-ide-and-agent-conflict/171385</url>\n<content>Hey, thanks for the detailed report. There are two different things here, so I’ll go through them one by one.\n\nWhere the data lives this is working as intended\n\nYour chat history is stored locally on your Windows machine, not in the container and not on the remote host. Both the IDE and the Agents Window read from that same local storage. What you’re seeing is a filter, not two separate copies: the IDE sidebar only shows chats for the folder you currently opened, while the Agents Window shows all chats regardless of folder. So a chat started in the Agents Window will show up in the IDE only when the IDE has that same container folder open.\n\nOne important note for your dev container case: the IDE sidebar ties history to a folder using an internal workspace ID, which on Windows is computed from the folder path and its creation time. If the container was rebuilt or the folder got remounted, the path can stay the same but the workspace ID can become new. Then opening the same folder won’t show the old history in the IDE sidebar, even though the Agents Window still sees it. If you open the same folder and the IDE history still doesn’t appear, it’s more likely a workspace ID change than the filter. You can find the right folder under `%APPDATA%\\Cursor\\User\\workspaceStorage\\` by checking `workspace.json` contents and confirming there’s a non empty `state.vscdb`.\n\nThe other folders you listed are normal:\n\n- `%APPDATA%\\Cursor` is settings and state, `%LOCALAPPDATA%\\Programs\\cursor` is the app itself, `C:\\Users\\you\\.cursor` is extensions, `mcp.json`, rules.\n- On the remote host and in the container `~/.cursor-server` is the server Cursor downloads per version, one per version, so it gets re downloaded after each update, and `~/.cursor` is `mcp.json`, rules, plugin cache, and transcripts on that machine. You see both `/root/.cursor` and `/home/app/.cursor` because some container steps run as root and the rest run as your `remoteUser`.\n\nYou don’t need to consolidate or force anything here, and deleting these folders will just make Cursor download the server again. Empty history with `--classic` is the same filter: that flag opens a fresh classic window, and chats will appear once you open the container folder in that window.</content>\n</result>"
+              }
+            ],
+            "isFinal": true,
+            "rejected": false
+          }
+        },
+        "started_at_ms": 1792705922662,
+        "completed_at_ms": 1792705928522,
+        "duration_ms": 5860
+      }
+    },
+    {
+      "id": "e4268bdb-1814-5d34-8aa9-9a2bc5b6dbe6",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "The official documentation does not appear to contain a dedicated page covering local chat history storage paths.",
+        "parts": null
+      },
+      "parent_id": "de4a6b49-8f37-5279-934a-4d2869845a2e",
+      "children_ids": [
+        "ff8c6c48-b680-5974-9029-cf57fdda223e"
+      ],
+      "model": null,
+      "is_thought": true,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "thinking": "The official documentation does not appear to contain a dedicated page covering local chat history storage paths."
+      }
+    },
+    {
+      "id": "ff8c6c48-b680-5974-9029-cf57fdda223e",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "Checking a few more docs for workspace scoping and recovery UI paths.",
+        "parts": null
+      },
+      "parent_id": "e4268bdb-1814-5d34-8aa9-9a2bc5b6dbe6",
+      "children_ids": [
+        "d77ac8bc-950b-54ce-a431-8ab7c1b619a2"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    },
+    {
+      "id": "d77ac8bc-950b-54ce-a431-8ab7c1b619a2",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": null,
+      "parent_id": "ff8c6c48-b680-5974-9029-cf57fdda223e",
+      "children_ids": [
+        "91484a49-3a8a-519d-8fc0-ebc1e119c84f"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [
+        {
+          "id": "turn-0:step:16:tool",
+          "name": "web_search",
+          "input": null,
+          "output": null
+        }
+      ],
+      "raw_metadata": {}
+    },
+    {
+      "id": "91484a49-3a8a-519d-8fc0-ebc1e119c84f",
+      "role": "tool",
+      "created_at": "2026-10-22T21:52:12.493Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "{\"resultType\": \"webSearchResult\", \"value\": {\"references\": [{\"title\": \"Web search results\", \"url\": \"\", \"chunk\": \"Links:\\n1. [Cursor CLI changelog](https://cursor.com/docs/cli/changelog)\\n2. [Using Agent in CLI](https://cursor.com/docs/cli/using)\\n3. [Cursor CLI](https://cursor.com/docs/cli/overview)\\n4. [Conversation search](https://cursor.com/help/ai-features/conversation-search)\\n5. [Installation and startup](https://prod.cursor.com/help/troubleshooting/install-issues)\\n\\nSynthesis:\\nYes. In Cursor CLI, run `agent ls` or `/resume` to open previous chats. The resume picker defaults to chats across all workspaces; use Left/Right to switch to “This workspace.” Chats from other directories show a folder label, and selecting one restores its full conversation. [1]\\n\\nTo resume the latest chat, use `agent resume`, `agent --continue`, or `/resume`. [2][3]\\n\\nHighlights:\\n<result id=\\\"1\\\">\\n<title>Cursor CLI changelog</title>\\n<url>https://cursor.com/docs/cli/changelog</url>\\n<content>Reliability and startup\\n\\n- Faster startup. Syntax-highlighting grammars and the background-composer client load lazily off the boot path, and a slow plugin list falls back to a plugin-less session instead of stalling startup.\\n- Long headless sessions no longer hang. Wedged uploads on long-running headless HTTP/1.1 sessions are detected and retried instead of silently stalling.\\n- Faster resume on network filesystems. The resume picker scans sessions in parallel and keeps your newest chat selected while the full cross-workspace list loads.\\n\\n...\\n\\n### Reliability\\n\\n- Resuming chats is faster. The resume picker shows your current workspace's chats immediately and fills in other workspaces in the background, and selecting a chat no longer waits on a model-catalog fetch when your stored model is already cached.\\n- Network blips no longer kill runs. DNS failures and network-unreachable errors, like those during a VPN transition, retry with backoff like other transport errors. If the network stays down, the CLI shows an actionable hint covering network, VPN, DNS, and proxy configuration instead of a raw network error.\\n- Subagents survive transient failures. A momentary network error no longer kills a running subagent with a terminal error. Subagent turns retry with the same policy as regular turns, resuming from their last checkpoint when one exists.\\n- Updates no longer break running sessions. Auto-update cleanup could delete the installed version a long-running session was launched from, crashing it mid-turn. Running processes now mark their install directory as in use so cleanup skips it, and if install files still disappear, such as after a Homebrew upgrade, the CLI asks you to restart instead of failing with a module error.\\n- `/btw` fixes. Side questions no longer fail with an internal blob error in long or compacted sessions, and the slash palette no longer pops up over your question while you type it.\\n\\n...\\n\\n### Sessions and subagents\\n\\n- Resume chats from any directory. `agent ls`, `agent --resume`, and `/resume` open All chats across workspaces by default. Use Left/Right to switch to This workspace; chats from other directories show a folder label, and resuming one loads the full conversation instead of an empty one.\\n- Subagents keep their context across resumes. Completed subagents persist checkpoints, so resuming one restores its prior context instead of starting empty. Background subagents include their final message in the completion notification, and resuming an unavailable subagent fails clearly.\\n\\n...\\n\\n### Workspaces\\n\\n- Named multi-directory workspaces. Run the agent across several repositories at once: add directories mid-session with `/add-dir`, save the set with `/save-workspace`, reload it later with `/load-workspace`, or start scoped with `--workspace`.\\n\\n...\\n\\n### Terminal experience\\n\\n- Prompt history is per conversation. Up-arrow recalls what you typed in this session instead of a single history shared across every chat.\\n- The jobs list shows everything running. Foreground shells and subagents appear in the jobs pager alongside background tasks.\\n- Steadier rendering. Mermaid diagrams stay drawn after a turn finishes, long shell-output previews clip instead of wrapping, and the screen clears once per resize instead of twice.\\n- Your draft survives the resume picker. Cancelling `/resume` keeps what you had already typed.\\n- Plan editing. Esc returns to Vim normal mode while you revise a plan.\\n\\n...\\n\\n- Cleaner edit display. File edits render borderless (an `Editing`/`Edited` header plus the diff), with memoized diff rendering so large edits don't slow the UI.\\n- Faster, richer resume picker. Session metadata is cached so `/resume` (Ctrl+Y) opens quickly even on network filesystems, with Created and Last updated columns and reliable ordering.\\n- Working status pinned above the prompt. Progress, token counts (with an optional elapsed-time display), and hints stay in one stable place.\\n- Long shell output truncates from the top. You</content>\\n</result>\\n\\n<result id=\\\"2\\\">\\n<title>Using Agent in CLI</title>\\n<url>https://cursor.com/docs/cli/using</url>\\n<content>### Navigation\\n\\nPrevious messages can be accessed using arrow up (ArrowUp) where you can cycle through them.\\n\\n...\\n\\n### Selecting context\\n\\nSelect files and folders to include in context with @. Free up space in the context window by running `/summarize`. `/compress` remains an alias.\\n\\n...\\n\\nCombine `--workspace ` when you need an explicit repository root. Otherwise the CLI uses the current working directory. `--worktree` only changes where the agent makes file edits inside that project.\\n\\n...\\n\\n## History\\n\\nContinue from an existing thread with `--resume [thread id]` to load prior context.\\n\\nTo resume the most recent conversation, use `agent resume`, `--continue`, or the `/resume` slash command.\\n\\nYou can also run `agent ls` to open previous chats and resume one.</content>\\n</result>\\n\\n<result id=\\\"3\\\">\\n<title>Cursor CLI</title>\\n<url>https://cursor.com/docs/cli/overview</url>\\n<content>## Sessions\\n\\nResume previous conversations to maintain context across multiple interactions:\\n\\n```bash\\n# Open previous chats and resume one\\nagent ls\\n\\n# Resume latest conversation\\nagent resume\\n\\n# Continue the previous session\\nagent --continue\\n\\n# Resume specific conversation\\nagent --resume=\\\"chat-id-here\\\"\\n\\n```</content>\\n</result>\\n\\n<result id=\\\"4\\\">\\n<title>Conversation search</title>\\n<url>https://cursor.com/help/ai-features/conversation-search</url>\\n<content># Conversation search\\n\\nFind past agent conversations and jump to matches inside long transcripts.\\n\\n## How do I search my past agent conversations?\\n\\n1. Open the Agents Window\\n2. Press Cmd + K on Mac or Ctrl + K on Windows/Linux to open the command palette\\n3. Search across your past agent transcripts\\n\\nCursor builds a local search index that scales to thousands of conversations.\\n\\n## How do I search within an existing conversation?\\n\\n1. Open the conversation you want to search\\n2. Press Cmd + F on Mac or Ctrl + F on Windows/Linux\\n3. Jump between</content>\\n</result>\\n\\n<result id=\\\"5\\\">\\n<title>Installation and startup</title>\\n<url>https://prod.cursor.com/help/troubleshooting/install-issues</url>\\n<content>## How do I free up disk space used by Cursor?\\n\\nCursor stores agent chat history, worktrees, and extensions locally. For most users the largest contributor is stored Cursor Agent conversations, not extensions.\\n\\n### Clean up agent chat history\\n\\nOld Cursor Agent chats accumulate in a local database that can grow to many gigabytes. Two commands work together to remove entries and reclaim the disk they were using. Run them in order. The second command is what actually shrinks the database file, and each one can take a minute or two on large databases.\\n\\nFrom either the Agents Window or the classic editor window:\\n\\n1. Open the Command Palette with `Cmd/Ctrl+Shift+P`\\n2. Run Delete Old Chats… and pick a retention window (for example, 30 days)\\n3. Then run GC Agent KV Blobs\\n\\nRunning Delete Old Chats on its own often removes the entries but leaves the file the same size on disk. GC Agent KV Blobs is what compacts the file back down.\\n\\n...\\n\\n### Tune worktree cleanup\\n\\nIf you use Cursor Agent, generated worktrees under `~/.cursor/worktrees/` can add up. Cursor cleans them up automatically, and you can adjust the limits.\\n\\nFrom the Agents Window, open Settings → Worktrees → Cleanup. Two controls are available:\\n\\n- Max Worktrees (default 25): the maximum number of Cursor-managed worktrees to retain across all</content>\\n</result>\"}], \"isFinal\": true, \"rejected\": false}}",
+        "parts": null
+      },
+      "parent_id": "d77ac8bc-950b-54ce-a431-8ab7c1b619a2",
+      "children_ids": [
+        "7e77dc11-3e02-5844-9bbe-cec5ba748e65"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "tool_call_id": "turn-0:step:16:tool",
+        "tool_name": "web_search",
+        "tool_result": {
+          "resultType": "webSearchResult",
+          "value": {
+            "references": [
+              {
+                "title": "Web search results",
+                "url": "",
+                "chunk": "Links:\n1. [Cursor CLI changelog](https://cursor.com/docs/cli/changelog)\n2. [Using Agent in CLI](https://cursor.com/docs/cli/using)\n3. [Cursor CLI](https://cursor.com/docs/cli/overview)\n4. [Conversation search](https://cursor.com/help/ai-features/conversation-search)\n5. [Installation and startup](https://prod.cursor.com/help/troubleshooting/install-issues)\n\nSynthesis:\nYes. In Cursor CLI, run `agent ls` or `/resume` to open previous chats. The resume picker defaults to chats across all workspaces; use Left/Right to switch to “This workspace.” Chats from other directories show a folder label, and selecting one restores its full conversation. [1]\n\nTo resume the latest chat, use `agent resume`, `agent --continue`, or `/resume`. [2][3]\n\nHighlights:\n<result id=\"1\">\n<title>Cursor CLI changelog</title>\n<url>https://cursor.com/docs/cli/changelog</url>\n<content>Reliability and startup\n\n- Faster startup. Syntax-highlighting grammars and the background-composer client load lazily off the boot path, and a slow plugin list falls back to a plugin-less session instead of stalling startup.\n- Long headless sessions no longer hang. Wedged uploads on long-running headless HTTP/1.1 sessions are detected and retried instead of silently stalling.\n- Faster resume on network filesystems. The resume picker scans sessions in parallel and keeps your newest chat selected while the full cross-workspace list loads.\n\n...\n\n### Reliability\n\n- Resuming chats is faster. The resume picker shows your current workspace's chats immediately and fills in other workspaces in the background, and selecting a chat no longer waits on a model-catalog fetch when your stored model is already cached.\n- Network blips no longer kill runs. DNS failures and network-unreachable errors, like those during a VPN transition, retry with backoff like other transport errors. If the network stays down, the CLI shows an actionable hint covering network, VPN, DNS, and proxy configuration instead of a raw network error.\n- Subagents survive transient failures. A momentary network error no longer kills a running subagent with a terminal error. Subagent turns retry with the same policy as regular turns, resuming from their last checkpoint when one exists.\n- Updates no longer break running sessions. Auto-update cleanup could delete the installed version a long-running session was launched from, crashing it mid-turn. Running processes now mark their install directory as in use so cleanup skips it, and if install files still disappear, such as after a Homebrew upgrade, the CLI asks you to restart instead of failing with a module error.\n- `/btw` fixes. Side questions no longer fail with an internal blob error in long or compacted sessions, and the slash palette no longer pops up over your question while you type it.\n\n...\n\n### Sessions and subagents\n\n- Resume chats from any directory. `agent ls`, `agent --resume`, and `/resume` open All chats across workspaces by default. Use Left/Right to switch to This workspace; chats from other directories show a folder label, and resuming one loads the full conversation instead of an empty one.\n- Subagents keep their context across resumes. Completed subagents persist checkpoints, so resuming one restores its prior context instead of starting empty. Background subagents include their final message in the completion notification, and resuming an unavailable subagent fails clearly.\n\n...\n\n### Workspaces\n\n- Named multi-directory workspaces. Run the agent across several repositories at once: add directories mid-session with `/add-dir`, save the set with `/save-workspace`, reload it later with `/load-workspace`, or start scoped with `--workspace`.\n\n...\n\n### Terminal experience\n\n- Prompt history is per conversation. Up-arrow recalls what you typed in this session instead of a single history shared across every chat.\n- The jobs list shows everything running. Foreground shells and subagents appear in the jobs pager alongside background tasks.\n- Steadier rendering. Mermaid diagrams stay drawn after a turn finishes, long shell-output previews clip instead of wrapping, and the screen clears once per resize instead of twice.\n- Your draft survives the resume picker. Cancelling `/resume` keeps what you had already typed.\n- Plan editing. Esc returns to Vim normal mode while you revise a plan.\n\n...\n\n- Cleaner edit display. File edits render borderless (an `Editing`/`Edited` header plus the diff), with memoized diff rendering so large edits don't slow the UI.\n- Faster, richer resume picker. Session metadata is cached so `/resume` (Ctrl+Y) opens quickly even on network filesystems, with Created and Last updated columns and reliable ordering.\n- Working status pinned above the prompt. Progress, token counts (with an optional elapsed-time display), and hints stay in one stable place.\n- Long shell output truncates from the top. You</content>\n</result>\n\n<result id=\"2\">\n<title>Using Agent in CLI</title>\n<url>https://cursor.com/docs/cli/using</url>\n<content>### Navigation\n\nPrevious messages can be accessed using arrow up (ArrowUp) where you can cycle through them.\n\n...\n\n### Selecting context\n\nSelect files and folders to include in context with @. Free up space in the context window by running `/summarize`. `/compress` remains an alias.\n\n...\n\nCombine `--workspace ` when you need an explicit repository root. Otherwise the CLI uses the current working directory. `--worktree` only changes where the agent makes file edits inside that project.\n\n...\n\n## History\n\nContinue from an existing thread with `--resume [thread id]` to load prior context.\n\nTo resume the most recent conversation, use `agent resume`, `--continue`, or the `/resume` slash command.\n\nYou can also run `agent ls` to open previous chats and resume one.</content>\n</result>\n\n<result id=\"3\">\n<title>Cursor CLI</title>\n<url>https://cursor.com/docs/cli/overview</url>\n<content>## Sessions\n\nResume previous conversations to maintain context across multiple interactions:\n\n```bash\n# Open previous chats and resume one\nagent ls\n\n# Resume latest conversation\nagent resume\n\n# Continue the previous session\nagent --continue\n\n# Resume specific conversation\nagent --resume=\"chat-id-here\"\n\n```</content>\n</result>\n\n<result id=\"4\">\n<title>Conversation search</title>\n<url>https://cursor.com/help/ai-features/conversation-search</url>\n<content># Conversation search\n\nFind past agent conversations and jump to matches inside long transcripts.\n\n## How do I search my past agent conversations?\n\n1. Open the Agents Window\n2. Press Cmd + K on Mac or Ctrl + K on Windows/Linux to open the command palette\n3. Search across your past agent transcripts\n\nCursor builds a local search index that scales to thousands of conversations.\n\n## How do I search within an existing conversation?\n\n1. Open the conversation you want to search\n2. Press Cmd + F on Mac or Ctrl + F on Windows/Linux\n3. Jump between</content>\n</result>\n\n<result id=\"5\">\n<title>Installation and startup</title>\n<url>https://prod.cursor.com/help/troubleshooting/install-issues</url>\n<content>## How do I free up disk space used by Cursor?\n\nCursor stores agent chat history, worktrees, and extensions locally. For most users the largest contributor is stored Cursor Agent conversations, not extensions.\n\n### Clean up agent chat history\n\nOld Cursor Agent chats accumulate in a local database that can grow to many gigabytes. Two commands work together to remove entries and reclaim the disk they were using. Run them in order. The second command is what actually shrinks the database file, and each one can take a minute or two on large databases.\n\nFrom either the Agents Window or the classic editor window:\n\n1. Open the Command Palette with `Cmd/Ctrl+Shift+P`\n2. Run Delete Old Chats… and pick a retention window (for example, 30 days)\n3. Then run GC Agent KV Blobs\n\nRunning Delete Old Chats on its own often removes the entries but leaves the file the same size on disk. GC Agent KV Blobs is what compacts the file back down.\n\n...\n\n### Tune worktree cleanup\n\nIf you use Cursor Agent, generated worktrees under `~/.cursor/worktrees/` can add up. Cursor cleans them up automatically, and you can adjust the limits.\n\nFrom the Agents Window, open Settings → Worktrees → Cleanup. Two controls are available:\n\n- Max Worktrees (default 25): the maximum number of Cursor-managed worktrees to retain across all</content>\n</result>"
+              }
+            ],
+            "isFinal": true,
+            "rejected": false
+          }
+        },
+        "started_at_ms": 1792705932493,
+        "completed_at_ms": 1792705935039,
+        "duration_ms": 2546
+      }
+    },
+    {
+      "id": "7e77dc11-3e02-5844-9bbe-cec5ba748e65",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "I found a useful page about install issues that mentions chat history storage. I will fetch it and check the CLI documentation for workspace scoping details.",
+        "parts": null
+      },
+      "parent_id": "91484a49-3a8a-519d-8fc0-ebc1e119c84f",
+      "children_ids": [
+        "91bb06fe-6151-5624-b0aa-7fe3a9bdd98f"
+      ],
+      "model": null,
+      "is_thought": true,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "thinking": "I found a useful page about install issues that mentions chat history storage. I will fetch it and check the CLI documentation for workspace scoping details."
+      }
+    },
+    {
+      "id": "91bb06fe-6151-5624-b0aa-7fe3a9bdd98f",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": null,
+      "parent_id": "7e77dc11-3e02-5844-9bbe-cec5ba748e65",
+      "children_ids": [
+        "362bc18d-8f9c-5df0-9a11-2228ee54118d"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [
+        {
+          "id": "turn-0:step:22:tool",
+          "name": "web_search",
+          "input": null,
+          "output": null
+        }
+      ],
+      "raw_metadata": {}
+    },
+    {
+      "id": "362bc18d-8f9c-5df0-9a11-2228ee54118d",
+      "role": "tool",
+      "created_at": "2026-10-22T21:52:18.128Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "{\"resultType\": \"webSearchResult\", \"value\": {\"references\": [{\"title\": \"Web search results\", \"url\": \"\", \"chunk\": \"Links:\\n1. [Installation and startup](https://cursor.com/help/troubleshooting/install-issues)\\n2. [Installation and startup](https://prod.cursor.com/help/troubleshooting/install-issues)\\n3. [Side chats](https://cursor.com/help/ai-features/side-chats)\\n4. [Plan mode](https://cursor.com/help/ai-features/plan-mode)\\n5. [Cursor for iOS](https://cursor.com/help/ai-features/mobile-app)\\n\\nSynthesis:\\nYes. In Cursor, open the Command Palette (Cmd/Ctrl+Shift+P), run “Delete Old Chats…”, choose a retention period such as 30 days, then run “GC Agent KV Blobs” to reclaim disk space. Deleting chats removes entries, but GC is needed to shrink the local database file. [1][2]\\n\\nHighlights:\\n<result id=\\\"1\\\">\\n<title>Installation and startup</title>\\n<url>https://cursor.com/help/troubleshooting/install-issues</url>\\n<content>## How do I free up disk space used by Cursor?\\n\\nCursor stores agent chat history, worktrees, and extensions locally. For most users the largest contributor is stored Cursor Agent conversations, not extensions.\\n\\n### Clean up agent chat history\\n\\nOld Cursor Agent chats accumulate in a local database that can grow to many gigabytes. Two commands work together to remove entries and reclaim the disk they were using. Run them in order. The second command is what actually shrinks the database file, and each one can take a minute or two on large databases.\\n\\nFrom either the Agents Window or the classic editor window:\\n\\n1. Open the Command Palette with `Cmd/Ctrl+Shift+P`\\n2. Run Delete Old Chats… and pick a retention window (for example, 30 days)\\n3. Then run GC Agent KV Blobs\\n\\nRunning Delete Old Chats on its own often removes the entries but leaves the file the same size on disk. GC Agent KV Blobs is what compacts the file back down.</content>\\n</result>\\n\\n<result id=\\\"2\\\">\\n<title>Installation and startup</title>\\n<url>https://prod.cursor.com/help/troubleshooting/install-issues</url>\\n<content>## How do I free up disk space used by Cursor?\\n\\nCursor stores agent chat history, worktrees, and extensions locally. For most users the largest contributor is stored Cursor Agent conversations, not extensions.\\n\\n### Clean up agent chat history\\n\\nOld Cursor Agent chats accumulate in a local database that can grow to many gigabytes. Two commands work together to remove entries and reclaim the disk they were using. Run them in order. The second command is what actually shrinks the database file, and each one can take a minute or two on large databases.\\n\\nFrom either the Agents Window or the classic editor window:\\n\\n1. Open the Command Palette with `Cmd/Ctrl+Shift+P`\\n2. Run Delete Old Chats… and pick a retention window (for example, 30 days)\\n3. Then run GC Agent KV Blobs\\n\\nRunning Delete Old Chats on its own often removes the entries but leaves the file the same size on disk. GC Agent KV Blobs is what compacts the file back down.</content>\\n</result>\\n\\n<result id=\\\"3\\\">\\n<title>Side chats</title>\\n<url>https://cursor.com/help/ai-features/side-chats</url>\\n<content>A side chat is a full agent conversation that runs next to your main chat. The parent's conversation history is copied in as reference context for the model. That history does not appear in the side-chat transcript.\\n\\n...\\n\\nBy default, side chats focus on reading, searching, and answering, so the main agent keeps working uninterrupted. A regular conversation stands on its own. A side chat stays attached to its parent and workspace, so you can explore a side question or dig into a selection without crowding the main thread.\\n\\n...\\n\\n## Does the parent conversation appear inside the side chat?\\n\\nThe parent history is available to the model as hidden reference context. It is not rendered in the side-chat transcript. Only your side-chat prompt and any follow-ups show up in the side chat.\\n\\n...\\n\\n## How do I close or archive a side chat?\\n\\nClick the X (close) button on a side chat to archive it. Closing archives the side-chat agent; it does not delete the conversation. The durable thread stays usable until you archive it by closing it.\\n\\n...\\n\\n## What happens to a side chat if I start a new parent conversation?\\n\\nA side chat is scoped to its parent agent. If you navigate away or start a new conversation, the side chat stays attached to the original parent. It persists until you archive it.</content>\\n</result>\\n\\n<result id=\\\"4\\\">\\n<title>Plan mode</title>\\n<url>https://cursor.com/help/ai-features/plan-mode</url>\\n<content>Plans are saved ... default ... your home directory. Click Save ... move ... to your workspace for future reference, team sharing, and documentation.\\n\\n...\\n\\n## How do I start over in Plan mode?\\n\\nIf Agent builds something that doesn't match what you wanted, you can roll back to any earlier point in the conversation:\\n\\n1. Find the Revert button in the bottom right of a previous chat message\\n2. Click Revert, then press Confirm to roll back your files to that stage\\n3. Refine your plan to be more specific, then run it again\\n\\n...\\n\\nextra time making the ... changes. The hard part is figuring out ... to ... . With clear instructions, Agent handles the rest.</content>\\n</result>\\n\\n<result id=\\\"5\\\">\\n<title>Cursor for iOS</title>\\n<url>https://cursor.com/help/ai-features/mobile-app</url>\\n<content>If an agent is clearly further along on the web than in the app, check your connection. The chat stream reconnects after network changes and pauses while the app is in the background, then catches up when you return. Pull down on the inbox to refresh.</content>\\n</result>\"}], \"isFinal\": true, \"rejected\": false}}",
+        "parts": null
+      },
+      "parent_id": "91bb06fe-6151-5624-b0aa-7fe3a9bdd98f",
+      "children_ids": [
+        "3b562929-72b0-5c08-81f1-81355b32e34d"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "tool_call_id": "turn-0:step:22:tool",
+        "tool_name": "web_search",
+        "tool_result": {
+          "resultType": "webSearchResult",
+          "value": {
+            "references": [
+              {
+                "title": "Web search results",
+                "url": "",
+                "chunk": "Links:\n1. [Installation and startup](https://cursor.com/help/troubleshooting/install-issues)\n2. [Installation and startup](https://prod.cursor.com/help/troubleshooting/install-issues)\n3. [Side chats](https://cursor.com/help/ai-features/side-chats)\n4. [Plan mode](https://cursor.com/help/ai-features/plan-mode)\n5. [Cursor for iOS](https://cursor.com/help/ai-features/mobile-app)\n\nSynthesis:\nYes. In Cursor, open the Command Palette (Cmd/Ctrl+Shift+P), run “Delete Old Chats…”, choose a retention period such as 30 days, then run “GC Agent KV Blobs” to reclaim disk space. Deleting chats removes entries, but GC is needed to shrink the local database file. [1][2]\n\nHighlights:\n<result id=\"1\">\n<title>Installation and startup</title>\n<url>https://cursor.com/help/troubleshooting/install-issues</url>\n<content>## How do I free up disk space used by Cursor?\n\nCursor stores agent chat history, worktrees, and extensions locally. For most users the largest contributor is stored Cursor Agent conversations, not extensions.\n\n### Clean up agent chat history\n\nOld Cursor Agent chats accumulate in a local database that can grow to many gigabytes. Two commands work together to remove entries and reclaim the disk they were using. Run them in order. The second command is what actually shrinks the database file, and each one can take a minute or two on large databases.\n\nFrom either the Agents Window or the classic editor window:\n\n1. Open the Command Palette with `Cmd/Ctrl+Shift+P`\n2. Run Delete Old Chats… and pick a retention window (for example, 30 days)\n3. Then run GC Agent KV Blobs\n\nRunning Delete Old Chats on its own often removes the entries but leaves the file the same size on disk. GC Agent KV Blobs is what compacts the file back down.</content>\n</result>\n\n<result id=\"2\">\n<title>Installation and startup</title>\n<url>https://prod.cursor.com/help/troubleshooting/install-issues</url>\n<content>## How do I free up disk space used by Cursor?\n\nCursor stores agent chat history, worktrees, and extensions locally. For most users the largest contributor is stored Cursor Agent conversations, not extensions.\n\n### Clean up agent chat history\n\nOld Cursor Agent chats accumulate in a local database that can grow to many gigabytes. Two commands work together to remove entries and reclaim the disk they were using. Run them in order. The second command is what actually shrinks the database file, and each one can take a minute or two on large databases.\n\nFrom either the Agents Window or the classic editor window:\n\n1. Open the Command Palette with `Cmd/Ctrl+Shift+P`\n2. Run Delete Old Chats… and pick a retention window (for example, 30 days)\n3. Then run GC Agent KV Blobs\n\nRunning Delete Old Chats on its own often removes the entries but leaves the file the same size on disk. GC Agent KV Blobs is what compacts the file back down.</content>\n</result>\n\n<result id=\"3\">\n<title>Side chats</title>\n<url>https://cursor.com/help/ai-features/side-chats</url>\n<content>A side chat is a full agent conversation that runs next to your main chat. The parent's conversation history is copied in as reference context for the model. That history does not appear in the side-chat transcript.\n\n...\n\nBy default, side chats focus on reading, searching, and answering, so the main agent keeps working uninterrupted. A regular conversation stands on its own. A side chat stays attached to its parent and workspace, so you can explore a side question or dig into a selection without crowding the main thread.\n\n...\n\n## Does the parent conversation appear inside the side chat?\n\nThe parent history is available to the model as hidden reference context. It is not rendered in the side-chat transcript. Only your side-chat prompt and any follow-ups show up in the side chat.\n\n...\n\n## How do I close or archive a side chat?\n\nClick the X (close) button on a side chat to archive it. Closing archives the side-chat agent; it does not delete the conversation. The durable thread stays usable until you archive it by closing it.\n\n...\n\n## What happens to a side chat if I start a new parent conversation?\n\nA side chat is scoped to its parent agent. If you navigate away or start a new conversation, the side chat stays attached to the original parent. It persists until you archive it.</content>\n</result>\n\n<result id=\"4\">\n<title>Plan mode</title>\n<url>https://cursor.com/help/ai-features/plan-mode</url>\n<content>Plans are saved ... default ... your home directory. Click Save ... move ... to your workspace for future reference, team sharing, and documentation.\n\n...\n\n## How do I start over in Plan mode?\n\nIf Agent builds something that doesn't match what you wanted, you can roll back to any earlier point in the conversation:\n\n1. Find the Revert button in the bottom right of a previous chat message\n2. Click Revert, then press Confirm to roll back your files to that stage\n3. Refine your plan to be more specific, then run it again\n\n...\n\nextra time making the ... changes. The hard part is figuring out ... to ... . With clear instructions, Agent handles the rest.</content>\n</result>\n\n<result id=\"5\">\n<title>Cursor for iOS</title>\n<url>https://cursor.com/help/ai-features/mobile-app</url>\n<content>If an agent is clearly further along on the web than in the app, check your connection. The chat stream reconnects after network changes and pauses while the app is in the background, then catches up when you return. Pull down on the inbox to refresh.</content>\n</result>"
+              }
+            ],
+            "isFinal": true,
+            "rejected": false
+          }
+        },
+        "started_at_ms": 1792705938128,
+        "completed_at_ms": 1792705940702,
+        "duration_ms": 2574
+      }
+    },
+    {
+      "id": "3b562929-72b0-5c08-81f1-81355b32e34d",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "Reviewing official product documentation to locate where local Composer and Agent chat history is stored and scoped. Also checking the CLI changelog and background agents page for details on workspace scoping and the resume picker.\n\nAgent chat history is stored locally in a database. The Agents Window provides multi-workspace access and conversation search. Side chats archive on close rather than deleting. Cloud agents sync to cursor.com/agents. The CLI resume picker can list chats across workspaces with folder labels.\n\nExact local storage paths and workspace-scoping mechanics are not clearly documented in official docs. They appear only in forum discussions. The response will cite official documentation directly and flag any gaps.",
+        "parts": null
+      },
+      "parent_id": "362bc18d-8f9c-5df0-9a11-2228ee54118d",
+      "children_ids": [
+        "bf3c7368-3e5a-52c4-8406-3127685c133e"
+      ],
+      "model": null,
+      "is_thought": true,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "thinking": "Reviewing official product documentation to locate where local Composer and Agent chat history is stored and scoped. Also checking the CLI changelog and background agents page for details on workspace scoping and the resume picker.\n\nAgent chat history is stored locally in a database. The Agents Window provides multi-workspace access and conversation search. Side chats archive on close rather than deleting. Cloud agents sync to cursor.com/agents. The CLI resume picker can list chats across workspaces with folder labels.\n\nExact local storage paths and workspace-scoping mechanics are not clearly documented in official docs. They appear only in forum discussions. The response will cite official documentation directly and flag any gaps."
+      }
+    },
+    {
+      "id": "bf3c7368-3e5a-52c4-8406-3127685c133e",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "I am synthesizing a short, actionable answer based on official Cursor documentation. The key point is that agent chat history is stored locally.\n\nChats are stored in a local database and indexed for search. They remain scoped to their original workspace. The Agents Window supports multi-workspace viewing, while side chats stay attached to their parent project. CLI commands like `agent ls` and `/resume` list all chats across workspaces, and workspace filtering uses Left/Right navigation.\n\nOfficial docs do not publish the exact local database path. Chats survive a folder switch; they are only removed by explicit deletion or side-chat archiving. To recover them, open the Agents Window via Command+Shift+P, then search past transcripts with Command+K.",
+        "parts": null
+      },
+      "parent_id": "3b562929-72b0-5c08-81f1-81355b32e34d",
+      "children_ids": [
+        "2782fe65-b6cb-51b8-8233-50f35abfdc5e"
+      ],
+      "model": null,
+      "is_thought": true,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "thinking": "I am synthesizing a short, actionable answer based on official Cursor documentation. The key point is that agent chat history is stored locally.\n\nChats are stored in a local database and indexed for search. They remain scoped to their original workspace. The Agents Window supports multi-workspace viewing, while side chats stay attached to their parent project. CLI commands like `agent ls` and `/resume` list all chats across workspaces, and workspace filtering uses Left/Right navigation.\n\nOfficial docs do not publish the exact local database path. Chats survive a folder switch; they are only removed by explicit deletion or side-chat archiving. To recover them, open the Agents Window via Command+Shift+P, then search past transcripts with Command+K."
+      }
+    },
+    {
+      "id": "2782fe65-b6cb-51b8-8233-50f35abfdc5e",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "**Chats usually aren’t gone — they’re local and tied to a workspace.** Opening a different folder only changes which history the editor shows.\n\n### Where they’re stored / scoped\n- **Local only**: Agent/Composer history lives in a **local database** on your machine ([install issues](https://cursor.com/help/troubleshooting/install-issues.md)). Docs don’t publish an exact filesystem path.\n- **Workspace-scoped**: History is associated with the project/folder. Side chats stay attached to their **parent + workspace** ([side chats](https://cursor.com/help/ai-features/side-chats.md)).\n- **Not deleted by switching folders**: Switching folders hides other workspaces’ chats from the current sidebar; they remain on disk until you explicitly clean them up.\n\n### How to get them back\n1. **Re-open the original folder** (same path you used before).\n2. **Agents Window** (sees across projects): `Cmd/Ctrl+Shift+P` → **Open Agents Window** → find the old project in the sidebar ([Agents Window](https://cursor.com/docs/agent/agents-window.md)).\n3. **Search history**: In Agents Window, `Cmd/Ctrl+K` and search past transcripts ([conversation search](https://cursor.com/help/ai-features/conversation-search.md)).\n4. **CLI**: `agent ls` / `/resume` — defaults to **All chats** across workspaces; Left/Right → **This workspace**; other folders show a folder label ([CLI changelog](https://cursor.com/docs/cli/changelog.md)).\n\n### Deleted vs hidden\n- **Hidden**: different folder, or archived (e.g. closing a side chat archives; it does **not** delete).\n- **Actually deleted**: only via **Delete Old Chats…** (Command Palette), then optionally **GC Agent KV Blobs**.\n\n### Cloud\n**[cursor.com/agents](https://cursor.com/agents)** is for **Cloud Agents**, not local Composer history.",
+        "parts": null
+      },
+      "parent_id": "bf3c7368-3e5a-52c4-8406-3127685c133e",
+      "children_ids": [
+        "51431bf0-afad-5851-8db1-af210ef89992"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    },
+    {
+      "id": "51431bf0-afad-5851-8db1-af210ef89992",
+      "role": "user",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "User previously worked in a folder named Code/ai (likely something like C:\\Users\\...\\Code\\ai or ~/Code/ai). They renamed a Composer/Agent chat to \"vscode-3270\" and after refreshing/opening a different folder they cannot see it. Give exact Cursor Desktop steps to reopen that workspace's chat history and find a chat by the title \"vscode-3270\". Include Agents Window, conversation search (Ctrl/Cmd+K), and any mention of whether chat titles appear in the sidebar. Keep it short and actionable for Windows and macOS shortcuts where they differ.",
+        "parts": null
+      },
+      "parent_id": "2782fe65-b6cb-51b8-8233-50f35abfdc5e",
+      "children_ids": [
+        "81369838-87e8-5c2d-8555-46ae7033e029"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    },
+    {
+      "id": "81369838-87e8-5c2d-8555-46ae7033e029",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "I have the relevant information from prior research. I am preparing exact Cursor Desktop steps to locate the renamed chat titled \"vscode-3270\" after switching folders.\n\nI will provide exact steps to reopen the Code/ai folder, open the Agents Window, and search for the chat titled \"vscode-3270\" using Ctrl+K or Cmd+K.",
+        "parts": null
+      },
+      "parent_id": "51431bf0-afad-5851-8db1-af210ef89992",
+      "children_ids": [
+        "5494ad03-ea35-54fe-9e1b-4586d2ddbb08"
+      ],
+      "model": null,
+      "is_thought": true,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "thinking": "I have the relevant information from prior research. I am preparing exact Cursor Desktop steps to locate the renamed chat titled \"vscode-3270\" after switching folders.\n\nI will provide exact steps to reopen the Code/ai folder, open the Agents Window, and search for the chat titled \"vscode-3270\" using Ctrl+K or Cmd+K."
+      }
+    },
+    {
+      "id": "5494ad03-ea35-54fe-9e1b-4586d2ddbb08",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "Confirming the exact Desktop UI steps for finding a chat by title in the Agents Window.",
+        "parts": null
+      },
+      "parent_id": "81369838-87e8-5c2d-8555-46ae7033e029",
+      "children_ids": [
+        "b9f98c52-9689-5032-8e35-c4bb6ec9ec63"
+      ],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    },
+    {
+      "id": "b9f98c52-9689-5032-8e35-c4bb6ec9ec63",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "I have what I need. I'll keep the response short and include separate Windows and macOS shortcuts.",
+        "parts": null
+      },
+      "parent_id": "5494ad03-ea35-54fe-9e1b-4586d2ddbb08",
+      "children_ids": [
+        "349a1eb6-0a6c-5903-ab89-710a618e9a9f"
+      ],
+      "model": null,
+      "is_thought": true,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "thinking": "I have what I need. I'll keep the response short and include separate Windows and macOS shortcuts."
+      }
+    },
+    {
+      "id": "349a1eb6-0a6c-5903-ab89-710a618e9a9f",
+      "role": "assistant",
+      "created_at": "2026-10-22T21:51:53.804Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "**The chat is still local — reopen `Code/ai` or search from Agents Window.**\n\n### 1. Reopen the old workspace (best first step)\n1. **File → Open Folder…**\n2. Pick the same `Code/ai` folder as before (e.g. `C:\\Users\\…\\Code\\ai` or `~/Code/ai`).\n3. In the Agent/chat **sidebar**, look for the title **vscode-3270** (renamed titles show there for that workspace).\n\n### 2. Agents Window (works across folders)\n1. Command Palette: **Ctrl+Shift+P** (Windows) / **Cmd+Shift+P** (macOS) → **Open Agents Window**\n2. In the Agents Window **sidebar**, select the **`ai` / `Code/ai`** project.\n3. Scan the chat list for **vscode-3270**.\n\n### 3. Search by title\nStill in Agents Window:\n1. **Ctrl+K** (Windows) / **Cmd+K** (macOS)\n2. Type `vscode-3270`\n3. Open the matching conversation\n\nThat search indexes past agent transcripts locally, so a renamed title like **vscode-3270** should match.\n\n**Note:** Switching folders only hides other workspaces’ chats — it does not delete them. Use **cursor.com/agents** only if this was a Cloud Agent, not a local Composer/Agent chat.",
+        "parts": null
+      },
+      "parent_id": "b9f98c52-9689-5032-8e35-c4bb6ec9ec63",
+      "children_ids": [],
+      "model": null,
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    }
+  ],
+  "title": "Find chat by folder",
+  "participants": [
+    {
+      "role": "assistant",
+      "name": null,
+      "provider_id": null
+    },
+    {
+      "role": "tool",
+      "name": null,
+      "provider_id": null
+    },
+    {
+      "role": "user",
+      "name": null,
+      "provider_id": null
+    }
+  ],
+  "model": null,
+  "system_instruction": null,
+  "is_archived": false,
+  "tags": [
+    "vscode-3270",
+    "cursor-cloud-agent"
+  ],
+  "raw_metadata": {
+    "bcId": "bc-2aaff8fb-4e3c-5be1-b144-71c7a0bab389",
+    "url": "https://cursor.com/agents/bc-2aaff8fb-4e3c-5be1-b144-71c7a0bab389",
+    "repoUrl": "github.com/spufidoo/vscode-3270",
+    "status": "IDLE",
+    "source": "internal",
+    "visibility": "team",
+    "branchName": null,
+    "createdAtMs": 1792705913804,
+    "updatedAtMs": 1792706036955,
+    "lastMessageActivityAtMs": 1792706025513
+  },
+  "import_metadata": {
+    "importer": "cursor-cloud-export/1.0",
+    "importer_version": "cursor-cloud-transcript-converter/1.0",
+    "imported_at": "2026-11-16T16:58:34.349Z",
+    "source_file": "/tmp/cursor/cloud-agent-transcripts/2026-11-16T16-56-37Z-2ec2/bc-2aaff8fb-4e3c-5be1-b144-71c7a0bab389/transcript.json",
+    "source_checksum": "sha256:11ccbc3d8139a274e0bd1bdf5a05151a577b6339fc196fb17933dd6203f72a08"
+  }
+}

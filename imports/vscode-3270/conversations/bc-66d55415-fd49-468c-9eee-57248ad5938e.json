@@ -1,0 +1,122 @@
+{
+  "schema": "portable-ai-memory-conversation",
+  "schema_version": "1.0",
+  "id": "bc-66d55415-fd49-468c-9eee-57248ad5938e",
+  "provider": {
+    "name": "cursor",
+    "conversation_id": "bc-66d55415-fd49-468c-9eee-57248ad5938e",
+    "account_id": "291038673",
+    "export_format_version": "cursor-cloud-transcript/2026-11"
+  },
+  "temporal": {
+    "created_at": "2026-11-02T12:17:08.460Z",
+    "updated_at": "2026-11-09T11:15:18.320Z"
+  },
+  "messages": [
+    {
+      "id": "5688fb36-e20b-5818-b4e9-bac92aa6837f",
+      "role": "user",
+      "created_at": "2026-11-02T12:17:08.460Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "What is a runbook?",
+        "parts": null
+      },
+      "parent_id": null,
+      "children_ids": [
+        "ed24fecc-29f7-5af2-a106-fc754fbb2dd5"
+      ],
+      "model": "default",
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    },
+    {
+      "id": "ed24fecc-29f7-5af2-a106-fc754fbb2dd5",
+      "role": "assistant",
+      "created_at": "2026-11-02T12:17:08.460Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "This is a straightforward informational question about runbooks. No code changes or tool calls are needed.",
+        "parts": null
+      },
+      "parent_id": "5688fb36-e20b-5818-b4e9-bac92aa6837f",
+      "children_ids": [
+        "fd9d22e9-52c6-532b-8894-87406f46e95c"
+      ],
+      "model": "default",
+      "is_thought": true,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {
+        "thinking": "This is a straightforward informational question about runbooks. No code changes or tool calls are needed."
+      }
+    },
+    {
+      "id": "fd9d22e9-52c6-532b-8894-87406f46e95c",
+      "role": "assistant",
+      "created_at": "2026-11-02T12:17:08.460Z",
+      "provider_message_id": null,
+      "content": {
+        "type": "text",
+        "text": "A **runbook** is a step-by-step guide for operating or fixing a system—usually written so someone can follow it under pressure.\n\nIt typically covers:\n- When to use it (symptoms, alerts, triggers)\n- Exact actions to take (commands, checks, rollbacks)\n- Expected outcomes and what to do if something fails\n- Who to escalate to\n\nCommon uses: incident response, deployments, on-call handoffs, and recurring ops tasks. Unlike docs that explain *why*, a runbook focuses on *what to do next*.",
+        "parts": null
+      },
+      "parent_id": "ed24fecc-29f7-5af2-a106-fc754fbb2dd5",
+      "children_ids": [],
+      "model": "default",
+      "is_thought": false,
+      "token_count": null,
+      "attachments": [],
+      "citations": [],
+      "tool_calls": [],
+      "raw_metadata": {}
+    }
+  ],
+  "title": "Runbook definition",
+  "participants": [
+    {
+      "role": "assistant",
+      "name": null,
+      "provider_id": null
+    },
+    {
+      "role": "user",
+      "name": null,
+      "provider_id": null
+    }
+  ],
+  "model": "default",
+  "system_instruction": null,
+  "is_archived": false,
+  "tags": [
+    "vscode-3270",
+    "cursor-cloud-agent"
+  ],
+  "raw_metadata": {
+    "bcId": "bc-66d55415-fd49-468c-9eee-57248ad5938e",
+    "url": "https://cursor.com/agents/bc-66d55415-fd49-468c-9eee-57248ad5938e",
+    "repoUrl": "github.com/spufidoo/vscode-3270",
+    "status": "IDLE",
+    "source": "web",
+    "visibility": "team",
+    "branchName": null,
+    "createdAtMs": 1793621828460,
+    "updatedAtMs": 1794222918320,
+    "lastMessageActivityAtMs": 1793621855029
+  },
+  "import_metadata": {
+    "importer": "cursor-cloud-export/1.0",
+    "importer_version": "cursor-cloud-transcript-converter/1.0",
+    "imported_at": "2026-11-16T16:58:34.349Z",
+    "source_file": "/tmp/cursor/cloud-agent-transcripts/2026-11-16T16-56-37Z-2ec2/bc-66d55415-fd49-468c-9eee-57248ad5938e/transcript.json",
+    "source_checksum": "sha256:bee5db594561d975803fcae0a3e66b06b0ab0688dba73782925b387f5e12de94"
+  }
+}
