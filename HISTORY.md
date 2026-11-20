@@ -1,6 +1,6 @@
 # Development history
 
-This is a record of the Cursor chats that produced this extension (20 August 2026 – 6 November 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
+This is a record of the Cursor chats that produced this extension (20 August 2026 – 20 November 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
 
 It uses [IBM tnz](https://github.com/IBM/tnz) at runtime. Until 0.10.0 that was a `pip install` the user had to do; since then tnz and ebcdic are bundled.
 
@@ -27,6 +27,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 | [22 Oct][d15] | Listing page: demo, shorter README, changelog, keywords | 1.0.1 |
 | [22 Oct][d16] | Keypad keys are their own chords | 1.1.0 |
 | [6 Nov][d17] | Copy as RTF, HTML or an image | 1.1.0 |
+| [20 Nov][d18] | Focus click, key repeat, dead keys | 1.1.1 |
 
 [Why this exists](#why-this-exists) · [What was left on purpose](#what-was-left-on-purpose) · [Where it stands](#where-it-stands)
 
@@ -47,6 +48,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 [d15]: #22-october--the-listing-page
 [d16]: #22-october--the-keypad
 [d17]: #6-november--copy-formats
+[d18]: #20-november--three-session-fixes
 
 ## Why this exists
 
@@ -318,6 +320,12 @@ A copied block of plain text loses what makes a 3270 screen readable: the colour
 
 The formats take different routes to the clipboard. `vscode.env.clipboard` writes text only. The webview's own clipboard can write HTML and PNG, and it is the local machine's clipboard even when the extension host is remote, so HTML and PNG go that way, with plain text alongside. Chromium will not write RTF at all, so RTF goes to the extension host, which writes it with the platform's own tool: Windows Forms from PowerShell, `pbcopy` on macOS, and `xclip` or `wl-copy` on Linux. HTML and PNG fall back to the same route if the webview's write is refused. If that fails too, the text is copied and a warning says why.
 
+## 20 November — three session fixes
+
+Tags: `v1.1.1`
+
+Three reports against 1.1.0, shipped together. A click on a session that does not have focus was also a cursor move, so coming back to paste jumped the cursor. A held key queued every repeat, so the cursor kept moving after the key came up. A dead key on US-International never produced a character, because the grid is not an editable field. The focusing click is now focus only, a repeat waits for the previous key's screen, and the composed character is typed from a hidden field that holds the keyboard.
+
 ## What was left on purpose
 
 - DUP / Field Mark keys.
@@ -331,7 +339,7 @@ The formats take different routes to the clipboard. `vscode.env.clipboard` write
 
 ## Where it stands
 
-Current packaged version at the end of this record: **1.1.0**.
+Current packaged version at the end of this record: **1.1.1**.
 
 The public GitHub repository is `spufidoo/vscode-3270`. The Marketplace publisher id is `spufidoo`.
 

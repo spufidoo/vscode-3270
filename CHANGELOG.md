@@ -2,7 +2,7 @@
 
 Notable changes, newest first. The decisions behind them are in [HISTORY.md](HISTORY.md).
 
-## [Unreleased]
+## [1.1.1] - 2026-11-20
 
 - Clicking a session that does not have focus only focuses it. The 3270 cursor stays where it was, so pasting back into the session does not also reposition.
 - A held key is no longer queued faster than the session can apply it. The cursor stops when the key is released, and the next key does not wait behind the repeats.
