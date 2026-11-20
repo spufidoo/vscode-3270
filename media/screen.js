@@ -86,6 +86,16 @@ gridEl.appendChild(crossRowEl);
 gridEl.appendChild(crossColEl);
 gridEl.appendChild(cursorEl);
 gridEl.appendChild(markEl);
+// Dead keys and IME composition only finish in an editable element. The grid
+// is a wall of divs, so this holds focus and the composed character.
+const composer = document.createElement("textarea");
+composer.id = "composer";
+composer.tabIndex = -1;
+composer.setAttribute("aria-hidden", "true");
+composer.autocomplete = "off";
+composer.autocapitalize = "off";
+composer.spellcheck = false;
+gridEl.appendChild(composer);
 screenEl.appendChild(gridEl);
 document.body.appendChild(menuEl);
 document.body.appendChild(submenuEl);
@@ -800,6 +810,9 @@ function positionCursor() {
   cursorEl.style.top = `${
     (state.cursorRow - 1) * cellH + (underline ? cellH - bar : 0)
   }px`;
+  // Keep the accent mark next to the 3270 cursor.
+  composer.style.left = cursorEl.style.left;
+  composer.style.top = `${(state.cursorRow - 1) * cellH}px`;
   drawCross();
 }
 
@@ -1147,6 +1160,8 @@ function runAction(action) {
 // Set while a modifier is held with nothing else pressed since. Acting on
 // keyup is what separates a solo Ctrl from the Ctrl that starts Ctrl+C.
 let soloModifier = "";
+// Set between compositionstart and compositionend.
+let composing = false;
 
 screenEl.addEventListener("keydown", (e) => {
   const modifier = modifierChord(e);
@@ -1205,6 +1220,19 @@ screenEl.addEventListener("keydown", (e) => {
     return;
   }
 
+  // A dead key (' " ` on a US-International layout) and the letter that
+  // follows it belong to the composer. Taking them here sends nothing, or
+  // sends the bare letter and cancels the accent.
+  if (
+    composing ||
+    e.isComposing ||
+    e.key === "Dead" ||
+    e.key === "Process" ||
+    e.key === "Unidentified"
+  ) {
+    return;
+  }
+
   // Any other key is host input, so the mark has served its purpose.
   clearMark();
 
@@ -1224,17 +1252,56 @@ screenEl.addEventListener("keydown", (e) => {
     return;
   }
   if (e.key.length === 1) {
+    // Leave the key for the composer. It arrives as an input event, which is
+    // also how a finished dead-key sequence arrives. A repeat still has to be
+    // stopped here, before that input is generated.
     if (hostRepeatDropped(e)) {
       return;
     }
-    e.preventDefault();
-    sendHostKey({
-      op: "key",
-      type: "chars",
-      value: e.key,
-      insert: insertMode,
-    });
+    return;
   }
+});
+
+// The character the composer just produced, so the input event that follows
+// compositionend does not send it a second time.
+let compositionText = "";
+
+function sendComposed(text) {
+  if (!text) {
+    return;
+  }
+  clearMark();
+  sendHostKey({
+    op: "key",
+    type: "chars",
+    value: text,
+    insert: insertMode,
+  });
+}
+
+composer.addEventListener("compositionstart", () => {
+  composing = true;
+});
+
+composer.addEventListener("compositionend", (e) => {
+  composing = false;
+  compositionText = e.data || composer.value;
+  composer.value = "";
+  sendComposed(compositionText);
+});
+
+composer.addEventListener("input", () => {
+  if (composing) {
+    return;
+  }
+  const text = composer.value;
+  composer.value = "";
+  if (!text || text === compositionText) {
+    compositionText = "";
+    return;
+  }
+  compositionText = "";
+  sendComposed(text);
 });
 
 screenEl.addEventListener("keyup", (e) => {
@@ -1615,6 +1682,14 @@ window.addEventListener("resize", () => {
 // keys, so without this the 3270 stays deaf until the user clicks it.
 window.addEventListener("focus", () => {
   screenEl.focus();
+});
+
+// Dead keys compose into the textarea, not the grid. Focusing the screen
+// moves here, and every screenEl.focus() call comes this way too.
+screenEl.addEventListener("focus", () => {
+  if (document.activeElement !== composer) {
+    composer.focus({ preventScroll: true });
+  }
 });
 
 applySelectionMode();
