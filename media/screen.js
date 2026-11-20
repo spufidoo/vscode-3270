@@ -86,6 +86,16 @@ gridEl.appendChild(crossRowEl);
 gridEl.appendChild(crossColEl);
 gridEl.appendChild(cursorEl);
 gridEl.appendChild(markEl);
+// Dead keys and IME composition only finish in an editable element. The grid
+// is a wall of divs, so this holds focus and the composed character.
+const composer = document.createElement("textarea");
+composer.id = "composer";
+composer.tabIndex = -1;
+composer.setAttribute("aria-hidden", "true");
+composer.autocomplete = "off";
+composer.autocapitalize = "off";
+composer.spellcheck = false;
+gridEl.appendChild(composer);
 screenEl.appendChild(gridEl);
 document.body.appendChild(menuEl);
 document.body.appendChild(submenuEl);
@@ -800,6 +810,9 @@ function positionCursor() {
   cursorEl.style.top = `${
     (state.cursorRow - 1) * cellH + (underline ? cellH - bar : 0)
   }px`;
+  // Keep the accent mark next to the 3270 cursor.
+  composer.style.left = cursorEl.style.left;
+  composer.style.top = `${(state.cursorRow - 1) * cellH}px`;
   drawCross();
 }
 
@@ -909,6 +922,7 @@ function setOia() {
 window.addEventListener("message", (event) => {
   const msg = event.data;
   if (msg.op === "screen") {
+    hostKeyPending = false;
     const resized = msg.rows !== state.rows || msg.cols !== state.cols;
     state = {
       rows: msg.rows,
@@ -987,6 +1001,7 @@ window.addEventListener("message", (event) => {
     document.getElementById("oia-msg").textContent =
       msg.state === "start" ? "FILE TRANSFER IN PROGRESS" : "";
   } else if (msg.op === "error") {
+    hostKeyPending = false;
     const first =
       String(msg.message || "error")
         .split("\n")
@@ -1100,12 +1115,32 @@ function setInsert(on) {
   positionCursor();
 }
 
+// One host key at a time while a key is held. The browser repeats keydown
+// much faster than the session applies it, and every repeat was queued, so
+// the cursor kept moving after the key came up and the next key waited
+// behind that queue. A repeat goes out only once the previous key's screen
+// has come back, and never while the keyboard is locked.
+let hostKeyPending = false;
+
+function hostRepeatDropped(e) {
+  if (!e.repeat || (!hostKeyPending && !state.lock)) {
+    return false;
+  }
+  e.preventDefault();
+  return true;
+}
+
+function sendHostKey(message) {
+  hostKeyPending = true;
+  vscode.postMessage(message);
+}
+
 function runAction(action) {
   const sep = action.indexOf(":");
   const kind = sep === -1 ? action : action.slice(0, sep);
   const value = sep === -1 ? "" : action.slice(sep + 1);
   if (kind === "aid" || kind === "nav") {
-    vscode.postMessage({ op: "key", type: kind, value });
+    sendHostKey({ op: "key", type: kind, value });
   } else if (kind === "macro") {
     vscode.postMessage({ op: "macro", name: value });
   } else if (kind === "local" && value === "insert") {
@@ -1125,6 +1160,8 @@ function runAction(action) {
 // Set while a modifier is held with nothing else pressed since. Acting on
 // keyup is what separates a solo Ctrl from the Ctrl that starts Ctrl+C.
 let soloModifier = "";
+// Set between compositionstart and compositionend.
+let composing = false;
 
 screenEl.addEventListener("keydown", (e) => {
   const modifier = modifierChord(e);
@@ -1183,10 +1220,29 @@ screenEl.addEventListener("keydown", (e) => {
     return;
   }
 
+  // A dead key (' " ` on a US-International layout) and the letter that
+  // follows it belong to the composer. Taking them here sends nothing, or
+  // sends the bare letter and cancels the accent.
+  if (
+    composing ||
+    e.isComposing ||
+    e.key === "Dead" ||
+    e.key === "Process" ||
+    e.key === "Unidentified"
+  ) {
+    return;
+  }
+
   // Any other key is host input, so the mark has served its purpose.
   clearMark();
 
   if (action) {
+    if (
+      (action.startsWith("aid:") || action.startsWith("nav:")) &&
+      hostRepeatDropped(e)
+    ) {
+      return;
+    }
     e.preventDefault();
     runAction(action);
     return;
@@ -1196,17 +1252,62 @@ screenEl.addEventListener("keydown", (e) => {
     return;
   }
   if (e.key.length === 1) {
-    e.preventDefault();
-    vscode.postMessage({
-      op: "key",
-      type: "chars",
-      value: e.key,
-      insert: insertMode,
-    });
+    // Leave the key for the composer. It arrives as an input event, which is
+    // also how a finished dead-key sequence arrives. A repeat still has to be
+    // stopped here, before that input is generated.
+    if (hostRepeatDropped(e)) {
+      return;
+    }
+    return;
   }
 });
 
+// The character the composer just produced, so the input event that follows
+// compositionend does not send it a second time.
+let compositionText = "";
+
+function sendComposed(text) {
+  if (!text) {
+    return;
+  }
+  clearMark();
+  sendHostKey({
+    op: "key",
+    type: "chars",
+    value: text,
+    insert: insertMode,
+  });
+}
+
+composer.addEventListener("compositionstart", () => {
+  composing = true;
+});
+
+composer.addEventListener("compositionend", (e) => {
+  composing = false;
+  compositionText = e.data || composer.value;
+  composer.value = "";
+  sendComposed(compositionText);
+});
+
+composer.addEventListener("input", () => {
+  if (composing) {
+    return;
+  }
+  const text = composer.value;
+  composer.value = "";
+  if (!text || text === compositionText) {
+    compositionText = "";
+    return;
+  }
+  compositionText = "";
+  sendComposed(text);
+});
+
 screenEl.addEventListener("keyup", (e) => {
+  // The held key is up, so a repeat must not stay blocked behind a screen
+  // that has not arrived yet.
+  hostKeyPending = false;
   const modifier = modifierChord(e);
   const solo = soloModifier;
   soloModifier = "";
@@ -1301,6 +1402,41 @@ function cellFromEvent(e) {
   );
   return { row, col };
 }
+
+// A press that finds the panel unfocused only focuses it. The matching
+// release must not move the 3270 cursor, or coming back from another editor
+// to paste would also reposition. The next press, now focused, does.
+let focusOnlyClick = false;
+
+gridEl.addEventListener(
+  "mousedown",
+  (e) => {
+    if (e.button !== 0 || document.hasFocus()) {
+      return;
+    }
+    focusOnlyClick = true;
+    screenEl.focus();
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  },
+  true
+);
+
+// Capture on the window, so it runs before either mouseup below and the
+// release of a focus-only press never becomes a cursor move.
+window.addEventListener(
+  "mouseup",
+  (e) => {
+    if (!focusOnlyClick || e.button !== 0) {
+      return;
+    }
+    focusOnlyClick = false;
+    dragging = false;
+    e.preventDefault();
+    e.stopPropagation();
+  },
+  true
+);
 
 // Stream mode: dragging selects text; a plain click still positions the 3270
 // cursor. Only bound when block mode is off, so the two never both fire.
@@ -1546,6 +1682,14 @@ window.addEventListener("resize", () => {
 // keys, so without this the 3270 stays deaf until the user clicks it.
 window.addEventListener("focus", () => {
   screenEl.focus();
+});
+
+// Dead keys compose into the textarea, not the grid. Focusing the screen
+// moves here, and every screenEl.focus() call comes this way too.
+screenEl.addEventListener("focus", () => {
+  if (document.activeElement !== composer) {
+    composer.focus({ preventScroll: true });
+  }
 });
 
 applySelectionMode();

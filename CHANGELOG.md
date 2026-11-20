@@ -2,6 +2,12 @@
 
 Notable changes, newest first. The decisions behind them are in [HISTORY.md](HISTORY.md).
 
+## [1.1.1] - 2026-11-20
+
+- Clicking a session that does not have focus only focuses it. The 3270 cursor stays where it was, so pasting back into the session does not also reposition.
+- A held key is no longer queued faster than the session can apply it. The cursor stops when the key is released, and the next key does not wait behind the repeats.
+- Dead keys work. On a US-International layout, `'` `"` and `` ` `` compose with the following key, so `'` then `e` types `é`.
+
 ## [1.1.0] - 2026-11-06
 
 - The numeric keypad can be bound on its own. `numpad1` is not the `1` on the number row, and `numpadenter` is not the main Enter key.

@@ -65,6 +65,8 @@ and not `#`. The space bar is `space`, not a space character.
 
 Unshifted, along a US keyboard: backtick, hyphen, equals, `[` `]`, backslash, `;` `'`, comma, full stop, `/`. The chord is that character. Shifted, the same keys are `~` `!` `@` `#` `$` `%` `^` `&` `*` `(` `)` `_` `+` `{` `}` `|` `:` `"` `<` `>` `?`.
 
+A dead key on a layout such as US-International is not a chord. `'` then Space types `'`, and `` ` `` then `a` types `à`. The accent is composed and then sent as that character.
+
 ### Editing and navigation
 
 | Key | Chord |
@@ -328,7 +330,7 @@ current field.
 
 | Action | Result |
 | --- | --- |
-| Click | Follow a hotspot, or move the cursor |
+| Click | Follow a hotspot, or move the cursor. The click that focuses an unfocused panel does neither |
 | Ctrl+click (Cmd+click on macOS) | Move the cursor and run `tn3270.clickMacro`, if set |
 | Double-click | Move the cursor and send ENTER |
 | Drag | Select text |
