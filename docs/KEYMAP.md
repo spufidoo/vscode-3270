@@ -328,7 +328,7 @@ current field.
 
 | Action | Result |
 | --- | --- |
-| Click | Follow a hotspot, or move the cursor |
+| Click | Follow a hotspot, or move the cursor. The click that focuses an unfocused panel does neither |
 | Ctrl+click (Cmd+click on macOS) | Move the cursor and run `tn3270.clickMacro`, if set |
 | Double-click | Move the cursor and send ENTER |
 | Drag | Select text |

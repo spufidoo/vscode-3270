@@ -1302,6 +1302,41 @@ function cellFromEvent(e) {
   return { row, col };
 }
 
+// A press that finds the panel unfocused only focuses it. The matching
+// release must not move the 3270 cursor, or coming back from another editor
+// to paste would also reposition. The next press, now focused, does.
+let focusOnlyClick = false;
+
+gridEl.addEventListener(
+  "mousedown",
+  (e) => {
+    if (e.button !== 0 || document.hasFocus()) {
+      return;
+    }
+    focusOnlyClick = true;
+    screenEl.focus();
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  },
+  true
+);
+
+// Capture on the window, so it runs before either mouseup below and the
+// release of a focus-only press never becomes a cursor move.
+window.addEventListener(
+  "mouseup",
+  (e) => {
+    if (!focusOnlyClick || e.button !== 0) {
+      return;
+    }
+    focusOnlyClick = false;
+    dragging = false;
+    e.preventDefault();
+    e.stopPropagation();
+  },
+  true
+);
+
 // Stream mode: dragging selects text; a plain click still positions the 3270
 // cursor. Only bound when block mode is off, so the two never both fire.
 gridEl.addEventListener("mouseup", (e) => {

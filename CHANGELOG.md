@@ -2,6 +2,10 @@
 
 Notable changes, newest first. The decisions behind them are in [HISTORY.md](HISTORY.md).
 
+## [Unreleased]
+
+- Clicking a session that does not have focus only focuses it. The 3270 cursor stays where it was, so pasting back into the session does not also reposition.
+
 ## [1.1.0] - 2026-11-06
 
 - The numeric keypad can be bound on its own. `numpad1` is not the `1` on the number row, and `numpadenter` is not the main Enter key.
