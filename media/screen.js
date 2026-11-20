@@ -909,6 +909,7 @@ function setOia() {
 window.addEventListener("message", (event) => {
   const msg = event.data;
   if (msg.op === "screen") {
+    hostKeyPending = false;
     const resized = msg.rows !== state.rows || msg.cols !== state.cols;
     state = {
       rows: msg.rows,
@@ -987,6 +988,7 @@ window.addEventListener("message", (event) => {
     document.getElementById("oia-msg").textContent =
       msg.state === "start" ? "FILE TRANSFER IN PROGRESS" : "";
   } else if (msg.op === "error") {
+    hostKeyPending = false;
     const first =
       String(msg.message || "error")
         .split("\n")
@@ -1100,12 +1102,32 @@ function setInsert(on) {
   positionCursor();
 }
 
+// One host key at a time while a key is held. The browser repeats keydown
+// much faster than the session applies it, and every repeat was queued, so
+// the cursor kept moving after the key came up and the next key waited
+// behind that queue. A repeat goes out only once the previous key's screen
+// has come back, and never while the keyboard is locked.
+let hostKeyPending = false;
+
+function hostRepeatDropped(e) {
+  if (!e.repeat || (!hostKeyPending && !state.lock)) {
+    return false;
+  }
+  e.preventDefault();
+  return true;
+}
+
+function sendHostKey(message) {
+  hostKeyPending = true;
+  vscode.postMessage(message);
+}
+
 function runAction(action) {
   const sep = action.indexOf(":");
   const kind = sep === -1 ? action : action.slice(0, sep);
   const value = sep === -1 ? "" : action.slice(sep + 1);
   if (kind === "aid" || kind === "nav") {
-    vscode.postMessage({ op: "key", type: kind, value });
+    sendHostKey({ op: "key", type: kind, value });
   } else if (kind === "macro") {
     vscode.postMessage({ op: "macro", name: value });
   } else if (kind === "local" && value === "insert") {
@@ -1187,6 +1209,12 @@ screenEl.addEventListener("keydown", (e) => {
   clearMark();
 
   if (action) {
+    if (
+      (action.startsWith("aid:") || action.startsWith("nav:")) &&
+      hostRepeatDropped(e)
+    ) {
+      return;
+    }
     e.preventDefault();
     runAction(action);
     return;
@@ -1196,8 +1224,11 @@ screenEl.addEventListener("keydown", (e) => {
     return;
   }
   if (e.key.length === 1) {
+    if (hostRepeatDropped(e)) {
+      return;
+    }
     e.preventDefault();
-    vscode.postMessage({
+    sendHostKey({
       op: "key",
       type: "chars",
       value: e.key,
@@ -1207,6 +1238,9 @@ screenEl.addEventListener("keydown", (e) => {
 });
 
 screenEl.addEventListener("keyup", (e) => {
+  // The held key is up, so a repeat must not stay blocked behind a screen
+  // that has not arrived yet.
+  hostKeyPending = false;
   const modifier = modifierChord(e);
   const solo = soloModifier;
   soloModifier = "";
