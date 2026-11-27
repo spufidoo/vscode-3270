@@ -2,7 +2,7 @@
   "name": "vscode-3270",
   "displayName": "3270 Terminal",
   "description": "Native 3270 terminal view for VS Code and Cursor, powered by IBM tnz.",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "publisher": "spufidoo",
   "license": "Apache-2.0",
   "icon": "media/icon.png",
