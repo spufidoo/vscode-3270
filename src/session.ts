@@ -207,7 +207,19 @@ export class SessionPanel {
       keymap: resolveKeymap(),
       fontFamily: this.fontFamily(),
       ...viewSettings(),
+      ...this.cursorBlinkOverride(),
     };
+  }
+
+  /** The profile's own cursor blink, when it has one. Otherwise the setting stands. */
+  private cursorBlinkOverride(): Record<string, unknown> {
+    if (this.host.cursorBlink === "on") {
+      return { cursorBlink: true };
+    }
+    if (this.host.cursorBlink === "off") {
+      return { cursorBlink: false };
+    }
+    return {};
   }
 
   /** The profile's font, or the global default when it has none. */

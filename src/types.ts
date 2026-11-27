@@ -44,6 +44,8 @@ export interface HostProfile {
   extendedColor?: boolean;
   /** Render the extended-highlight blink attribute instead of ignoring it. */
   blink?: boolean;
+  /** Blink the cursor for this host. Empty follows tn3270.cursor.blink. */
+  cursorBlink?: CursorBlink | "";
   colors?: HostColors;
   /** CSS font list for the screen. Empty means the built-in monospace stack. */
   fontFamily?: string;
@@ -149,6 +151,9 @@ export type TransferDirection = "download" | "upload";
 
 /** How the host expects IND$FILE options to be introduced. */
 export type TransferSyntax = "tso" | "cms";
+
+/** A host's own choice for cursor blink, overriding tn3270.cursor.blink. */
+export type CursorBlink = "on" | "off";
 
 /** A pending IND$FILE transfer, before it is turned into a command. */
 export interface TransferRequest {

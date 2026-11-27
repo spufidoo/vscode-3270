@@ -167,6 +167,12 @@ key is still ENTER.
 `wheelup` `wheeldown` `wheelleft` `wheelright`. Modifiers combine as usual
 (`ctrl+wheelup`). What the wheel does with them is under [The wheel](#the-wheel).
 
+### Mouse button chords
+
+`mouseback` `mouseforward`, the side buttons. Modifiers combine as usual
+(`shift+mouseback`). Nothing is bound until you bind it, and a press does not
+move the 3270 cursor. See [Mouse back and forward](#mouse-back-and-forward).
+
 ### Extra keys
 
 A media or browser key is a chord when the keyboard sends it. The name is
@@ -353,6 +359,24 @@ cursor, whatever it happens to contain.
 `tn3270.hotspots` turns this off, or requires a double-click instead — in which
 case a double-click away from a hotspot still sends ENTER as usual. Ctrl+click
 belongs to `tn3270.clickMacro` and is never taken by a hotspot.
+
+### Mouse back and forward
+
+The side buttons are `mouseback` and `mouseforward`. They are not bound by
+default. While a session is focused, a press no longer steps the editor's
+history, bound or not.
+
+```json
+"tn3270.keymap": {
+  "mouseback": "aid:pf3",
+  "mouseforward": "aid:pf4"
+}
+```
+
+The cursor stays where it is. Nothing is sent while the keyboard is locked.
+
+A keyboard's browser-back and browser-forward keys are the separate chords
+`browserback` and `browserforward`, under [Extra keys](#extra-keys).
 
 ### The wheel
 

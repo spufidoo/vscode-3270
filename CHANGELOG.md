@@ -2,6 +2,13 @@
 
 Notable changes, newest first. The decisions behind them are in [HISTORY.md](HISTORY.md).
 
+## [1.1.2] - 2026-11-27
+
+- The mouse back and forward buttons can be bound. The chords are `mouseback` and `mouseforward`, and a press no longer steps the editor's history while a session is focused.
+- A host profile can turn cursor blink on or off for itself, so it no longer takes the global `tn3270.cursor.blink` setting with it. Leaving it on Default follows the setting.
+- The cursor box lines up with the text it sits on. It could drift into the character before it, and invert part of that character each time it blinked.
+- The host editor's screen size, code page and logon macro lists move with the arrow keys, and so do its plain dropdowns.
+
 ## [1.1.1] - 2026-11-20
 
 - Clicking a session that does not have focus only focuses it. The 3270 cursor stays where it was, so pasting back into the session does not also reposition.

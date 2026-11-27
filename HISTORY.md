@@ -1,6 +1,6 @@
 # Development history
 
-This is a record of the Cursor chats that produced this extension (20 August 2026 – 20 November 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
+This is a record of the Cursor chats that produced this extension (20 August 2026 – 27 November 2026), not a transcript dump. Tool calls, screenshots and log attachments are omitted; the decisions and the bugs that drove them are not.
 
 It uses [IBM tnz](https://github.com/IBM/tnz) at runtime. Until 0.10.0 that was a `pip install` the user had to do; since then tnz and ebcdic are bundled.
 
@@ -28,6 +28,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 | [22 Oct][d16] | Keypad keys are their own chords | 1.1.0 |
 | [6 Nov][d17] | Copy as RTF, HTML or an image | 1.1.0 |
 | [20 Nov][d18] | Focus click, key repeat, dead keys | 1.1.1 |
+| [27 Nov][d19] | Mouse side buttons, cursor blink, cursor box | 1.1.2 |
 
 [Why this exists](#why-this-exists) · [What was left on purpose](#what-was-left-on-purpose) · [Where it stands](#where-it-stands)
 
@@ -49,6 +50,7 @@ The extension was called TNZ 3270 throughout the period this records, and its se
 [d16]: #22-october--the-keypad
 [d17]: #6-november--copy-formats
 [d18]: #20-november--three-session-fixes
+[d19]: #27-november--side-buttons-and-the-cursor
 
 ## Why this exists
 
@@ -326,6 +328,12 @@ Tags: `v1.1.1`
 
 Three reports against 1.1.0, shipped together. A click on a session that does not have focus was also a cursor move, so coming back to paste jumped the cursor. A held key queued every repeat, so the cursor kept moving after the key came up. A dead key on US-International never produced a character, because the grid is not an editable field. The focusing click is now focus only, a repeat waits for the previous key's screen, and the composed character is typed from a hidden field that holds the keyboard.
 
+## 27 November — side buttons and the cursor
+
+Tags: `v1.1.2`
+
+Issue 6 asked for the mouse side buttons. They are chords, `mouseback` and `mouseforward`, and a press no longer walks the editor's history while a session is focused. A host can blink its own cursor instead of taking the global setting. The cursor box was placed from the font's nominal width, so on some machines it sat over the character before its own and inverted a sliver of it on each blink; the cell width is now measured from the text the browser actually draws. The host editor's suggestion lists and dropdowns move with the arrow keys.
+
 ## What was left on purpose
 
 - DUP / Field Mark keys.
@@ -339,7 +347,7 @@ Three reports against 1.1.0, shipped together. A click on a session that does no
 
 ## Where it stands
 
-Current packaged version at the end of this record: **1.1.1**.
+Current packaged version at the end of this record: **1.1.2**.
 
 The public GitHub repository is `spufidoo/vscode-3270`. The Marketplace publisher id is `spufidoo`.
 
