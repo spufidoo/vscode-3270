@@ -96,6 +96,14 @@ composer.autocomplete = "off";
 composer.autocapitalize = "off";
 composer.spellcheck = false;
 gridEl.appendChild(composer);
+// A run of text measured in place. See setFont() for why the cell width is
+// read from here rather than worked out from the font's nominal advance.
+const PROBE_CHARS = 200;
+const probeEl = document.createElement("span");
+probeEl.id = "probe";
+probeEl.setAttribute("aria-hidden", "true");
+probeEl.textContent = "M".repeat(PROBE_CHARS);
+gridEl.appendChild(probeEl);
 screenEl.appendChild(gridEl);
 document.body.appendChild(menuEl);
 document.body.appendChild(submenuEl);
@@ -804,9 +812,16 @@ function positionCursor() {
   // the two states are always distinguishable whichever way round they are.
   const underline = (cursorStyle === "underline") !== insertMode;
   const bar = Math.max(2, Math.round(cellH / 8));
-  cursorEl.style.width = `${cellW}px`;
+  // Snap the box inward to whole device pixels. A fractional edge is
+  // anti-aliased across the pixel it lands in, and through the difference
+  // blend that pixel inverts the edge of the neighbouring character too.
+  const scale = window.devicePixelRatio || 1;
+  const cellLeft = (state.cursorCol - 1) * cellW;
+  const boxLeft = Math.ceil(cellLeft * scale) / scale;
+  const boxRight = Math.floor((cellLeft + cellW) * scale) / scale;
+  cursorEl.style.width = `${Math.max(boxRight - boxLeft, 1 / scale)}px`;
   cursorEl.style.height = underline ? `${bar}px` : `${cellH}px`;
-  cursorEl.style.left = `${(state.cursorCol - 1) * cellW}px`;
+  cursorEl.style.left = `${boxLeft}px`;
   cursorEl.style.top = `${
     (state.cursorRow - 1) * cellH + (underline ? cellH - bar : 0)
   }px`;
@@ -881,6 +896,26 @@ function beep() {
   }
 }
 
+/**
+ * Apply a font size to the grid and return the width of one cell.
+ *
+ * The cursor, the mark and the rule lines are positioned by multiplying a
+ * column by this width, while the text is laid out by the browser. The two
+ * only agree if the width is what the browser really advances per character.
+ * The font's nominal advance times the size is not that: some platforms round
+ * each glyph to a whole pixel, and the difference adds up across 80 columns
+ * until the cursor sits over the character before the one it belongs to. So
+ * measure a long run of text in place and divide.
+ */
+function setFont(fontSize, ratio) {
+  const lineHeight = Math.round(fontSize * LINE_RATIO);
+  gridEl.style.font = `${fontSize}px/${lineHeight}px ${FONT_STACK}`;
+  const measured = probeEl.getBoundingClientRect().width / PROBE_CHARS;
+  // Nothing to measure while the view is hidden. Fall back to the nominal
+  // advance, and the next fit() once it is shown corrects it.
+  return measured > 0 ? measured : fontSize * ratio;
+}
+
 function fit() {
   const w = screenEl.clientWidth || 1;
   const h = screenEl.clientHeight || 1;
@@ -891,11 +926,17 @@ function fit() {
     Math.min(w / state.cols / ratio, h / state.rows / LINE_RATIO)
   );
   fontSize = Math.max(fontSize, 8);
+  let width = setFont(fontSize, ratio);
+  // The measured advance can come out wider than the nominal one, so make
+  // sure the grid still fits before it is sized.
+  while (fontSize > 8 && width * state.cols > w) {
+    fontSize -= 1;
+    width = setFont(fontSize, ratio);
+  }
   fontPx = fontSize;
-  cellW = fontSize * ratio;
+  cellW = width;
   cellH = Math.round(fontSize * LINE_RATIO);
 
-  gridEl.style.font = `${fontSize}px/${cellH}px ${FONT_STACK}`;
   gridEl.style.width = `${state.cols * cellW}px`;
   gridEl.style.height = `${state.rows * cellH}px`;
   for (const row of rowEls) {
@@ -1581,6 +1622,48 @@ function wheelPixels(delta, mode) {
   }
   return delta;
 }
+
+// The side buttons. 3 is back, 4 is forward. The editor otherwise treats a
+// press as history navigation, so the press is swallowed either way and only
+// a mapped chord reaches the session. The cursor stays where it is: these
+// are keys, not a point at a cell.
+const MOUSE_CHORDS = { 3: "mouseback", 4: "mouseforward" };
+
+window.addEventListener(
+  "mousedown",
+  (e) => {
+    const name = MOUSE_CHORDS[e.button];
+    if (!name) {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    // The host has the keyboard. An AID now would queue behind the reply.
+    if (state.lock) {
+      return;
+    }
+    const action = keymap[modifierPrefix(e) + name];
+    if (!action) {
+      return;
+    }
+    screenEl.focus();
+    runAction(action);
+  },
+  true
+);
+
+// Chromium navigates on the click that follows the press, not on the press.
+window.addEventListener(
+  "auxclick",
+  (e) => {
+    if (!MOUSE_CHORDS[e.button]) {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+  },
+  true
+);
 
 // A 3270 screen has no scrollback and fit() always sizes the grid to the
 // panel, so there is nothing to scroll. The wheel sends an AID instead, the

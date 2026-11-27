@@ -73,6 +73,19 @@ body {
   white-space: pre;
 }
 
+/* Measured by fit() to get the real width of a cell. It takes no space, is
+   never painted, and stays out of selections. */
+#probe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+  white-space: pre;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .blink {
   animation: blink 1s steps(2, start) infinite;
 }

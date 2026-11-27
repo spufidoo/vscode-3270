@@ -55,6 +55,9 @@ export function normalizeHost(raw: Partial<HostProfile>): HostProfile {
     secLevel: raw.secLevel,
     extendedColor: raw.extendedColor !== false,
     blink: raw.blink === true,
+    cursorBlink: raw.cursorBlink === "on" || raw.cursorBlink === "off"
+      ? raw.cursorBlink
+      : "",
     colors: normalizeColors(raw.colors),
     fontFamily: String(raw.fontFamily || "").trim(),
     connectMacro: String(raw.connectMacro || "").trim(),

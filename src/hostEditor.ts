@@ -109,6 +109,10 @@ export class HostEditorPanel {
           : Number(raw.secLevel),
       extendedColor: raw.extendedColor !== false,
       blink: raw.blink === true,
+      cursorBlink:
+        raw.cursorBlink === "on" || raw.cursorBlink === "off"
+          ? raw.cursorBlink
+          : "",
       colors: normalizeColors(raw.colors),
       fontFamily: String(raw.fontFamily || "").trim(),
       connectMacro: String(raw.connectMacro || "").trim(),
@@ -209,7 +213,13 @@ export class HostEditorPanel {
       <input id="f-port" type="number" min="1" max="65535" />
 
       <label for="f-psSize">Screen size</label>
-      <input id="f-psSize" type="text" list="pssizes" placeholder="rows x cols, e.g. 30x133" />
+      <!-- The datalists below only hold the choices. The popup is our own, so
+           the arrow keys behave the same here as in the Font box. -->
+      <div class="combo">
+        <input id="f-psSize" type="text" autocomplete="off" data-choices="pssizes"
+               placeholder="rows x cols, e.g. 30x133" />
+        <div class="suggest" hidden></div>
+      </div>
       <datalist id="pssizes">
         <option value="24x80">Model 2</option>
         <option value="32x80">Model 3</option>
@@ -225,7 +235,10 @@ export class HostEditorPanel {
       allowed, not just the listed models.</p>
 
       <label for="f-codePage">Code page</label>
-      <input id="f-codePage" type="text" list="codepages" />
+      <div class="combo">
+        <input id="f-codePage" type="text" autocomplete="off" data-choices="codepages" />
+        <div class="suggest" hidden></div>
+      </div>
       <datalist id="codepages">
         <option value="037">037 US / Canada</option>
         <option value="273">273 Germany / Austria</option>
@@ -280,7 +293,11 @@ export class HostEditorPanel {
     <h2>Automation</h2>
     <div class="grid">
       <label for="f-connectMacro">Logon macro</label>
-      <input id="f-connectMacro" type="text" list="macros" placeholder="None" />
+      <div class="combo">
+        <input id="f-connectMacro" type="text" autocomplete="off" data-choices="macros"
+               placeholder="None" />
+        <div class="suggest" hidden></div>
+      </div>
       <datalist id="macros"></datalist>
 
       <span class="label-spacer"></span>
@@ -348,6 +365,17 @@ export class HostEditorPanel {
 
       <span class="label-spacer"></span>
       <label class="check"><input id="f-blink" type="checkbox" /> Render the blink attribute</label>
+
+      <label for="f-cursorBlink">Cursor blink</label>
+      <select id="f-cursorBlink">
+        <option value="">Default — follow tn3270.cursor.blink</option>
+        <option value="on">On for this host</option>
+        <option value="off">Off for this host</option>
+      </select>
+
+      <span class="label-spacer"></span>
+      <p class="hint">Blinks the cursor itself. This is separate from the blink
+      attribute above, which only affects text the host marks as blinking.</p>
     </div>
 
     <div class="palette" id="palette">

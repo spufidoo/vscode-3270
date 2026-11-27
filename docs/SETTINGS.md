@@ -153,7 +153,8 @@ whichever way round they are.
 
 ### `tn3270.cursor.blink`
 
-Blink the cursor, the way a real terminal does.
+Blink the cursor, the way a real terminal does. A host profile can override
+this with its own `cursorBlink`; see [Host profile fields](#host-profile-fields).
 
 - Type: `boolean`
 - Default: `false`
@@ -355,7 +356,8 @@ for you; this is what it writes.
 | `codePage` | string | EBCDIC code page, e.g. `037` |
 | `psSize` | string | Screen size as `rowsxcols`, e.g. `24x80` or `30x133` |
 | `extendedColor` | boolean | Advertise colour capability to the host |
-| `blink` | boolean | Render the blink highlight instead of ignoring it |
+| `blink` | boolean | Render the blink highlight instead of ignoring it. This is text the host marks as blinking, not the cursor |
+| `cursorBlink` | string | `on` or `off` to blink the cursor for this host, or empty to follow `tn3270.cursor.blink` |
 | `colors` | object | Per-host palette (`background`, `black`, `blue`, `red`, `pink`, `green`, `turquoise`, `yellow`, `white`) |
 | `fontFamily` | string | Per-host font; empty follows `tn3270.fontFamily` |
 | `connectMacro` | string | Macro to run once the host draws its first screen after connecting; empty means none |

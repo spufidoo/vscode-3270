@@ -167,6 +167,7 @@ function applyHost(host, isNew) {
   el("f-tn3270e").checked = host.tn3270e !== false;
   el("f-extendedColor").checked = host.extendedColor !== false;
   el("f-blink").checked = host.blink === true;
+  el("f-cursorBlink").value = host.cursorBlink || "";
   el("f-fontFamily").value = host.fontFamily || "";
   el("f-fontFamily").placeholder = defaultFontFamily
     ? `${defaultFontFamily} (from settings)`
@@ -207,6 +208,7 @@ function collect() {
     psSize: el("f-psSize").value,
     extendedColor: el("f-extendedColor").checked,
     blink: el("f-blink").checked,
+    cursorBlink: el("f-cursorBlink").value,
     colors: currentColors(),
     fontFamily: el("f-fontFamily").value,
     connectMacro: el("f-connectMacro").value,
@@ -379,6 +381,158 @@ el("f-fontFamily").addEventListener("keydown", (e) => {
     closeFontList();
   }
 });
+
+/**
+ * Suggestion lists for the boxes that used to carry a native datalist
+ * (screen size, code page, logon macro).
+ *
+ * The choices still live in the datalist elements, which are only data now. A
+ * native datalist popup is drawn by the platform, so whether the arrow keys
+ * move through it depends on the platform. This one is drawn here and behaves
+ * the same as the Font list: ArrowDown or ArrowUp opens it and moves the
+ * highlight, Enter takes the highlighted row, Escape closes it.
+ */
+function attachChoices(input) {
+  const list = input.parentElement.querySelector(".suggest");
+  const source = el(input.dataset.choices);
+  let active = -1;
+
+  const choices = () =>
+    [...source.options].map((option) => {
+      const value = option.value;
+      const label = option.textContent.trim();
+      const text = !label
+        ? value
+        : label.startsWith(value)
+          ? label
+          : `${value} — ${label}`;
+      return { value, text };
+    });
+
+  const close = () => {
+    list.hidden = true;
+    list.textContent = "";
+    active = -1;
+  };
+
+  const pick = (value) => {
+    input.value = value;
+    close();
+    input.focus();
+  };
+
+  const highlight = (index) => {
+    const rows = [...list.children];
+    if (!rows.length) {
+      return;
+    }
+    if (active >= 0) {
+      rows[active].classList.remove("active");
+    }
+    active = (index + rows.length) % rows.length;
+    rows[active].classList.add("active");
+    rows[active].scrollIntoView({ block: "nearest" });
+  };
+
+  // `filter` narrows the rows to what has been typed. Opening with the arrow
+  // keys shows every choice, with the current value highlighted.
+  const open = (filter) => {
+    const typed = input.value.trim().toLowerCase();
+    const shown = choices().filter(
+      (c) => !filter || !typed || c.text.toLowerCase().includes(typed)
+    );
+    list.textContent = "";
+    active = -1;
+    if (!shown.length) {
+      list.hidden = true;
+      return;
+    }
+    for (const choice of shown) {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "font-option";
+      row.textContent = choice.text;
+      row.dataset.value = choice.value;
+      // mousedown, because a click would land after the box has lost focus.
+      row.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        pick(choice.value);
+      });
+      list.appendChild(row);
+    }
+    list.hidden = false;
+    if (!filter) {
+      const current = shown.findIndex((c) => c.value === input.value.trim());
+      if (current >= 0) {
+        highlight(current);
+      }
+    }
+  };
+
+  input.addEventListener("input", () => open(true));
+  input.addEventListener("click", () => {
+    if (list.hidden) {
+      open(false);
+    }
+  });
+  // Delayed, so a click on a row is not cut off by the box losing focus.
+  input.addEventListener("blur", () => setTimeout(close, 120));
+  input.addEventListener("keydown", (e) => {
+    const isOpen = !list.hidden;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      if (!isOpen) {
+        open(false);
+        if (active < 0) {
+          highlight(step > 0 ? 0 : -1);
+        }
+      } else {
+        highlight(active < 0 && step < 0 ? -1 : active + step);
+      }
+    } else if (e.key === "Enter" && isOpen && active >= 0) {
+      e.preventDefault();
+      pick(list.children[active].dataset.value);
+    } else if (e.key === "Escape" && isOpen) {
+      e.preventDefault();
+      close();
+    }
+  });
+}
+
+for (const input of document.querySelectorAll("input[data-choices]")) {
+  attachChoices(input);
+}
+
+/**
+ * The plain dropdowns. On Windows and Linux the arrow keys already change a
+ * closed select, but macOS opens its popup instead, so do it here and the
+ * keys do the same thing everywhere. Alt+Down is left alone, since that is
+ * the platform's own way of opening the popup.
+ */
+for (const select of document.querySelectorAll("select")) {
+  select.addEventListener("keydown", (e) => {
+    if (
+      (e.key !== "ArrowDown" && e.key !== "ArrowUp") ||
+      e.altKey ||
+      e.ctrlKey ||
+      e.metaKey
+    ) {
+      return;
+    }
+    e.preventDefault();
+    const step = e.key === "ArrowDown" ? 1 : -1;
+    let next = select.selectedIndex + step;
+    while (next >= 0 && next < select.options.length && select.options[next].disabled) {
+      next += step;
+    }
+    if (next < 0 || next >= select.options.length) {
+      return;
+    }
+    select.selectedIndex = next;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
 
 el("reset").addEventListener("click", () => {
   for (const key of COLOR_KEYS) {

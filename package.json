@@ -639,6 +639,16 @@
         "command": "tn3270.session.keyGuard",
         "key": "ctrl+r",
         "when": "activeWebviewPanelId == tn3270.session"
+      },
+      {
+        "command": "tn3270.session.keyGuard",
+        "key": "browserback",
+        "when": "activeWebviewPanelId == tn3270.session"
+      },
+      {
+        "command": "tn3270.session.keyGuard",
+        "key": "browserforward",
+        "when": "activeWebviewPanelId == tn3270.session"
       }
     ]
   },
